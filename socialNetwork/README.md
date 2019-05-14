@@ -5,6 +5,7 @@
 - Docker-compose
 - Python 3.5+ (with asyncio and aiohttp)
 - libssl-dev (apt-get install libssl-dev)
+- libz-dev (apt-get install libz-dev)
 - luarocks (apt-get install luarocks)
 - luasocket (luarocks install luasocket)
 
@@ -20,11 +21,17 @@ pulled from Docker Hub.
 
 ### Register users and construct social graphs
 Register users and construct social graph by running 
-`python3 scripts/init_socual_graphs.py`. This will initialize a social graph 
+`python3 scripts/init_social_graphs.py`. This will initialize a social graph 
 based on [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php),
 with 962 users and 18.8K social graph edges.
 
 ### Running HTTP workload generator
+#### Make
+```bash
+cd wrk2
+make
+```
+
 #### Compose posts
 ```bash
 cd wrk2
