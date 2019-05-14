@@ -10,3 +10,8 @@ one for cloud-edge systems running on drone swarms.
 * E-commerce site (in progress)
 * Banking System (in progress)
 * Drone coordination system (in progress)
+
+
+## Beta-testing
+
+If you are interested in joining the beta-testing group for DeathStarBench, send us an email at: <microservices-bench-L@list.cornell.edu>
