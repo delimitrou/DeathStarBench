@@ -1,0 +1,257 @@
+version: "3"
+services:
+
+  # Resolving container hostnames from host machine
+  # CAUTION: could affect host machine networking
+#  dns-social-network:
+#    image: defreitas/dns-proxy-server
+#    volumes:
+#      - /opt/dns-proxy-server/conf:/app/conf
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /etc/resolv.conf:/etc/resolv.conf
+
+  social-graph-service:
+    image: yg397/social-network-microservices
+    hostname: social-graph-service
+#    ports:
+#      - 10000:9090
+    restart: always
+    entrypoint: SocialGraphService
+
+  social-graph-mongodb:
+    image: mongo
+    hostname: social-graph-mongodb
+#    ports:
+#      - 27018:27017
+    restart: always
+
+  social-graph-redis:
+    image: redis
+    hostname: social-graph-redis
+#    ports:
+#      - 6380:6379
+    restart: always
+
+  write-home-timeline-service:
+    image: yg397/social-network-microservices
+    hostname: write-home-timeline-service
+    restart: always
+    entrypoint: WriteHomeTimelineService
+    depends_on:
+      - write-home-timeline-rabbitmq
+
+  write-home-timeline-rabbitmq:
+    image: rabbitmq
+    hostname: write-home-timeline-rabbitmq
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "WRITE-HOME-TIMELINE-RABBITMQ"
+      RABBITMQ_DEFAULT_VHOST: "/"
+#    ports:
+#      - 15672:15672
+#      - 5672:5672
+    restart: always
+
+  home-timeline-redis:
+    image: redis
+    hostname: home-timeline-redis
+#    ports:
+#      - 6381:6379
+    restart: always
+
+  compose-post-service:
+    image: yg397/social-network-microservices
+    hostname: compose-post-service
+#    ports:
+#      - 10001:9090
+    restart: always
+    entrypoint: ComposePostService
+    depends_on:
+      - write-home-timeline-rabbitmq
+
+  compose-post-redis:
+    image: redis
+    hostname: compose-post-redis
+#    ports:
+#      - 6382:6379
+    restart: always
+
+  post-storage-service:
+    image: yg397/social-network-microservices
+    hostname: post-storage-service
+    ports:
+      - 10002:9090
+    restart: always
+    entrypoint: PostStorageService
+
+  post-storage-memcached:
+    image: memcached
+    hostname: post-storage-memcached
+#    ports:
+#      - 11212:11211
+    restart: always
+
+  post-storage-mongodb:
+    image: mongo
+    hostname: post-storage-mongodb
+#    ports:
+#      - 27019:27017
+    restart: always
+
+  user-timeline-service:
+    image: yg397/social-network-microservices
+    hostname: user-timeline-service
+#    ports:
+#      - 10003:9090
+    restart: always
+    entrypoint: UserTimelineService
+
+  user-timeline-redis:
+    image: redis
+    hostname: user-timeline-redis
+#    ports:
+#      - 6383:6379
+    restart: always
+
+  user-timeline-mongodb:
+    image: mongo
+    hostname: user-timeline-mongodb
+#    ports:
+#      - 27020:27017
+    restart: always
+
+  url-shorten-service:
+    image: yg397/social-network-microservices
+    hostname: url-shorten-service
+#    ports:
+#      - 10004:9090
+    restart: always
+    entrypoint: UrlShortenService
+
+  url-shorten-memcached:
+    image: memcached
+    hostname: url-shorten-memcached
+#    ports:
+#      - 11213:11211
+    restart: always
+
+  url-shorten-mongodb:
+    image: mongo
+    hostname: url-shorten-mongodb
+#    ports:
+#      - 27021:27017
+    restart: always
+
+  user-service:
+    image: yg397/social-network-microservices
+    hostname: user-service
+#    ports:
+#      - 10005:9090
+    restart: always
+    entrypoint: UserService
+
+  user-memcached:
+    image: memcached
+    hostname: user-memcached
+#    ports:
+#      - 11214:11211
+    restart: always
+
+  user-mongodb:
+    image: mongo
+    hostname: user-mongodb
+#    ports:
+#      - 27023:27017
+    restart: always
+
+  media-service:
+    image: yg397/social-network-microservices
+    hostname: media-service
+#    ports:
+#      - 10006:9090
+    restart: always
+    entrypoint: MediaService
+
+  media-memcached:
+    image: memcached
+    hostname: media-memcached
+#    ports:
+#      - 11215:11211
+    restart: always
+
+  media-mongodb:
+    image: mongo
+    hostname: media-mongodb
+#    ports:
+#      - 27024:27017
+    restart: always
+
+  text-service:
+    image: yg397/social-network-microservices
+    hostname: text-service
+#    ports:
+#      - 10007:9090
+    restart: always
+    entrypoint: TextService
+
+  unique-id-service:
+    image: yg397/social-network-microservices
+    hostname: unique-id-service
+#    ports:
+#      - 10008:9090
+    restart: always
+    entrypoint: UniqueIdService
+
+  user-mention-service:
+    image: yg397/social-network-microservices
+    hostname: user-mention-service
+#    ports:
+#      - 10009:9090
+    restart: always
+    entrypoint: UserMentionService
+
+  home-timeline-service:
+    image: yg397/social-network-microservices
+    hostname: home-timeline-service
+#    ports:
+#      - 10010:9090
+    restart: always
+    entrypoint: HomeTimelineService
+
+  nginx-thrift:
+    image: yg397/openresty-thrift:xenial
+    hostname: nginx-thrift
+    ports:
+      - 8080:8080
+    restart: always
+    volumes:
+      - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
+      - ./nginx-web-server/pages:/usr/local/openresty/nginx/pages
+      - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
+      - ./gen-lua:/gen-lua
+
+  media-frontend:
+    image: yg397/media-frontend:xenial
+    hostname: media-frontend
+    ports:
+      - 8081:8080
+    restart: always
+    volumes:
+      - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
+      - ./media-frontend/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    hostname: jaeger
+    ports:
+#      - 5775:5775/udp
+#      - 6831:6831/udp
+#      - 6832:6832/udp
+#      - 5778:5778
+      - 16686:16686
+#      - 14268:14268
+#      - 9411:9411
+    restart: always
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+
