@@ -46,6 +46,12 @@ cd wrk2
 #### View Jaeger traces
 View Jaeger traces by accessing `http://localhost:16686`
 
+
+
+### Development Status
+
+This application is still in progress, especially its front-end design. 
+
 ### Questions and contact
 
 You are welcome to submit a pull request if you find a bug or have extended the application in an interesting way. For any questions please contact us at: <microservices-bench-L@list.cornell.edu>
