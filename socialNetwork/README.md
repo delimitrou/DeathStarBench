@@ -50,7 +50,13 @@ View Jaeger traces by accessing `http://localhost:16686`
 
 ### Development Status
 
-This application is still in progress, especially its front-end design. 
+This application is still actively being developed, so keep an eye on the repo to stay up-to-date with recent changes. 
+
+#### Planned updated
+
+* Front-end design
+* Upgraded recommender
+* Upgraded search engine 
 
 ### Questions and contact
 
