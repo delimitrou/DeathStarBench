@@ -52,7 +52,7 @@ View Jaeger traces by accessing `http://localhost:16686`
 
 This application is still actively being developed, so keep an eye on the repo to stay up-to-date with recent changes. 
 
-#### Planned updated
+#### Planned updates
 
 * Front-end design
 * Upgraded recommender
