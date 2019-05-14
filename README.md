@@ -13,7 +13,7 @@ one for cloud-edge systems running on drone swarms.
 
 ## Publications
 
-More details on the applications and a characterization of their behavior can be found at ``An Open-Source Benchmark Suite for Microservices and Their Hardware-Software Implications for Cloud and Edge Systems'', Y. Gan et al., ASPLOS 2019. 
+More details on the applications and a characterization of their behavior can be found at ["An Open-Source Benchmark Suite for Microservices and Their Hardware-Software Implications for Cloud and Edge Systems"](http://www.csl.cornell.edu/~delimitrou/papers/2019.asplos.microservices.pdf), Y. Gan et al., ASPLOS 2019. 
 
 If you use this benchmark suite in your work, we ask that you please cite the paper above. 
 
