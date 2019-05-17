@@ -68,7 +68,9 @@ cd wrk2
 #### View Jaeger traces
 View Jaeger traces by accessing `http://localhost:16686`
 
+Example of a Jaeger trace for a compose post request: 
 
+![jaeger_example](socialNet_jaeger.png)
 
 ### Development Status
 
