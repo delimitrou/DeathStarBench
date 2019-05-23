@@ -327,7 +327,7 @@ void UserTimelineHandler::ReadUserTimeline(
                 _return_posts, req_id, post_ids, writer_text_map);
           } catch (...) {
             _post_client_pool->Push(post_client_wrapper);
-            LOG(error) << "Failed to read post from post-storage-service";
+            LOG(error) << "Failed to read posts from post-storage-service";
             throw;
           }
           _post_client_pool->Push(post_client_wrapper);

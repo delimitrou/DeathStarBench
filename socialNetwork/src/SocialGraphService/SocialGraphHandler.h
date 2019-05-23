@@ -277,7 +277,7 @@ void SocialGraphHandler::Unfollow(
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "Unollow",
+      "Unfollow",
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
@@ -856,7 +856,7 @@ void SocialGraphHandler::UnfollowWithUsername(
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "FollowWithUsername",
+      "UnfollowWithUsername",
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
