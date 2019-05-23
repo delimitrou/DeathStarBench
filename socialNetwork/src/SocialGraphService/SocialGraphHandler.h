@@ -222,7 +222,7 @@ void SocialGraphHandler::Follow(
         if (!redis_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_REDIS_ERROR;
-          se.message = "Cannot connected to Redis server";
+          se.message = "Cannot connect to Redis server";
           throw se;
         }
         auto redis_client = redis_client_wrapper->GetClient();
@@ -277,7 +277,7 @@ void SocialGraphHandler::Unfollow(
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "Unollow",
+      "Unfollow",
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
@@ -328,6 +328,7 @@ void SocialGraphHandler::Unfollow(
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
           throw se;
         }
+        update_span->Finish();
         bson_destroy(update);
         bson_destroy(query);
         bson_destroy(&reply);
@@ -382,6 +383,7 @@ void SocialGraphHandler::Unfollow(
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
           throw se;
         }
+        update_span->Finish();
         bson_destroy(update);
         bson_destroy(query);
         bson_destroy(&reply);
@@ -395,7 +397,7 @@ void SocialGraphHandler::Unfollow(
         if (!redis_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_REDIS_ERROR;
-          se.message = "Cannot connected to Redis server";
+          se.message = "Cannot connect to Redis server";
           throw se;
         }
         auto redis_client = redis_client_wrapper->GetClient();
@@ -455,7 +457,7 @@ void SocialGraphHandler::GetFollowers(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -488,6 +490,7 @@ void SocialGraphHandler::GetFollowers(
       throw se;
     }
   } else {
+    redis_span->Finish();
     _redis_client_pool->Push(redis_client_wrapper);
     mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
         _mongodb_client_pool);
@@ -562,6 +565,7 @@ void SocialGraphHandler::GetFollowers(
       redis_insert_span->Finish();
       _redis_client_pool->Push(redis_client_wrapper);
     } else {
+      find_span->Finish();
       bson_destroy(query);
       mongoc_cursor_destroy(cursor);
       mongoc_collection_destroy(collection);
@@ -589,7 +593,7 @@ void SocialGraphHandler::GetFollowees(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -622,6 +626,7 @@ void SocialGraphHandler::GetFollowees(
       throw se;
     }
   } else {
+    redis_span->Finish();
     mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
         _mongodb_client_pool);
     if (!mongodb_client) {
@@ -764,6 +769,7 @@ void SocialGraphHandler::InsertUser(
   bson_destroy(new_doc);
   mongoc_collection_destroy(collection);
   mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+  span->Finish();
 }
 
 void SocialGraphHandler::FollowWithUsername(
@@ -788,7 +794,7 @@ void SocialGraphHandler::FollowWithUsername(
         if (!user_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to social-graph-service";
+          se.message = "Failed to connect to social-graph-service";
           throw se;
         }
         auto user_client = user_client_wrapper->GetClient();
@@ -810,7 +816,7 @@ void SocialGraphHandler::FollowWithUsername(
         if (!user_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to social-graph-service";
+          se.message = "Failed to connect to social-graph-service";
           throw se;
         }
         auto user_client = user_client_wrapper->GetClient();
@@ -856,7 +862,7 @@ void SocialGraphHandler::UnfollowWithUsername(
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "FollowWithUsername",
+      "UnfollowWithUsername",
       {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
@@ -866,7 +872,7 @@ void SocialGraphHandler::UnfollowWithUsername(
         if (!user_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to social-graph-service";
+          se.message = "Failed to connect to social-graph-service";
           throw se;
         }
         auto user_client = user_client_wrapper->GetClient();
@@ -888,7 +894,7 @@ void SocialGraphHandler::UnfollowWithUsername(
         if (!user_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to social-graph-service";
+          se.message = "Failed to connect to social-graph-service";
           throw se;
         }
         auto user_client = user_client_wrapper->GetClient();

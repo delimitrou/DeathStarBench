@@ -61,7 +61,7 @@ void OnReceivedWorker(const AMQP::Message &msg) {
     if (!social_graph_client_wrapper) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-      se.message = "Failed to connected to social-graph-service";
+      se.message = "Failed to connect to social-graph-service";
       throw se;
     }
     auto social_graph_client = social_graph_client_wrapper->GetClient();
@@ -87,7 +87,7 @@ void OnReceivedWorker(const AMQP::Message &msg) {
     if (!redis_client_wrapper) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_REDIS_ERROR;
-      se.message = "Cannot connected to Redis server";
+      se.message = "Cannot connect to Redis server";
       throw se;
     }
     auto redis_client = redis_client_wrapper->GetClient();

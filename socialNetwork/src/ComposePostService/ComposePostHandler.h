@@ -123,7 +123,7 @@ void ComposePostHandler::UploadCreator(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -173,7 +173,7 @@ void ComposePostHandler::UploadText(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -232,7 +232,7 @@ void ComposePostHandler::UploadMedia(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -283,7 +283,7 @@ void ComposePostHandler::UploadUniqueId(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -346,7 +346,7 @@ void ComposePostHandler::UploadUrls(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -405,7 +405,7 @@ void ComposePostHandler::UploadUserMentions(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -445,7 +445,7 @@ void ComposePostHandler::_ComposeAndUpload(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -594,7 +594,7 @@ void ComposePostHandler::_UploadPostHelper(
     if (!post_storage_client_wrapper) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-      se.message = "Failed to connected to post-storage-service";
+      se.message = "Failed to connect to post-storage-service";
       throw se;
     }
     auto post_storage_client = post_storage_client_wrapper->GetClient();
@@ -607,7 +607,7 @@ void ComposePostHandler::_UploadPostHelper(
     }
     _post_storage_client_pool->Push(post_storage_client_wrapper);
   } catch (...) {
-    LOG(error) << "Failed to connected to post-storage-service";
+    LOG(error) << "Failed to connect to post-storage-service";
     _post_storage_teptr = std::current_exception();
   }
 }
@@ -623,7 +623,7 @@ void ComposePostHandler::_UploadUserTimelineHelper(
     if (!user_timeline_client_wrapper) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-      se.message = "Failed to connected to user-timeline-service";
+      se.message = "Failed to connect to user-timeline-service";
       throw se;
     }
     auto user_timeline_client = user_timeline_client_wrapper->GetClient();
@@ -674,7 +674,7 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
     if (!rabbitmq_client_wrapper) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_RABBITMQ_CONN_ERROR;
-      se.message = "Failed to connected to home-timeline-rabbitmq";
+      se.message = "Failed to connect to home-timeline-rabbitmq";
       throw se;
     }
     auto rabbitmq_channel = rabbitmq_client_wrapper->GetChannel();
@@ -682,7 +682,7 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
     rabbitmq_channel->BasicPublish("", "write-home-timeline", msg);
     _rabbitmq_client_pool->Push(rabbitmq_client_wrapper);
   } catch (...) {
-    LOG(error) << "Failed to connected to home-timeline-rabbitmq";
+    LOG(error) << "Failed to connect to home-timeline-rabbitmq";
     _rabbitmq_teptr = std::current_exception();
   }
 }

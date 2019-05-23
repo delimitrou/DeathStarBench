@@ -627,10 +627,10 @@ void PostStorageHandler::ReadPosts(
     } catch (...) {
       LOG(warning) << "Failed to set posts to memcached";
     }
-    LOG(error) << "Return set imcomplete";
+    LOG(error) << "Return set incomplete";
     ServiceException se;
     se.errorCode = ErrorCode::SE_THRIFT_HANDLER_ERROR;
-    se.message = "Return set imcomplete";
+    se.message = "Return set incomplete";
     throw se;
   }
 
