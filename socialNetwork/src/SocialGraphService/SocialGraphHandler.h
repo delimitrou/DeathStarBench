@@ -328,6 +328,7 @@ void SocialGraphHandler::Unfollow(
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
           throw se;
         }
+        update_span->Finish();
         bson_destroy(update);
         bson_destroy(query);
         bson_destroy(&reply);
@@ -382,6 +383,7 @@ void SocialGraphHandler::Unfollow(
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
           throw se;
         }
+        update_span->Finish();
         bson_destroy(update);
         bson_destroy(query);
         bson_destroy(&reply);
@@ -488,6 +490,7 @@ void SocialGraphHandler::GetFollowers(
       throw se;
     }
   } else {
+    redis_span->Finish();
     _redis_client_pool->Push(redis_client_wrapper);
     mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
         _mongodb_client_pool);
@@ -562,6 +565,7 @@ void SocialGraphHandler::GetFollowers(
       redis_insert_span->Finish();
       _redis_client_pool->Push(redis_client_wrapper);
     } else {
+      find_span->Finish();
       bson_destroy(query);
       mongoc_cursor_destroy(cursor);
       mongoc_collection_destroy(collection);
@@ -622,6 +626,7 @@ void SocialGraphHandler::GetFollowees(
       throw se;
     }
   } else {
+    redis_span->Finish();
     mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
         _mongodb_client_pool);
     if (!mongodb_client) {
@@ -764,6 +769,7 @@ void SocialGraphHandler::InsertUser(
   bson_destroy(new_doc);
   mongoc_collection_destroy(collection);
   mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+  span->Finish();
 }
 
 void SocialGraphHandler::FollowWithUsername(

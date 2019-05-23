@@ -1006,6 +1006,7 @@ int64_t UserHandler::GetUserId(
     }
   }
 
+  span->Finish();
   return user_id;
 }
 
