@@ -126,7 +126,7 @@ void UniqueIdHandler::UploadUniqueId(
   if (!compose_post_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-    se.message = "Failed to connected to compose-post-service";
+    se.message = "Failed to connect to compose-post-service";
     throw se;
   }
   auto compose_post_client = compose_post_client_wrapper->GetClient();

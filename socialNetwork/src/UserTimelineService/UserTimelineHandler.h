@@ -163,7 +163,7 @@ void UserTimelineHandler::WriteUserTimeline(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -211,7 +211,7 @@ void UserTimelineHandler::ReadUserTimeline(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -317,7 +317,7 @@ void UserTimelineHandler::ReadUserTimeline(
         if (!post_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to post-storage-service";
+          se.message = "Failed to connect to post-storage-service";
           throw se;
         }
         std::vector<Post> _return_posts;
@@ -341,7 +341,7 @@ void UserTimelineHandler::ReadUserTimeline(
     if (!redis_client_wrapper) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_REDIS_ERROR;
-      se.message = "Cannot connected to Redis server";
+      se.message = "Cannot connect to Redis server";
       throw se;
     }
     redis_client = redis_client_wrapper->GetClient();

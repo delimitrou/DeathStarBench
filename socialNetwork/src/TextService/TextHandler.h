@@ -84,7 +84,7 @@ void TextHandler::UploadText(
         if (!url_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to compose-post-service";
+          se.message = "Failed to connect to compose-post-service";
           throw se;
         }
         std::vector<std::string> return_urls;
@@ -107,7 +107,7 @@ void TextHandler::UploadText(
         if (!user_mention_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to compose-post-service";
+          se.message = "Failed to connect to compose-post-service";
           throw se;
         }
         std::vector<std::string> urls;
@@ -156,7 +156,7 @@ void TextHandler::UploadText(
         if (!compose_post_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to compose-post-service";
+          se.message = "Failed to connect to compose-post-service";
           throw se;
         }
         auto compose_post_client = compose_post_client_wrapper->GetClient();

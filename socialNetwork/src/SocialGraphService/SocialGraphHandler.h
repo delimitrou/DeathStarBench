@@ -222,7 +222,7 @@ void SocialGraphHandler::Follow(
         if (!redis_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_REDIS_ERROR;
-          se.message = "Cannot connected to Redis server";
+          se.message = "Cannot connect to Redis server";
           throw se;
         }
         auto redis_client = redis_client_wrapper->GetClient();
@@ -395,7 +395,7 @@ void SocialGraphHandler::Unfollow(
         if (!redis_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_REDIS_ERROR;
-          se.message = "Cannot connected to Redis server";
+          se.message = "Cannot connect to Redis server";
           throw se;
         }
         auto redis_client = redis_client_wrapper->GetClient();
@@ -455,7 +455,7 @@ void SocialGraphHandler::GetFollowers(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -589,7 +589,7 @@ void SocialGraphHandler::GetFollowees(
   if (!redis_client_wrapper) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_REDIS_ERROR;
-    se.message = "Cannot connected to Redis server";
+    se.message = "Cannot connect to Redis server";
     throw se;
   }
   auto redis_client = redis_client_wrapper->GetClient();
@@ -788,7 +788,7 @@ void SocialGraphHandler::FollowWithUsername(
         if (!user_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to social-graph-service";
+          se.message = "Failed to connect to social-graph-service";
           throw se;
         }
         auto user_client = user_client_wrapper->GetClient();
@@ -810,7 +810,7 @@ void SocialGraphHandler::FollowWithUsername(
         if (!user_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to social-graph-service";
+          se.message = "Failed to connect to social-graph-service";
           throw se;
         }
         auto user_client = user_client_wrapper->GetClient();
@@ -866,7 +866,7 @@ void SocialGraphHandler::UnfollowWithUsername(
         if (!user_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to social-graph-service";
+          se.message = "Failed to connect to social-graph-service";
           throw se;
         }
         auto user_client = user_client_wrapper->GetClient();
@@ -888,7 +888,7 @@ void SocialGraphHandler::UnfollowWithUsername(
         if (!user_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-          se.message = "Failed to connected to social-graph-service";
+          se.message = "Failed to connect to social-graph-service";
           throw se;
         }
         auto user_client = user_client_wrapper->GetClient();
