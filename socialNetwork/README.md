@@ -36,7 +36,7 @@ pulled from Docker Hub.
 
 ### Register users and construct social graphs
 Register users and construct social graph by running 
-`python3 scripts/init_social_graphs.py`. This will initialize a social graph 
+`python3 scripts/init_social_graph.py`. This will initialize a social graph 
 based on [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php),
 with 962 users and 18.8K social graph edges.
 
