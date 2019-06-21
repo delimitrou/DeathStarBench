@@ -17,7 +17,7 @@
         if (start !== "" && stop !== "") {
             var params = "start=" + start + "&stop=" + stop;
             const Http = new XMLHttpRequest();
-            const url='http://ath-8.ece.cornell.edu:8080/api/home-timeline/read';
+            const url='http://' + window.location.hostname + ':8080/api/home-timeline/read';
             Http.open("GET", url + "?" + params, true);
             Http.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
@@ -29,7 +29,7 @@
                         for (var j = 0; j < post_json["media"].length; j++) {
                             var media_json = post_json["media"][j];
                             var img = document.createElement("img");
-                            img.src = "http://ath-8.ece.cornell.edu:8081/get-media/?filename=" +
+                            img.src = "http://" + window.location.hostname + ":8081/get-media/?filename=" +
                                     media_json["media_id"] + "." +
                                     media_json["media_type"];
                             document.getElementById("block").appendChild(img);
