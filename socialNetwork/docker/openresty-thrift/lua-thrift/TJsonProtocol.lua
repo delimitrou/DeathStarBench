@@ -23,14 +23,13 @@ local libluabpack = require 'libluabpack'
 local libluabitwise = require 'libluabitwise'
 local liblualongnumber = require "liblualongnumber"
 
-local TType = Thrift[1]
-local __TObject = Thrift[3]
-local TException = Thrift[4]
-local TProtocolException = TProtocol[1]
-local TProtocolBase = TProtocol[2]
-local TProtocolFactory = TProtocol[3]
-local ttype = Thrift[8]
-local terror = Thrift[9]
+local TType = Thrift.TType
+local __TObject = Thrift.__TObject
+local TProtocolException = TProtocol.TProtocolException
+local TProtocolBase = TProtocol.TProtocolBase
+local TProtocolFactory = TProtocol.TProtocolFactory
+local ttype = Thrift.ttype
+local terror = Thrift.terror
 
 local TJSONProtocol = __TObject.new(TProtocolBase, {
   __type = 'TJSONProtocol',
@@ -92,9 +91,9 @@ local EscapeCharVals = {
 
 local JSONCharTable = {
   --0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-  0,  0,  0,  0,  0,  0,  0,  0, 98,116,110,  0,102,114,  0,  0,
-  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-  1,  1,34,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+    0,  0,  0,  0,  0,  0,  0,  0, 98,116,110,  0,102,114,  0,  0,
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    1,  1,34,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
 }
 
 -- character table string

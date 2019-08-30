@@ -2,13 +2,13 @@
 ----Author: xiajun
 ----Date: 20151120
 ----
-function ttype(obj)
+local function ttype(obj)
     if type(obj) == 'table' and obj.__type and type(obj.__type) == 'string' then
         return obj.__type
     end
     return type(obj)
 end
-function __obj_index(self, key)
+local function __obj_index(self, key)
     local obj = rawget(self, key)
     if obj ~=nil then
         return obj
@@ -19,6 +19,7 @@ function __obj_index(self, key)
     end
     return nil
 end
+
 local Object = {
     __type = 'Object',
     __mt = {

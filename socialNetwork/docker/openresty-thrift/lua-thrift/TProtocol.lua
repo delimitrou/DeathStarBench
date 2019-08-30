@@ -18,9 +18,10 @@
 --
 
 local Thrift = require 'Thrift'
-local TType = Thrift[1]
-local __TObject = Thrift[3]
-local TException = Thrift[4]
+local TType = Thrift.TType
+local __TObject = Thrift.__TObject
+local TException = Thrift.TException
+local ttype = Thrift.ttype
 
 local TProtocolException = TException:new {
   UNKNOWN          = 0,
@@ -164,4 +165,8 @@ local TProtocolFactory = __TObject:new{
 }
 function TProtocolFactory:getProtocol(trans) end
 
-return {TProtocolException, TProtocolBase, TProtocolFactory}
+return {
+  TProtocolException=TProtocolException,
+  TProtocolBase=TProtocolBase,
+  TProtocolFactory=TProtocolFactory
+}

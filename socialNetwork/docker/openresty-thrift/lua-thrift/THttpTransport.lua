@@ -17,11 +17,14 @@
 -- under the License.
 --
 
+local Thrift = require 'Thrift'
 local TTransport = require 'TTransport'
 local TProtocol = require 'TProtocol'
-local TProtocolException = TProtocol[2]
-local TTransportBase = TTransport[2]
-local TTransportFactoryBase = TTransport[3]
+local TProtocolException = TProtocol.TProtocolException
+local TTransportBase = TTransport.TTransportBase
+local TTransportFactoryBase = TTransport.TTransportFactoryBase
+local ttype = Thrift.ttype
+local terror = Thrift.terror
 
 local THttpTransport = TTransportBase:new{
   __type = 'THttpTransport',

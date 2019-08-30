@@ -18,8 +18,10 @@
 --
 
 local TTransport = require 'TTransport'
-local TTransportException = TTransport[1]
-local TTransportBase = TTransport[2]
+local Thrift = require 'Thrift'
+local TTransportException = TTransport.TTransportException
+local TTransportBase = TTransport.TTransportBase
+local terror = Thrift.terror
 
 local TMemoryBuffer = TTransportBase:new{
   __type = 'TMemoryBuffer',

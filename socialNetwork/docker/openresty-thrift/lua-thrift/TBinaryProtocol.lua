@@ -21,13 +21,13 @@ local TProtocol = require('TProtocol')
 local libluabpack = require('libluabpack')
 local libluabitwise = require('libluabitwise')
 local Thrift = require 'Thrift'
-local TType = Thrift[1]
-local __TObject = Thrift[3]
-local ttype = Thrift[8]
-local terror = Thrift[9]
-local TProtocolException = TProtocol[1]
-local TProtocolBase = TProtocol[2]
-local TProtocolFactory = TProtocol[3]
+local TType = Thrift.TType
+local __TObject = Thrift.__TObject
+local ttype = Thrift.ttype
+local terror = Thrift.terror
+local TProtocolException = TProtocol.TProtocolException
+local TProtocolBase = TProtocol.TProtocolBase
+local TProtocolFactory = TProtocol.TProtocolFactory
 
 
 local TBinaryProtocol = __TObject.new(TProtocolBase, {

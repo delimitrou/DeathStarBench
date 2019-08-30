@@ -22,15 +22,13 @@ local libluabpack = require 'libluabpack'
 local libluabitwise = require 'libluabitwise'
 local liblualongnumber = require 'liblualongnumber'
 local Thrift = require 'Thrift'
-local TType = Thrift[1]
-local __TObject = Thrift[3]
-local TException = Thrift[4]
-local ttype = Thrift[8]
-local terror = Thrift[9]
-local ttable_size = Thrift[10]
-local TProtocolException = TProtocol[1]
-local TProtocolBase = TProtocol[2]
-local TProtocolFactory = TProtocol[3]
+local TType = Thrift.TType
+local __TObject = Thrift.__TObject
+local ttype = Thrift.ttype
+local terror = Thrift.terror
+local TProtocolException = TProtocol.TProtocolException
+local TProtocolBase = TProtocol.TProtocolBase
+local TProtocolFactory = TProtocol.TProtocolFactory
 
 
 local TCompactProtocol = __TObject.new(TProtocolBase, {
