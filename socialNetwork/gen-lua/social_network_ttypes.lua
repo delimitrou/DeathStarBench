@@ -6,9 +6,9 @@
 --
 
 local Thrift = require 'Thrift'
-local TType = Thrift[1]
-local __TObject = Thrift[3]
-local TException = Thrift[4]
+local TType = Thrift.TType
+local __TObject = Thrift.__TObject
+local TException = Thrift.TException
 
 local ErrorCode = {
   SE_CONNPOOL_TIMEOUT = 0,
@@ -524,5 +524,14 @@ function Post:write(oprot)
   oprot:writeStructEnd()
 end
 
-return {ErrorCode, PostType, User, ServiceException, Media, Url,
-        UserMention, Creator, Post}
+return {
+  ErrorCode=ErrorCode,
+  PostType=PostType,
+  User=User,
+  ServiceException=ServiceException,
+  Media=Media,
+  Url=Url,
+  UserMention=UserMention,
+  Creator=Creator,
+  Post=Post
+}

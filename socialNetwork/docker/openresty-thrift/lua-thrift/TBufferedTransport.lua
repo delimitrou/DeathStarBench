@@ -18,12 +18,12 @@
 --
 
 local TTransport = require 'TTransport'
-local TTransportException = TTransport[1]
-local TTransportBase = TTransport[2]
-local TTransportFactoryBase = TTransport[3]
+local TTransportException = TTransport.TTransportException
+local TTransportBase = TTransport.TTransportBase
+local TTransportFactoryBase = TTransport.TTransportFactoryBase
 local Thrift = require 'Thrift'
-local ttype = Thrift[8]
-local terror = Thrift[9]
+local ttype = Thrift.ttype
+local terror = Thrift.terror
 
 local TBufferedTransport = TTransportBase:new{
   __type = 'TBufferedTransport',

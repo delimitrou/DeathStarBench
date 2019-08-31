@@ -37,20 +37,13 @@ end
 --设置连接池的大小
 --Maxtotal 连接池大小
 --
-function GenericObjectPool:setMaxSize(maxTotal)
+function GenericObjectPool:setMaxTotal(maxTotal)
   self.maxTotal = maxTotal
 end
-
-function GenericObjectPool:setMaxIdleTime(maxIdleTime)
-    self.maxIdleTime = maxIdleTime
-end
-
 function GenericObjectPool:clear()
 
 end
-
 function GenericObjectPool:remove()
 
 end
-
 return GenericObjectPool

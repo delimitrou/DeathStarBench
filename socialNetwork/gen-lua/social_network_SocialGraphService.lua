@@ -6,16 +6,16 @@
 --
 
 local Thrift = require 'Thrift'
-local TType = Thrift[1]
-local TMessageType = Thrift[2]
-local __TObject = Thrift[3]
-local TApplicationException = Thrift[5]
-local __TClient = Thrift[6]
-local __TProcessor = Thrift[7]
-local ttype = Thrift[8]
-local ttable_size = Thrift[10]
+local TType = Thrift.TType
+local TMessageType = Thrift.TMessageType
+local __TObject = Thrift.__TObject
+local TApplicationException = Thrift.TApplicationException
+local __TClient = Thrift.__TClient
+local __TProcessor = Thrift.__TProcessor
+local ttype = Thrift.ttype
+local ttable_size = Thrift.ttable_size
 local social_network_ttypes = require 'social_network_ttypes'
-local ServiceException = social_network_ttypes[4]
+local ServiceException = social_network_ttypes.ServiceException
 
 
 -- HELPER FUNCTIONS AND STRUCTURES

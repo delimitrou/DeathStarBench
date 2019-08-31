@@ -21,11 +21,11 @@ local TTransport = require 'TTransport'
 local libluabpack = require 'libluabpack'
 local TProtocol = require 'TProtocol'
 local Thrift = require 'Thrift'
-local TProtocolException = TProtocol[2]
-local TTransportBase = TTransport[2]
-local TTransportFactoryBase = TTransport[3]
-local ttype = Thrift[8]
-local terror = Thrift[9]
+local TProtocolException = TProtocol.TProtocolException
+local TTransportBase = TTransport.TTransportBase
+local TTransportFactoryBase = TTransport.TTransportFactoryBase
+local ttype = Thrift.ttype
+local terror = Thrift.terror
 
 
 local TFramedTransport = TTransportBase:new{
