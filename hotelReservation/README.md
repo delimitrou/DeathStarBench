@@ -1,6 +1,6 @@
 # Hotel Reservation
 
-A hotel reservation microservice, built with Go and gRPC, based on https://github.com/harlow/go-micro-services.
+The application implements a hotel reservation service, build with Go and gRPC, and starting from the open-source project https://github.com/harlow/go-micro-services. The initial project is extended in several ways, including adding back-end in-memory and persistent databases, adding a recommender system for obtaining hotel recommendations, and adding the functionality to place a hotel reservation. 
 
 <!-- ## Application Structure -->
 
