@@ -1,0 +1,6 @@
+ARG RESTY_IMAGE_BASE="ubuntu"
+ARG RESTY_IMAGE_TAG="xenial"
+
+FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
+
+RUN apt-get update

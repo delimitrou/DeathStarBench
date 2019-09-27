@@ -1,0 +1,255 @@
+version: "3"
+services:
+  #   Enables resolving container hostnames from host machine
+  #  dns-media:
+  #    image: defreitas/dns-proxy-server
+  #    volumes:
+  #      - /opt/dns-proxy-server/conf:/app/conf
+  #      - /var/run/docker.sock:/var/run/docker.sock
+  #      - /etc/resolv.conf:/etc/resolv.conf
+
+  #  unique-id-service:
+  #    image: yg397/media-microservices
+  #    hostname: unique-id-service
+  #    ports:
+  #      - 10001:9090
+  #    restart: always
+  #    entrypoint: UniqueIdService
+  #
+  #  movie-id-service:
+  #    image: yg397/media-microservices
+  #    hostname: movie-id-service
+  #    ports:
+  #      - 10002:9090
+  #    restart: always
+  #    entrypoint: MovieIdService
+  #
+  #  movie-id-mongodb:
+  #    image: mongo
+  #    hostname: movie-id-mongodb
+  #    ports:
+  #      - 27018:27017
+  #    restart: always
+  #
+  #  movie-id-memcached:
+  #    image: memcached
+  #    hostname: movie-id-memcached
+  #    ports:
+  #      - 11212:11211
+  #    restart: always
+  #
+  #  text-service:
+  #    image: yg397/media-microservices
+  #    hostname: text-service
+  #    ports:
+  #      - 10003:9090
+  #    restart: always
+  #    entrypoint: TextService
+  #
+  #  rating-service:
+  #    image: yg397/media-microservices
+  #    hostname: rating-service
+  #    ports:
+  #      - 10004:9090
+  #    restart: always
+  #    entrypoint: RatingService
+
+  user-service:
+    image: yg397/media-microservices
+    hostname: user-service
+    ports:
+      - 10005:9090
+    restart: always
+    entrypoint: UserService
+
+  user-mongodb-config:
+    image: mongo
+    hostname: user-mongodb-config
+    restart: always
+    volumes:
+      - ./config/mongodb/user:/scripts
+    command: mongod --port 27017 --configsvr --replSet user-mongodb-config --noprealloc --smallfiles --oplogSize 16 --bind_ip_all
+
+  user-mongodb-shard-1_1:
+    image: mongo
+    hostname: user-mongodb-shard-1_1
+    restart: always
+    volumes:
+      - ./config/mongodb/user:/scripts
+    command: mongod --port 27017 --shardsvr --replSet user-mongodb-shard-1 --smallfiles --oplogSize 16 --bind_ip_all
+
+  user-mongodb-shard-1_2:
+    image: mongo
+    hostname: user-mongodb-shard-1_2
+    restart: always
+    volumes:
+      - ./config/mongodb/user:/scripts
+    command: mongod --port 27017 --shardsvr --replSet user-mongodb-shard-1 --smallfiles --oplogSize 16 --bind_ip_all
+
+
+  user-mongodb-shard-2_1:
+    image: mongo
+    hostname: user-mongodb-shard-2_1
+    restart: always
+    volumes:
+      - ./config/mongodb/user:/scripts
+    command: mongod --port 27017 --shardsvr --replSet user-mongodb-shard-2 --smallfiles --oplogSize 16 --bind_ip_all
+
+  user-mongodb-shard-2_2:
+    image: mongo
+    hostname: user-mongodb-shard-2_2
+    restart: always
+    volumes:
+      - ./config/mongodb/user:/scripts
+    command: mongod --port 27017 --shardsvr --replSet user-mongodb-shard-2 --smallfiles --oplogSize 16 --bind_ip_all
+
+
+  user-mongodb-shard-3_1:
+    image: mongo
+    hostname: user-mongodb-shard-3_1
+    restart: always
+    volumes:
+      - ./config/mongodb/user:/scripts
+    command: mongod --port 27017 --shardsvr --replSet user-mongodb-shard-3 --smallfiles --oplogSize 16 --bind_ip_all
+
+  user-mongodb-shard-3_2:
+    image: mongo
+    hostname: user-mongodb-shard-3_2
+    restart: always
+    volumes:
+      - ./config/mongodb/user:/scripts
+    command: mongod --port 27017 --shardsvr --replSet user-mongodb-shard-3 --smallfiles --oplogSize 16 --bind_ip_all
+
+
+  user-mongodb-router:
+    image: mongo
+    hostname: user-mongodb-router-1
+    restart: always
+    volumes:
+      - ./config/mongodb/user:/scripts
+    depends_on:
+      - user-mongodb-config
+      - user-mongodb-shard-1_1
+      - user-mongodb-shard-1_2
+      - user-mongodb-shard-2_1
+      - user-mongodb-shard-2_2
+      - user-mongodb-shard-3_1
+      - user-mongodb-shard-3_2
+    ports:
+      - 27030:27017
+    command: mongos --port 27017 --configdb user-mongodb-config/user-mongodb-config:27017 --bind_ip_all
+
+  #  user-memcached:
+  #    image: memcached
+  #    hostname: user-memcached
+  #    ports:
+  #      - 11213:11211
+  #    restart: always
+  #
+  #  compose-review-service:
+  #    image: yg397/media-microservices
+  #    hostname: compose-review-service
+  #    ports:
+  #      - 10006:9090
+  #    restart: always
+  #    entrypoint: ComposeReviewService
+  #
+  #  compose-review-memcached:
+  #    image: memcached
+  #    hostname: compose-review-memcached
+  #    ports:
+  #      - 11214:11211
+  #    restart: always
+  #
+  #  review-storage-service:
+  #    image: yg397/media-microservices
+  #    hostname: review-storage-service
+  #    ports:
+  #      - 10007:9090
+  #    restart: always
+  #    entrypoint: ReviewStorageService
+  #
+  #  review-storage-mongodb:
+  #    image: mongo
+  #    hostname: review-storage-mongodb
+  #    ports:
+  #      - 27020:27017
+  #    restart: always
+  #
+  #  review-storage-memcached:
+  #    image: memcached
+  #    hostname: review-storage-memcached
+  #    ports:
+  #      - 11215:11211
+  #    restart: always
+  #
+  #  user-review-service:
+  #    image: yg397/media-microservices
+  #    hostname: user-review-service
+  #    ports:
+  #      - 10008:9090
+  #    restart: always
+  #    entrypoint: UserReviewService
+  #
+  #  user-review-mongodb:
+  #    image: mongo
+  #    hostname: user-review-mongodb
+  #    ports:
+  #      - 27021:27017
+  #    restart: always
+  #
+  #  user-review-memcached:
+  #    image: memcached
+  #    hostname: user-review-memcached
+  #    ports:
+  #      - 11216:11211
+  #    restart: always
+  #
+  #  movie-review-service:
+  #    image: yg397/media-microservices
+  #    hostname: movie-review-service
+  #    ports:
+  #      - 10009:9090
+  #    restart: always
+  #    entrypoint: MovieReviewService
+  #
+  #  movie-review-mongodb:
+  #    image: mongo
+  #    hostname: movie-review-mongodb
+  #    ports:
+  #      - 27022:27017
+  #    restart: always
+  #
+  #  movie-review-memcached:
+  #    image: memcached
+  #    hostname: movie-review-memcached
+  #    ports:
+  #      - 11217:11211
+  #    restart: always
+  #
+  nginx-thrift:
+    image: yg397/openresty-thrift:xenial
+    hostname: nginx-thrift
+    ports:
+      - 8080:8080
+    restart: always
+    volumes:
+      - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
+      - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
+      - ./gen-lua:/gen-lua
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    hostname: jaeger
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 9411:9411
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+
