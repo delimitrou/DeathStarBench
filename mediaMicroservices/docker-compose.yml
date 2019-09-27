@@ -1,0 +1,257 @@
+version: "3"
+services:
+#   Enables resolving container hostnames from host machine
+  dns-media:
+    image: defreitas/dns-proxy-server
+    volumes:
+      - /opt/dns-proxy-server/conf:/app/conf
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/resolv.conf:/etc/resolv.conf
+
+  unique-id-service:
+    image: yg397/media-microservices
+    hostname: unique-id-service
+#    ports:
+#      - 10001:9090
+    restart: always
+    entrypoint: UniqueIdService
+
+  movie-id-service:
+    image: yg397/media-microservices
+    hostname: movie-id-service
+#    ports:
+#      - 10002:9090
+    restart: always
+    entrypoint: MovieIdService
+
+  movie-id-mongodb:
+    image: mongo
+    hostname: movie-id-mongodb
+#    ports:
+#      - 27018:27017
+    restart: always
+
+  movie-id-memcached:
+    image: memcached
+    hostname: movie-id-memcached
+#    ports:
+#      - 11212:11211
+    restart: always
+
+  text-service:
+    image: yg397/media-microservices
+    hostname: text-service
+#    ports:
+#      - 10003:9090
+    restart: always
+    entrypoint: TextService
+
+  rating-service:
+    image: yg397/media-microservices
+    hostname: rating-service
+#    ports:
+#      - 10004:9090
+    restart: always
+    entrypoint: RatingService
+
+  rating-redis:
+    image: redis
+    hostname: rating-redis
+#    ports:
+#      - 6382:6379
+    restart: always
+
+  user-service:
+    image: yg397/media-microservices
+    hostname: user-service
+#    ports:
+#      - 10005:9090
+    restart: always
+    entrypoint: UserService
+
+  user-mongodb:
+    image: mongo
+    hostname: user-mongodb
+#    ports:
+#      - 27019:27017
+    restart: always
+
+  user-memcached:
+    image: memcached
+    hostname: user-memcached
+#    ports:
+#      - 11213:11211
+    restart: always
+
+  compose-review-service:
+    image: yg397/media-microservices
+    hostname: compose-review-service
+#    ports:
+#      - 10006:9090
+    restart: always
+    entrypoint: ComposeReviewService
+
+  compose-review-memcached:
+    image: memcached
+    hostname: compose-review-memcached
+#    ports:
+#      - 11214:11211
+    restart: always
+
+  review-storage-service:
+    image: yg397/media-microservices
+    hostname: review-storage-service
+#    ports:
+#      - 10007:9090
+    restart: always
+    entrypoint: ReviewStorageService
+
+  review-storage-mongodb:
+    image: mongo
+    hostname: review-storage-mongodb
+#    ports:
+#      - 27020:27017
+    restart: always
+
+  review-storage-memcached:
+    image: memcached
+    hostname: review-storage-memcached
+#    ports:
+#      - 11215:11211
+    restart: always
+
+  user-review-service:
+    image: yg397/media-microservices
+    hostname: user-review-service
+#    ports:
+#      - 10008:9090
+    restart: always
+    entrypoint: UserReviewService
+
+  user-review-mongodb:
+    image: mongo
+    hostname: user-review-mongodb
+#    ports:
+#      - 27021:27017
+    restart: always
+
+  user-review-redis:
+    image: redis
+    hostname: user-review-redis
+#    ports:
+#      - 6381:6379
+    restart: always
+
+  movie-review-service:
+    image: yg397/media-microservices
+    hostname: movie-review-service
+#    ports:
+#      - 10009:9090
+    restart: always
+    entrypoint: MovieReviewService
+
+  movie-review-mongodb:
+    image: mongo
+    hostname: movie-review-mongodb
+    ports:
+      - 27022:27017
+    restart: always
+
+  movie-review-redis:
+    image: redis
+    hostname: movie-review-redis
+#    ports:
+#      - 6380:6379
+    restart: always
+
+  nginx-web-server:
+    image: yg397/openresty-thrift:xenial
+    hostname: nginx-thrift
+    ports:
+      - 8080:8080
+    restart: always
+    volumes:
+      - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
+      - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
+      - ./gen-lua:/gen-lua
+
+  cast-info-service:
+    image: yg397/media-microservices
+    hostname: cast-info-service
+#    ports:
+#      - 10010:9090
+    restart: always
+    entrypoint: CastInfoService
+
+  cast-info-mongodb:
+    image: mongo
+    hostname: cast-info-mongodb
+#    ports:
+#      - 27024:27017
+    restart: always
+
+  cast-info-memcached:
+    image: memcached
+    hostname: cast-info-memcached
+#    ports:
+#      - 11219:11211
+    restart: always
+
+  plot-service:
+    image: yg397/media-microservices
+    hostname: plot-service
+#    ports:
+#      - 10011:9090
+    restart: always
+    entrypoint: PlotService
+
+  plot-mongodb:
+    image: mongo
+    hostname: plot-mongodb
+#    ports:
+#      - 27025:27017
+    restart: always
+
+  plot-memcached:
+    image: memcached
+    hostname: plot-memcached
+#    ports:
+#      - 11220:11211
+    restart: always
+
+  movie-info-service:
+    image: yg397/media-microservices
+    hostname: movie-info-service
+#    ports:
+#      - 10012:9090
+    restart: always
+    entrypoint: MovieInfoService
+
+  movie-info-mongodb:
+    image: mongo
+    hostname: movie-info-mongodb
+#    ports:
+#      - 27026:27017
+    restart: always
+
+  movie-info-memcached:
+    image: memcached
+    hostname: movie-info-memcached
+#    ports:
+#      - 11221:11211
+    restart: always
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    hostname: jaeger
+    ports:
+#      - 5775:5775/udp
+#      - 6831:6831/udp
+#      - 6832:6832/udp
+#      - 5778:5778
+      - 16686:16686
+#      - 14268:14268
+#      - 9411:9411
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
