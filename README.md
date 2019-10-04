@@ -5,7 +5,7 @@ Open-source benchmark suite for cloud microservices. DeathStarBench includes fiv
 ## End-to-end Services <img src="microservices_bundle4.png" alt="suite-icon" width="40"/>
 
 * Social Network (released)
-* Media Service (in progress)
+* Media Service (released)
 * Hotel Reservation (released)
 * E-commerce site (in progress)
 * Banking System (in progress)
