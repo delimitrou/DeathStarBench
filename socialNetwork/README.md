@@ -31,12 +31,15 @@ Supported actions:
   `16686` for Jaeger.
 
 ### Start docker containers
+
+Kill Previous dockers: `docker rm -f $(docker ps -aq)`
+
 Start docker containers by running `docker-compose up -d`. All images will be 
 pulled from Docker Hub.
 
 ### Register users and construct social graphs
 Register users and construct social graph by running 
-`python3 scripts/init_social_graph.py`. This will initialize a social graph 
+`python3.6 scripts/init_social_graph.py`. This will initialize a social graph 
 based on [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php),
 with 962 users and 18.8K social graph edges.
 
@@ -50,19 +53,19 @@ make
 #### Compose posts
 ```bash
 cd wrk2
-./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/social-network/compose-post.lua http://localhost:8080/wrk2-api/post/compose -R <reqs-per-sec>
+./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/social-network/compose-post.lua http://localhost:8082/wrk2-api/post/compose -R <reqs-per-sec>
 ```
 
 #### Read home timelines
 ```bash
 cd wrk2
-./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/social-network/read-home-timeline.lua http://localhost:8080/wrk2-api/home-timeline/read -R <reqs-per-sec>
+./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/social-network/read-home-timeline.lua http://localhost:8082/wrk2-api/home-timeline/read -R <reqs-per-sec>
 ```
 
 #### Read user timelines
 ```bash
 cd wrk2
-./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/social-network/read-user-timeline.lua http://localhost:8080/wrk2-api/user-timeline/read -R <reqs-per-sec>
+./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/social-network/read-user-timeline.lua http://localhost:8082/wrk2-api/user-timeline/read -R <reqs-per-sec>
 ```
 
 #### View Jaeger traces

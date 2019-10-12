@@ -22,12 +22,15 @@
   `16686` for Jaeger.
 
 ### Start docker containers
+
+Kill Previous dockers: `docker rm -f $(docker ps -aq)`
+
 Start docker containers by running `docker-compose up -d`. All images will be 
 pulled from Docker Hub.
 
 ### Register users and movie information
 ```
-python3 scripts/write_movie_info.py && scripts//register_users.sh
+python3.6 scripts/write_movie_info.py && scripts//register_users.sh
 ```
 
 ### Running HTTP workload generator
@@ -40,7 +43,7 @@ make
 #### Compose reviews
 ```bash
 cd wrk2
-./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/media-microservices/compose-review.lua http://localhost:8080/wrk2-api/review/compose -R <reqs-per-sec>
+./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/media-microservices/compose-review.lua http://localhost:8082/wrk2-api/review/compose -R <reqs-per-sec>
 ```
 
 #### View Jaeger traces
