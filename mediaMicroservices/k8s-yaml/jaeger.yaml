@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: jaeger
+  name: jaeger-out
   labels:
     death-star-project: media-microsvc
     app-name: jaeger
@@ -11,6 +11,34 @@ spec:
   ports:
   - port: 16686
     targetPort: 16686
+  selector:
+    death-star-project: media-microsvc
+    app-name: jaeger
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  labels:
+    death-star-project: media-microsvc
+    app-name: jaeger
+spec:
+  ports:
+  - port: 5775
+    name: udp1
+    protocol: UDP
+  - port: 5778
+    name: tcp1
+  - port: 6831
+    name: udp2
+    protocol: UDP
+  - port: 6832
+    name: udp3
+    protocol: UDP
+  - port: 14250
+    name: tcp2
+  - port: 14268
+    name: tcp3
   selector:
     death-star-project: media-microsvc
     app-name: jaeger
