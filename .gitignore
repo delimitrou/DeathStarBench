@@ -1,5 +1,3 @@
 *.o
 
 tools/
-init_social_graph.py
-mediaMicroservices/scripts

@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
   with open(args.cast_filename, 'r') as cast_file:
     raw_casts = json.load(cast_file)
-  addr = "http://127.0.0.1:8082"
+  addr = "http://127.0.0.1:8080"
   loop = asyncio.get_event_loop()
   future = asyncio.ensure_future(write_cast_info(addr, raw_casts))
   loop.run_until_complete(future)

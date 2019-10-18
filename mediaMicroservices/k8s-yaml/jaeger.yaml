@@ -1,0 +1,47 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  labels:
+    death-star-project: media-microsvc
+    app-name: jaeger
+spec:
+  type: NodePort
+  ports:
+  - port: 16686
+    targetPort: 16686
+  selector:
+    death-star-project: media-microsvc
+    app-name: jaeger
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  labels:
+    death-star-project: media-microsvc
+    app-name: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app-name: jaeger
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app-name: jaeger
+      name: jaeger
+    spec:
+      containers:
+      - name: jaeger
+        image: jaegertracing/all-in-one:latest
+        env:
+        - name: COLLECTOR_ZIPKIN_HTTP_PORT
+          value: "9411"
+        ports: 
+        - containerPort: 16686
+      restartPolicy: Always
+      
