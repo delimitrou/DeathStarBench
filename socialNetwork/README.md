@@ -85,4 +85,3 @@ This application is still actively being developed, so keep an eye on the repo t
 ### Questions and contact
 
 You are welcome to submit a pull request if you find a bug or have extended the application in an interesting way. For any questions please contact us at: <microservices-bench-L@list.cornell.edu>
-

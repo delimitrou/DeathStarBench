@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-web-server
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app-name: nginx-web-server
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+  selector:
+    death-star-project: media-microsvc
+    app-name: nginx-web-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-web-server
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app-name: nginx-web-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app-name: nginx-web-server
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app-name: nginx-web-server
+      name: nginx-web-server
+    spec:
+      containers:
+      - name: nginx-web-server
+        image: yg397/openresty-thrift:xenial
+        volumeMounts:
+        - mountPath: /usr/local/openresty/nginx/lua-scripts
+          name: lua-scripts
+        - mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+          name: nginx-conf
+        - mountPath: /usr/local/openresty/nginx/jaeger-config.json
+          name: jaeger-config-json
+        - mountPath: /gen-lua
+          name: gen-lua
+      restartPolicy: Always
+      volumes:
+      - name: lua-scripts
+        hostPath: 
+          path: /root/DeathStarBench/mediaMicroservices/nginx-web-server/lua-scripts-k8s
+          type: Directory
+      - name: nginx-conf
+        hostPath: 
+          path: /root/DeathStarBench/mediaMicroservices/nginx-web-server/conf/nginx-k8s.conf
+          type: File
+      - name: jaeger-config-json
+        hostPath: 
+          path: /root/DeathStarBench/mediaMicroservices/nginx-web-server/jaeger-config.json
+          type: File
+      - name: gen-lua
+        hostPath: 
+          path: /root/DeathStarBench/mediaMicroservices/gen-lua
+          type: Directory

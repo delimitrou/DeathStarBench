@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rating-redis
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app-name: rating-redis
+spec:
+  ports:
+  - port: 6379
+  selector:
+    death-star-project: media-microsvc
+    app-name: rating-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rating-redis
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app-name: rating-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app-name: rating-redis
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app-name: rating-redis
+      name: rating-redis
+    spec:
+      containers:
+      - name: rating-redis
+        image: redis
+      restartPolicy: Always

@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plot-mongodb
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app-name: plot-mongodb
+spec:
+  ports:
+  - port: 27017
+  selector:
+    death-star-project: media-microsvc
+    app-name: plot-mongodb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plot-mongodb
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app-name: plot-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app-name: plot-mongodb
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app-name: plot-mongodb
+      name: plot-mongodb
+    spec:
+      containers:
+      - name: plot-mongodb
+        image: mongo
+      restartPolicy: Always

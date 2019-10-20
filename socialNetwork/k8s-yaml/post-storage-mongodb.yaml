@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-storage-mongodb
+  labels:
+    death-star-project: social-network
+    app-name: post-storage-mongodb
+  namespace: social-network
+spec:
+  ports:
+  - port: 27017
+  selector:
+    death-star-project: social-network
+    app-name: post-storage-mongodb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post-storage-mongodb
+  labels:
+    death-star-project: social-network
+    app-name: post-storage-mongodb
+  namespace: social-network
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: social-network
+      app-name: post-storage-mongodb
+  template:
+    metadata:
+      labels: 
+        death-star-project: social-network
+        app-name: post-storage-mongodb
+      name: post-storage-mongodb
+    spec:
+      containers:
+      - name: post-storage-mongodb
+        image: mongo
+      restartPolicy: Always
