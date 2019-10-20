@@ -33,7 +33,7 @@ function _M.WriteCastInfo()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
-  local client = GenericObjectPool:connection(CastInfoServiceClient, "cast-info-service.default.svc.cluster.local", 9090)
+  local client = GenericObjectPool:connection(CastInfoServiceClient, "cast-info-service.media-microsvc.svc.cluster.local", 9090)
   client:WriteCastInfo(req_id, cast_info["cast_info_id"], cast_info["name"],
       cast_info["gender"], cast_info["intro"],  carrier)
   GenericObjectPool:returnConnection(client)

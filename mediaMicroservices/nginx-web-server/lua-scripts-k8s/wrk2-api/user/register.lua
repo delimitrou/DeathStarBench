@@ -28,7 +28,7 @@ function _M.RegisterUser()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
-  local client = GenericObjectPool:connection(UserServiceClient, "user-service.default.svc.cluster.local", 9090)
+  local client = GenericObjectPool:connection(UserServiceClient, "user-service.media-microsvc.svc.cluster.local", 9090)
 
   client:RegisterUser(req_id, post.first_name, post.last_name,
       post.username, post.password, carrier)

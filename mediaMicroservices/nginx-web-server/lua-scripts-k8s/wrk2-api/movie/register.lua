@@ -27,7 +27,7 @@ function _M.RegisterMovie()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
-  local client = GenericObjectPool:connection(MovieIdServiceClient,"movie-id-service.default.svc.cluster.local",9090)
+  local client = GenericObjectPool:connection(MovieIdServiceClient,"movie-id-service.media-microsvc.svc.cluster.local",9090)
 
   client:RegisterMovieId(req_id, post.title, tostring(post.movie_id), carrier)
   GenericObjectPool:returnConnection(client)
