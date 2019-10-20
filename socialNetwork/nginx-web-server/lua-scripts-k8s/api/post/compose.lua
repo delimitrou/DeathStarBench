@@ -10,7 +10,7 @@ local function _UploadUserId(req_id, user_id, username, carrier)
   local ngx = ngx
 
   local user_client = GenericObjectPool:connection(
-      UserServiceClient, "user-service.default.svc.cluster.local", 9090)
+      UserServiceClient, "user-service.social-network.svc.cluster.local", 9090)
   local status, err = pcall(user_client.UploadCreatorWithUserId, user_client,
       req_id, user_id, username, carrier)
   if not status then
@@ -26,7 +26,7 @@ local function _UploadText(req_id, post, carrier)
   local GenericObjectPool = require "GenericObjectPool"
   local TextServiceClient = require "social_network_TextService"
   local text_client = GenericObjectPool:connection(
-      TextServiceClient, "text-service.default.svc.cluster.local", 9090)
+      TextServiceClient, "text-service.social-network.svc.cluster.local", 9090)
   local status, err = pcall(text_client.UploadText, text_client, req_id,
       post.text, carrier)
   GenericObjectPool:returnConnection(text_client)
@@ -36,7 +36,7 @@ local function _UploadUniqueId(req_id, post, carrier)
   local GenericObjectPool = require "GenericObjectPool"
   local UniqueIdServiceClient = require "social_network_UniqueIdService"
   local unique_id_client = GenericObjectPool:connection(
-      UniqueIdServiceClient, "unique-id-service.default.svc.cluster.local", 9090)
+      UniqueIdServiceClient, "unique-id-service.social-network.svc.cluster.local", 9090)
   local status, err = pcall(unique_id_client.UploadUniqueId, unique_id_client,
       req_id, tonumber(post.post_type), carrier)
   GenericObjectPool:returnConnection(unique_id_client)
@@ -48,7 +48,7 @@ local function _UploadMedia(req_id, post, carrier)
   local cjson = require "cjson"
 
   local media_client = GenericObjectPool:connection(
-      MediaServiceClient, "media-service.default.svc.cluster.local", 9090)
+      MediaServiceClient, "media-service.social-network.svc.cluster.local", 9090)
   if (not _StrIsEmpty(post.media_ids) and not _StrIsEmpty(post.media_types)) then
     local status, err = pcall(media_client.UploadMedia, media_client,
         req_id, cjson.decode(post.media_types), cjson.decode(post.media_ids), carrier)

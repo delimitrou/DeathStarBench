@@ -6,7 +6,7 @@ metadata:
   labels:
     death-star-project: social-network
     app-name: media-service
-#  namespace: social-network
+  namespace: social-network
 spec:
   ports:
   - port: 9090
@@ -21,7 +21,7 @@ metadata:
   labels:
     death-star-project: social-network
     app-name: media-service
-#  namespace: social-network
+  namespace: social-network
 spec:
   replicas: 1
   selector:

@@ -92,7 +92,7 @@ function _M.ReadHomeTimeline()
     ngx.exit(ngx.HTTP_OK)
   else
     local client = GenericObjectPool:connection(
-        HomeTimelineServiceClient, "home-timeline-service.default.svc.cluster.local", 9090)
+        HomeTimelineServiceClient, "home-timeline-service.social-network.svc.cluster.local", 9090)
     local status, ret = pcall(client.ReadHomeTimeline, client, req_id,
         user_id, tonumber(args.start), tonumber(args.stop), carrier)
     GenericObjectPool:returnConnection(client)

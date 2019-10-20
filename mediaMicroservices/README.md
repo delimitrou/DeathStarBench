@@ -22,15 +22,12 @@
   `16686` for Jaeger.
 
 ### Start docker containers
-
-Kill Previous dockers: `docker rm -f $(docker ps -aq)`
-
 Start docker containers by running `docker-compose up -d`. All images will be 
 pulled from Docker Hub.
 
 ### Register users and movie information
 ```
-python3.6 scripts/write_movie_info.py && scripts//register_users.sh
+python3 scripts/write_movie_info.py && scripts//register_users.sh
 ```
 
 ### Running HTTP workload generator

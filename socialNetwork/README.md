@@ -31,15 +31,12 @@ Supported actions:
   `16686` for Jaeger.
 
 ### Start docker containers
-
-Kill Previous dockers: `docker rm -f $(docker ps -aq)`
-
 Start docker containers by running `docker-compose up -d`. All images will be 
 pulled from Docker Hub.
 
 ### Register users and construct social graphs
 Register users and construct social graph by running 
-`python3.6 scripts/init_social_graph.py`. This will initialize a social graph 
+`python3 scripts/init_social_graph.py`. This will initialize a social graph 
 based on [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php),
 with 962 users and 18.8K social graph edges.
 
@@ -88,4 +85,3 @@ This application is still actively being developed, so keep an eye on the repo t
 ### Questions and contact
 
 You are welcome to submit a pull request if you find a bug or have extended the application in an interesting way. For any questions please contact us at: <microservices-bench-L@list.cornell.edu>
-

@@ -6,7 +6,7 @@ metadata:
   labels:
     death-star-project: social-network
     app-name: compose-post-redis
-#  namespace: social-network
+  namespace: social-network
 spec:
   ports:
   - port: 6379
@@ -21,7 +21,7 @@ metadata:
   labels:
     death-star-project: social-network
     app-name: compose-post-redis
-#  namespace: social-network
+  namespace: social-network
 spec:
   replicas: 1
   selector:

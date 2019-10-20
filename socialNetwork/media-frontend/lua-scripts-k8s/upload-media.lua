@@ -56,7 +56,7 @@ function _M.UploadMedia()
 
   local conn = mongo()
   conn:set_timeout(1000)
-  local ok, err = conn:connect("media-mongodb.default.svc.cluster.local", 27017)
+  local ok, err = conn:connect("media-mongodb.social-network.svc.cluster.local", 27017)
   if not ok then
     ngx.log(ngx.ERR, "mongodb connect failed: "..err)
   end

@@ -6,7 +6,7 @@ metadata:
   labels:
     death-star-project: social-network
     app-name: write-home-timeline-rabbitmq
-#  namespace: social-network
+  namespace: social-network
 spec:
   ports:
   - port: 4369
@@ -28,7 +28,7 @@ metadata:
   labels:
     death-star-project: social-network
     app-name: write-home-timeline-rabbitmq
-#  namespace: social-network
+  namespace: social-network
 spec:
   replicas: 1
   selector:

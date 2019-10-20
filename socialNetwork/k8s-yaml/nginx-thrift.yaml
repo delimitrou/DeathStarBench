@@ -6,7 +6,7 @@ metadata:
   labels:
     death-star-project: social-network
     app-name: nginx-thrift
-#  namespace: social-network
+  namespace: social-network
 spec:
   type: NodePort
   ports:
@@ -23,7 +23,7 @@ metadata:
   labels:
     death-star-project: social-network
     app-name: nginx-thrift
-#  namespace: social-network
+  namespace: social-network
 spec:
   replicas: 1
   selector:

@@ -12,7 +12,8 @@ request = function()
   local method = "GET"
   local headers = {}
   headers["Content-Type"] = "application/x-www-form-urlencoded"
-  local path = "http://localhost:8080/wrk2-api/home-timeline/read?" .. args
+  -- Use your cluster-ip here:
+  local path = "http://10.68.79.18:8080/wrk2-api/home-timeline/read?" .. args
   return wrk.format(method, path, headers, nil)
 
 end
