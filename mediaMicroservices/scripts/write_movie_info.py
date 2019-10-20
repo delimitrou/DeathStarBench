@@ -99,14 +99,14 @@ if __name__ == '__main__':
 
   with open(args.cast_filename, 'r') as cast_file:
     raw_casts = json.load(cast_file)
-  addr = "http://10.68.131.177:8080"
+  addr = "http://10.68.24.13:8080"
   loop = asyncio.get_event_loop()
   future = asyncio.ensure_future(write_cast_info(addr, raw_casts))
   loop.run_until_complete(future)
 
   with open(args.movie_filename, 'r') as movie_file:
     raw_movies = json.load(movie_file)
-    addr = "http://10.68.131.177:8080"
+    addr = "http://10.68.24.13:8080"
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(write_movie_info(addr, raw_movies))
     loop.run_until_complete(future)

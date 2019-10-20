@@ -3,10 +3,8 @@
 ## Pre-requirements
 
 - A running kubernetes cluster is needed.
-
 - This repo should be put in the same path on every node of the cluster for volume mount (here we use `/root/DeathStarBench/`).
-
-- Pre-requirements mentioned [here]( https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/README.md ) should be met.
+- Pre-requirements mentioned [here](https://github.com/delimitrou/DeathStarBench/blob/master/socialNetwork/README.md) should be met.
 
 ## Running the social network application on kubernetes
 
