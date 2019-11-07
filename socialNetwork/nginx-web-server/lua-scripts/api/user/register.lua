@@ -25,6 +25,10 @@ function _M.RegisterUser()
   if (_StrIsEmpty(post.first_name) or _StrIsEmpty(post.last_name) or
       _StrIsEmpty(post.username) or _StrIsEmpty(post.password)) then
     ngx.status = ngx.HTTP_BAD_REQUEST
+    ngx.say(post.first_name)
+    ngx.say(post.last_name)
+    ngx.say(post.username)
+    ngx.say(post.password)
     ngx.say("Incomplete arguments")
     ngx.log(ngx.ERR, "Incomplete arguments")
     ngx.exit(ngx.HTTP_BAD_REQUEST)
