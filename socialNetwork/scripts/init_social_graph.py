@@ -68,8 +68,7 @@ if __name__ == '__main__':
     nodes = getNodes(file)
     edges = getEdges(file)
 
-  # Use your cluster-ip here:
-  addr = "http://10.68.39.88:8080"
+  addr = "http://127.0.0.1:8080"
   loop = asyncio.get_event_loop()
   future = asyncio.ensure_future(register(addr, nodes))
   loop.run_until_complete(future)
