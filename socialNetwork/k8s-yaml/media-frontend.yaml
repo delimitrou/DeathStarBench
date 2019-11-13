@@ -1,0 +1,59 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-frontend
+  labels:
+    death-star-project: social-network
+    app-name: media-frontend
+  namespace: social-network
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    death-star-project: social-network
+    app-name: media-frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-frontend
+  labels:
+    death-star-project: social-network
+    app-name: media-frontend
+  namespace: social-network
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: social-network
+      app-name: media-frontend
+  template:
+    metadata:
+      labels: 
+        death-star-project: social-network
+        app-name: media-frontend
+      name: media-frontend
+    spec:
+      containers:
+      - name: media-frontend
+        image: yg397/media-frontend:xenial
+        ports: 
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /usr/local/openresty/nginx/lua-scripts
+          name: lua-scripts
+        - mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+          name: nginx-conf
+      restartPolicy: Always
+      volumes:
+      - name: lua-scripts
+        hostPath: 
+          path: /root/DeathStarBench/socialNetwork/media-frontend/lua-scripts-k8s
+          type: Directory
+      - name: nginx-conf
+        hostPath: 
+          path: /root/DeathStarBench/socialNetwork/media-frontend/conf/nginx-k8s.conf
+          type: File

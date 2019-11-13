@@ -1029,7 +1029,7 @@ request = function()
   local rating = math.random(0, 10)
   local text = string.random(256)
 
-  local path = "http://127.0.0.1:8080/wrk2-api/review/compose"
+  local path = "http://10.68.24.13:8080/wrk2-api/review/compose"
   local method = "POST"
   local headers = {}
   local body = "username=" .. username .. "&password=" .. password .. "&title=" ..

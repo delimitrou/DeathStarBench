@@ -33,7 +33,7 @@ services:
       - memcached-profile
       - consul
     restart: always
-    cpuset: "1"
+    cpuset: "0"
 
   search:
     build: .
@@ -45,7 +45,7 @@ services:
     depends_on:
       - consul
     restart: always
-    cpuset: "2"
+    cpuset: "0"
     # environment:
       # - GRPC_GO_LOG_VERBOSITY_LEVEL=2
       # - GRPC_GO_LOG_SEVERITY_LEVEL=info
@@ -61,7 +61,7 @@ services:
       - mongodb-geo
       - consul
     restart: always
-    cpuset: "3"
+    cpuset: "0"
 
   rate:
     build: .
@@ -75,7 +75,7 @@ services:
       - memcached-rate
       - consul
     restart: always
-    cpuset: "4"
+    cpuset: "0"
 
   recommendation:
     build: .
@@ -88,7 +88,7 @@ services:
       - mongodb-recommendation
       - consul
     restart: always
-    cpuset: "5"
+    cpuset: "0"
 
   user:
     build: .
@@ -101,7 +101,7 @@ services:
       - mongodb-user
       - consul
     restart: always
-    cpuset: "6"
+    cpuset: "0"
 
   reservation:
     build: .
@@ -115,7 +115,7 @@ services:
       - memcached-reserve
       - consul
     restart: always
-    cpuset: "7"
+    cpuset: "0"
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -130,7 +130,7 @@ services:
       - "6831:6831/udp"
       - "6832:6832/udp"
     restart: always
-    cpuset: "17"
+    cpuset: "0"
 
   memcached-rate:
     image: memcached
@@ -145,7 +145,7 @@ services:
     logging:
       options:
         max-size: 50m
-    cpuset: "8"
+    cpuset: "0"
 
   memcached-profile:
     image: memcached
@@ -160,7 +160,7 @@ services:
     logging:
       options:
         max-size: 50m
-    cpuset: "9"
+    cpuset: "0"
 
   memcached-reserve:
     image: memcached
@@ -175,7 +175,7 @@ services:
     logging:
       options:
         max-size: 50m
-    cpuset: "10"
+    cpuset: "0"
 
   mongodb-geo:
     image: mongo
@@ -184,7 +184,7 @@ services:
     ports:
       - "27018:27017"
     restart: always
-    cpuset: "11"
+    cpuset: "0"
     volumes:
       - geo:/data/db  
 
@@ -195,7 +195,7 @@ services:
     ports:
       - "27019:27017"
     restart: always
-    cpuset: "12"
+    cpuset: "0"
     volumes:
       - profile:/data/db    
 
@@ -206,7 +206,7 @@ services:
     ports:
       - "27020:27017"
     restart: always
-    cpuset: "13"
+    cpuset: "0"
     volumes:
       - rate:/data/db   
 
@@ -217,7 +217,7 @@ services:
     ports:
       - "27021:27017"
     restart: always
-    cpuset: "14"
+    cpuset: "0"
     volumes:
       - recommendation:/data/db
     
@@ -228,7 +228,7 @@ services:
     ports:
       - "27022:27017"
     restart: always
-    cpuset: "15"
+    cpuset: "0"
     volumes:
       - reservation:/data/db 
 
@@ -239,7 +239,7 @@ services:
     ports:
       - "27023:27017"
     restart: always
-    cpuset: "16"
+    cpuset: "0"
     volumes:
       - user:/data/db
     

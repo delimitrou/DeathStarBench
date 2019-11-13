@@ -92,21 +92,23 @@ async def write_movie_info(addr, raw_movies):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument("-c", "--cast", action="store", dest="cast_filename",
-    type=str, default="../datasets/tmdb/casts.json")
+    type=str, default="/home1/root/DeathStarBench/mediaMicroservices/datasets/tmdb/casts.json")
   parser.add_argument("-m", "--movie", action="store", dest="movie_filename",
-    type=str, default="../datasets/tmdb/movies.json")
+    type=str, default="/home1/root/DeathStarBench/mediaMicroservices/datasets/tmdb/movies.json")
+  parser.add_argument("--server_address", action="store", dest="server_address",
+    type=str, default="http://10.68.24.13:8080",
+    help="The address of the server. If running outside of docker you should use 8082 as the port. "
+         "This parameter must be changed because it only fits a specific environment")
   args = parser.parse_args()
 
   with open(args.cast_filename, 'r') as cast_file:
     raw_casts = json.load(cast_file)
-  addr = "http://127.0.0.1:8080"
   loop = asyncio.get_event_loop()
-  future = asyncio.ensure_future(write_cast_info(addr, raw_casts))
+  future = asyncio.ensure_future(write_cast_info(args.server_address, raw_casts))
   loop.run_until_complete(future)
 
   with open(args.movie_filename, 'r') as movie_file:
     raw_movies = json.load(movie_file)
-    addr = "http://127.0.0.1:8080"
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(write_movie_info(addr, raw_movies))
+    future = asyncio.ensure_future(write_movie_info(args.server_address, raw_movies))
     loop.run_until_complete(future)

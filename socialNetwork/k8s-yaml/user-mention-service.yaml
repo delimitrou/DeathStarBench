@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-mention-service
+  labels:
+    death-star-project: social-network
+    app-name: user-mention-service
+  namespace: social-network
+spec:
+  ports:
+  - port: 9090
+  selector:
+    death-star-project: social-network
+    app-name: user-mention-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-mention-service
+  labels:
+    death-star-project: social-network
+    app-name: user-mention-service
+  namespace: social-network
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: social-network
+      app-name: user-mention-service
+  template:
+    metadata:
+      labels: 
+        death-star-project: social-network
+        app-name: user-mention-service
+      name: user-mention-service
+    spec:
+      containers:
+      - name: user-mention-service
+        image: yg397/social-network-microservices
+        command: ["UserMentionService"]
+      restartPolicy: Always

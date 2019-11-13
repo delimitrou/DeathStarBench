@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-info-mongodb
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app-name: movie-info-mongodb
+spec:
+  ports:
+  - port: 27017
+  selector:
+    death-star-project: media-microsvc
+    app-name: movie-info-mongodb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-info-mongodb
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app-name: movie-info-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app-name: movie-info-mongodb
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app-name: movie-info-mongodb
+      name: movie-info-mongodb
+    spec:
+      containers:
+      - name: movie-info-mongodb
+        image: mongo
+      restartPolicy: Always

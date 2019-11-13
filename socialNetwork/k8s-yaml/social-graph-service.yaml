@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: social-graph-service
+  labels:
+    death-star-project: social-network
+    app-name: social-graph-service
+  namespace: social-network
+spec:
+  ports:
+  - port: 9090
+  selector:
+    death-star-project: social-network
+    app-name: social-graph-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: social-graph-service
+  labels:
+    death-star-project: social-network
+    app-name: social-graph-service
+  namespace: social-network
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: social-network
+      app-name: social-graph-service
+  template:
+    metadata:
+      labels: 
+        death-star-project: social-network
+        app-name: social-graph-service
+      name: social-graph-service
+    spec:
+      containers:
+      - name: social-graph-service
+        image: yg397/social-network-microservices
+        command: ["SocialGraphService"]
+      restartPolicy: Always
