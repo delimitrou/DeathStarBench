@@ -39,12 +39,12 @@ class UrlShortenHandler : public UrlShortenServiceIf {
   memcached_pool_st *_memcached_client_pool;
   mongoc_client_pool_t *_mongodb_client_pool;
   ClientPool<ThriftClient<ComposePostServiceClient>> *_compose_client_pool;
-  static std::mt19937 _generator;
+  static thread_local std::mt19937 _generator;
   static std::uniform_int_distribution<int> _distribution;
   static std::string _GenRandomStr(int length);
 };
 
-std::mt19937 UrlShortenHandler::_generator = std::mt19937(
+thread_local std::mt19937 UrlShortenHandler::_generator = std::mt19937(
     std::chrono::system_clock::now().time_since_epoch().count());
 std::uniform_int_distribution<int> UrlShortenHandler::_distribution =
     std::uniform_int_distribution<int>(0, 61);
