@@ -735,7 +735,8 @@ static struct option longopts[] = {
 };
 
 static int parse_args(struct config *cfg, char **url, struct http_parser_url *parts, char **headers, int argc, char **argv) {
-    char c, **header = headers;
+    int c;
+    char **header = headers;
 
     memset(cfg, 0, sizeof(struct config));
     cfg->threads     = 2;
