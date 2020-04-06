@@ -1,0 +1,352 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: cast-info-memcached
+spec:
+  host: cast-info-memcached.media-microsvc.svc.cluster.local
+  subsets:
+  - name: cast-info-memcached
+    labels:
+      app: cast-info-memcached
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: cast-info-mongodb
+spec:
+  host: cast-info-mongodb.media-microsvc.svc.cluster.local
+  subsets:
+  - name: cast-info-mongodb
+    labels:
+      app: cast-info-mongodb
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: cast-info-service
+spec:
+  host: cast-info-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: cast-info-service
+    labels:
+      app: cast-info-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: compose-review-memcached
+spec:
+  host: compose-review-memcached.media-microsvc.svc.cluster.local
+  subsets:
+  - name: compose-review-memcached
+    labels:
+      app: compose-review-memcached
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: compose-review-service
+spec:
+  host: compose-review-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: compose-review-service
+    labels:
+      app: compose-review-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: jaeger
+spec:
+  host: jaeger.media-microsvc.svc.cluster.local
+  subsets:
+  - name: jaeger
+    labels:
+      app: jaeger
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-id-memcached
+spec:
+  host: movie-id-memcached.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-id-memcached
+    labels:
+      app: movie-id-memcached
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-id-mongodb
+spec:
+  host: movie-id-mongodb.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-id-mongodb
+    labels:
+      app: movie-id-mongodb
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-id-service
+spec:
+  host: movie-id-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-id-service
+    labels:
+      app: movie-id-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-info-memcached
+spec:
+  host: movie-info-memcached.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-info-memcached
+    labels:
+      app: movie-info-memcached
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-info-mongodb
+spec:
+  host: movie-info-mongodb.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-info-mongodb
+    labels:
+      app: movie-info-mongodb
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-info-service
+spec:
+  host: movie-info-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-info-service
+    labels:
+      app: movie-info-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-review-mongodb
+spec:
+  host: movie-review-mongodb.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-review-mongodb
+    labels:
+      app: movie-review-mongodb
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-review-redis
+spec:
+  host: movie-review-redis.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-review-redis
+    labels:
+      app: movie-review-redis
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: movie-review-service
+spec:
+  host: movie-review-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: movie-review-service
+    labels:
+      app: movie-review-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: nginx-web-server
+spec:
+  host: nginx-web-server.media-microsvc.svc.cluster.local
+  subsets:
+  - name: nginx-web-server
+    labels:
+      app: nginx-web-server
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: plot-memcached
+spec:
+  host: plot-memcached.media-microsvc.svc.cluster.local
+  subsets:
+  - name: plot-memcached
+    labels:
+      app: plot-memcached
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: plot-mongodb
+spec:
+  host: plot-mongodb.media-microsvc.svc.cluster.local
+  subsets:
+  - name: plot-mongodb
+    labels:
+      app: plot-mongodb
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: plot-service
+spec:
+  host: plot-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: plot-service
+    labels:
+      app: plot-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: rating-redis
+spec:
+  host: rating-redis.media-microsvc.svc.cluster.local
+  subsets:
+  - name: rating-redis
+    labels:
+      app: rating-redis
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: rating-service
+spec:
+  host: rating-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: rating-service
+    labels:
+      app: rating-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: review-storage-memcached
+spec:
+  host: review-storage-memcached.media-microsvc.svc.cluster.local
+  subsets:
+  - name: review-storage-memcached
+    labels:
+      app: review-storage-memcached
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: review-storage-mongodb
+spec:
+  host: review-storage-mongodb.media-microsvc.svc.cluster.local
+  subsets:
+  - name: review-storage-mongodb
+    labels:
+      app: review-storage-mongodb
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: review-storage-service
+spec:
+  host: review-storage-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: review-storage-service
+    labels:
+      app: review-storage-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: text-service
+spec:
+  host: text-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: text-service
+    labels:
+      app: text-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: unique-id-service
+spec:
+  host: unique-id-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: unique-id-service
+    labels:
+      app: unique-id-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: user-memcached
+spec:
+  host: user-memcached.media-microsvc.svc.cluster.local
+  subsets:
+  - name: user-memcached
+    labels:
+      app: user-memcached
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: user-mongodb
+spec:
+  host: user-mongodb.media-microsvc.svc.cluster.local
+  subsets:
+  - name: user-mongodb
+    labels:
+      app: user-mongodb
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: user-review-mongodb
+spec:
+  host: user-review-mongodb.media-microsvc.svc.cluster.local
+  subsets:
+  - name: user-review-mongodb
+    labels:
+      app: user-review-mongodb
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: user-review-redis
+spec:
+  host: user-review-redis.media-microsvc.svc.cluster.local
+  subsets:
+  - name: user-review-redis
+    labels:
+      app: user-review-redis
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: user-review-service
+spec:
+  host: user-review-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: user-review-service
+    labels:
+      app: user-review-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: user-service
+spec:
+  host: user-service.media-microsvc.svc.cluster.local
+  subsets:
+  - name: user-service
+    labels:
+      app: user-service
+---

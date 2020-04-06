@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cast-info-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: cast-info-service
+spec:
+  ports:
+  - port: 9090
+  selector:
+    death-star-project: media-microsvc
+    app: cast-info-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cast-info-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: cast-info-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: cast-info-service
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: cast-info-service
+      name: cast-info-service
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: cast-info-service
+        image: yg397/media-microservices
+        command: ["CastInfoService"]
+      restartPolicy: Always

@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: review-storage-mongodb
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: review-storage-mongodb
+spec:
+  ports:
+  - port: 27017
+  selector:
+    death-star-project: media-microsvc
+    app: review-storage-mongodb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review-storage-mongodb
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: review-storage-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: review-storage-mongodb
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: review-storage-mongodb
+      name: review-storage-mongodb
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: review-storage-mongodb
+        image: mongo
+        volumeMounts:
+          - name: my-data
+            mountPath: "/data/db"
+      restartPolicy: Always
+      volumes:
+      - name: my-data
+        emptyDir: {}

@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compose-review-memcached
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: compose-review-memcached
+spec:
+  ports:
+  - port: 11211
+  selector:
+    death-star-project: media-microsvc
+    app: compose-review-memcached
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compose-review-memcached
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: compose-review-memcached
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: compose-review-memcached
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: compose-review-memcached
+      name: compose-review-memcached
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: compose-review-memcached
+        image: memcached
+      restartPolicy: Always
