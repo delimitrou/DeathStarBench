@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-id-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: movie-id-service
+spec:
+  ports:
+  - port: 9090
+  selector:
+    death-star-project: media-microsvc
+    app: movie-id-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-id-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: movie-id-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: movie-id-service
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: movie-id-service
+      name: movie-id-service
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: movie-id-service
+        image: yg397/media-microservices
+        command: ["MovieIdService"]
+      restartPolicy: Always

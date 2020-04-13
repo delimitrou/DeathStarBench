@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plot-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: plot-service
+spec:
+  ports:
+  - port: 9090
+  selector:
+    death-star-project: media-microsvc
+    app: plot-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plot-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: plot-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: plot-service
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: plot-service
+      name: plot-service
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: plot-service
+        image: yg397/media-microservices
+        command: ["PlotService"]
+      restartPolicy: Always

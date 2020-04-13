@@ -1,0 +1,80 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-out
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: jaeger
+spec:
+  type: NodePort
+  ports:
+  - port: 16686
+    targetPort: 16686
+  selector:
+    death-star-project: media-microsvc
+    app: jaeger
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: jaeger
+spec:
+  ports:
+  - port: 5775
+    name: udp1
+    protocol: UDP
+  - port: 5778
+    name: tcp1
+  - port: 6831
+    name: udp2
+    protocol: UDP
+  - port: 6832
+    name: udp3
+    protocol: UDP
+  - port: 14250
+    name: tcp2
+  - port: 14268
+    name: tcp3
+  selector:
+    death-star-project: media-microsvc
+    app: jaeger
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: jaeger
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: jaeger
+      name: jaeger
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: jaeger
+        image: jaegertracing/all-in-one:latest
+        env:
+        - name: COLLECTOR_ZIPKIN_HTTP_PORT
+          value: "9411"
+        ports: 
+        - containerPort: 16686
+      restartPolicy: Always
+      

@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-info-memcached
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: movie-info-memcached
+spec:
+  ports:
+  - port: 11211
+  selector:
+    death-star-project: media-microsvc
+    app: movie-info-memcached
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-info-memcached
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: movie-info-memcached
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: movie-info-memcached
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: movie-info-memcached
+      name: movie-info-memcached
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: movie-info-memcached
+        image: memcached
+      restartPolicy: Always

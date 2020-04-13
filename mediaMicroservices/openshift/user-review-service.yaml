@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-review-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: user-review-service
+spec:
+  ports:
+  - port: 9090
+  selector:
+    death-star-project: media-microsvc
+    app: user-review-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-review-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: user-review-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: user-review-service
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: user-review-service
+      name: user-review-service
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: user-review-service
+        image: yg397/media-microservices
+        command: ["UserReviewService"]
+      restartPolicy: Always
