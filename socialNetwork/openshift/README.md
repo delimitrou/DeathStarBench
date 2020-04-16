@@ -22,7 +22,7 @@ Run the script `<path-of-repo>/socialNetwork/openshift/scripts/deploy-all-servic
 
 After customization, If you are running "on-cluster" copy necessary files to `ubuntu-client`, and then log into `ubuntu-client` to continue:
   - `ubuntuclient=$(oc -n social-network get pod | grep ubuntu-client- | cut -f 1 -d " ")`
-  - `oc cp <path-of-repo> social-network/"${ubuntuclient}":/root
+  - `oc cp <path-of-repo> social-network/"${ubuntuclient}":/root`
     - e.g., `oc cp /root/DeathStarBench social-network/"${ubuntuclient}":/root`
   - `oc rsh deployment/ubuntu-client`
 
