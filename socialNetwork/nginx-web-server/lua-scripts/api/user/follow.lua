@@ -9,6 +9,7 @@ function _M.Follow()
   local ngx = ngx
   local GenericObjectPool = require "GenericObjectPool"
   local SocialGraphServiceClient = require "social_network_SocialGraphService"
+  local jwt = require "resty.jwt"
 
   local req_id = tonumber(string.sub(ngx.var.request_id, 0, 15), 16)
   local tracer = bridge_tracer.new_from_global()
@@ -25,6 +26,25 @@ function _M.Follow()
   local client = GenericObjectPool:connection(
       SocialGraphServiceClient, "social-graph-service", 9090)
 
+  -- -- new start -- 
+  -- if (_StrIsEmpty(ngx.var.cookie_login_token)) then
+  --   ngx.status = ngx.HTTP_UNAUTHORIZED
+  --   ngx.exit(ngx.HTTP_OK)
+  -- end
+
+  -- local login_obj = jwt:verify(ngx.shared.config:get("secret"), ngx.var.cookie_login_token)
+  -- if not login_obj["verified"] then
+  --   ngx.status = ngx.HTTP_UNAUTHORIZED
+  --   ngx.say(login_obj.reason);
+  --   ngx.exit(ngx.HTTP_OK)
+  -- end
+  -- -- get user id/name from login obj
+  -- local user_id = tonumber(login_obj["payload"]["user_id"])
+  -- local username = login_obj["payload"]["username"]
+
+  -- -- new end --
+
+
   local status
   local err
   if (not _StrIsEmpty(post.user_id) and not _StrIsEmpty(post.followee_id)) then
@@ -32,7 +52,7 @@ function _M.Follow()
         tonumber(post.user_id), tonumber(post.followee_id), carrier )
   elseif (not _StrIsEmpty(post.user_name) and not _StrIsEmpty(post.followee_name)) then
     status, err = pcall(client.FollowWithUsername, client,req_id,
-        post.user_name, post.followee_name, carrier )
+        post.user_name, post.followee_name, carrier)
   else
     ngx.status = ngx.HTTP_BAD_REQUEST
     ngx.say("Incomplete arguments")
@@ -46,8 +66,14 @@ function _M.Follow()
     ngx.log(ngx.ERR, "Follow Failed: " .. err.message)
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   end
+  
   GenericObjectPool:returnConnection(client)
   span:finish()
+  ngx.redirect("../../contact.html")
+  -- ngx.header.content_type = "application/json; charset=utf-8"
+  -- ngx.say(cjson.encode(home_timeline) )
+  ngx.exit(ngx.HTTP_OK)
+
 
 end
 

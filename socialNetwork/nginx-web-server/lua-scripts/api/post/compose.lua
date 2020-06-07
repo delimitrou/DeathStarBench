@@ -60,6 +60,7 @@ local function _UploadMedia(req_id, post, carrier)
 end
 
 function _M.ComposePost()
+
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
   local cjson = require "cjson"
@@ -85,6 +86,7 @@ function _M.ComposePost()
 
   if (_StrIsEmpty(ngx.var.cookie_login_token)) then
     ngx.status = ngx.HTTP_UNAUTHORIZED
+    ngx.redirect("../../index.html")
     ngx.exit(ngx.HTTP_OK)
   end
 
@@ -92,8 +94,10 @@ function _M.ComposePost()
   if not login_obj["verified"] then
     ngx.status = ngx.HTTP_UNAUTHORIZED
     ngx.say(login_obj.reason);
+    ngx.redirect("../../index.html")
     ngx.exit(ngx.HTTP_OK)
   end
+  -- get user id/name from login obj
   local timestamp = tonumber(login_obj["payload"]["timestamp"])
   local ttl = tonumber(login_obj["payload"]["ttl"])
   local user_id = tonumber(login_obj["payload"]["user_id"])
@@ -103,6 +107,7 @@ function _M.ComposePost()
     ngx.status = ngx.HTTP_UNAUTHORIZED
     ngx.header.content_type = "text/plain"
     ngx.say("Login token expired, please log in again")
+    ngx.redirect("../../index.html")
     ngx.exit(ngx.HTTP_OK)
   else
     local threads = {

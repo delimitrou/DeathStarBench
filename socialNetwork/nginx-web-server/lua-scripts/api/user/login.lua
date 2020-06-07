@@ -21,7 +21,7 @@ function _M.Login()
   tracer:text_map_inject(span:context(), carrier)
 
   ngx.req.read_body()
-  local args = ngx.req.get_uri_args()
+  local args = ngx.req.get_post_args()
 
   if (_StrIsEmpty(args.username) or _StrIsEmpty(args.password)) then
     ngx.status = ngx.HTTP_BAD_REQUEST
@@ -55,7 +55,8 @@ function _M.Login()
     ngx.header.content_type = "text/plain"
     ngx.header["Set-Cookie"] = "login_token=" .. ret .. "; Path=/; Expires="
         .. ngx.cookie_time(ngx.time() + ngx.shared.config:get("cookie_ttl"))
-    ngx.redirect("../../index.html")
+    
+    ngx.redirect("../../main.html?username=" .. args.username)
     ngx.exit(ngx.HTTP_OK)
   end
   span:finish()
