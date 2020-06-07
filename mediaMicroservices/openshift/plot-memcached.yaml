@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plot-memcached
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: plot-memcached
+spec:
+  ports:
+  - port: 11211
+  selector:
+    death-star-project: media-microsvc
+    app: plot-memcached
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plot-memcached
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: plot-memcached
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: plot-memcached
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: plot-memcached
+      name: plot-memcached
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: plot-memcached
+        image: memcached
+      restartPolicy: Always

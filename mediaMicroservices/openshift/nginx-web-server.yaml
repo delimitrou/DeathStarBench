@@ -1,0 +1,108 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-web-server
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: nginx-web-server
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+  selector:
+    death-star-project: media-microsvc
+    app: nginx-web-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-web-server
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: nginx-web-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: nginx-web-server
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: nginx-web-server
+      name: nginx-web-server
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: nginx-web-server
+        image: yg397/openresty-thrift:xenial
+        command: ["/bin/sh", "-c"]
+        args:
+          - /usr/local/openresty/bin/openresty &&
+            sleep 365d
+        volumeMounts:
+        - mountPath: /usr/local/openresty/nginx/lua-scripts
+          name: lua-scripts
+        - mountPath: /usr/local/openresty/nginx/lua-scripts/wrk2-api/cast-info
+          name: lua-scripts-cast-info
+        - mountPath: /usr/local/openresty/nginx/lua-scripts/wrk2-api/movie
+          name: lua-scripts-movie
+        - mountPath: /usr/local/openresty/nginx/lua-scripts/wrk2-api/movie-info
+          name: lua-scripts-movie-info
+        - mountPath: /usr/local/openresty/nginx/lua-scripts/wrk2-api/plot
+          name: lua-scripts-plot
+        - mountPath: /usr/local/openresty/nginx/lua-scripts/wrk2-api/review
+          name: lua-scripts-review
+        - mountPath: /usr/local/openresty/nginx/lua-scripts/wrk2-api/user
+          name: lua-scripts-user
+        - mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+          subPath: nginx.conf
+          name: nginx-conf
+        - mountPath: /usr/local/openresty/nginx/jaeger-config.json
+          subPath: jaeger-config.json
+          name: jaeger-config-json
+        - mountPath: /gen-lua
+          name: gen-lua
+      restartPolicy: Always
+      volumes:
+      - name: lua-scripts
+        configMap: 
+          name: configmap-lua-scripts
+      - name: lua-scripts-cast-info
+        configMap: 
+          name: configmap-lua-scripts-cast-info
+      - name: lua-scripts-movie
+        configMap: 
+          name: configmap-lua-scripts-movie
+      - name: lua-scripts-movie-info
+        configMap: 
+          name: configmap-lua-scripts-movie-info
+      - name: lua-scripts-plot
+        configMap: 
+          name: configmap-lua-scripts-plot
+      - name: lua-scripts-review
+        configMap: 
+          name: configmap-lua-scripts-review
+      - name: lua-scripts-user
+        configMap: 
+          name: configmap-lua-scripts-user
+      - name: nginx-conf
+        configMap: 
+          name: configmap-nginx-conf
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+      - name: jaeger-config-json
+        configMap: 
+          name: configmap-jaeger-config-json
+          items:
+          - key: jaeger-config.json
+            path: jaeger-config.json
+      - name: gen-lua
+        configMap: 
+          name: configmap-gen-lua

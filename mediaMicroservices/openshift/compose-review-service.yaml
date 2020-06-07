@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compose-review-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: compose-review-service
+spec:
+  ports:
+  - port: 9090
+  selector:
+    death-star-project: media-microsvc
+    app: compose-review-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compose-review-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: compose-review-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: compose-review-service
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: compose-review-service
+      name: compose-review-service
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: compose-review-service
+        image: yg397/media-microservices
+        command: ["ComposeReviewService"]
+      restartPolicy: Always

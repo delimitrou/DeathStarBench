@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: review-storage-memcached
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: review-storage-memcached
+spec:
+  ports:
+  - port: 11211
+  selector:
+    death-star-project: media-microsvc
+    app: review-storage-memcached
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review-storage-memcached
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: review-storage-memcached
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: review-storage-memcached
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: review-storage-memcached
+      name: review-storage-memcached
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: review-storage-memcached
+        image: memcached
+      restartPolicy: Always

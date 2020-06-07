@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    death-star-project: hotel-res
+    app-name: memcached-reserve
+  namespace: hotel-res
+  name: memcached-reserve
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: hotel-res
+      app-name: memcached-reserve
+  strategy: {}
+  template:
+    metadata:
+      name: memcached-reserve
+      labels:
+        death-star-project: hotel-res
+        app-name: memcached-reserve
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - env:
+        - name: MEMCACHED_CACHE_SIZE
+          value: "128"
+        - name: MEMCACHED_THREADS
+          value: "2"
+        image: memcached
+        name: hotel-reserv-reservation-mmc
+        ports:
+        - containerPort: 11211
+        resources: {}
+      restartPolicy: Always
+status: {}

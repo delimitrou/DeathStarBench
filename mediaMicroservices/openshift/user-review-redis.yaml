@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-review-redis
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: user-review-redis
+spec:
+  ports:
+  - port: 6379
+  selector:
+    death-star-project: media-microsvc
+    app: user-review-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-review-redis
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: user-review-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: user-review-redis
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: user-review-redis
+      name: user-review-redis
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: user-review-redis
+        image: redis
+      restartPolicy: Always

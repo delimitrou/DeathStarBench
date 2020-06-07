@@ -84,78 +84,52 @@ void UserTimelineHandler::WriteUserTimeline(
   bson_t *query = bson_new();
 
   BSON_APPEND_INT64(query, "user_id", user_id);
-  auto find_span = opentracing::Tracer::Global()->StartSpan(
-      "MongoFindUser", {opentracing::ChildOf(&span->context())});
-  mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(
-      collection, query, nullptr, nullptr);
-  const bson_t *doc;
-  bool found = mongoc_cursor_next(cursor, &doc);
-  if (!found) {
-    bson_t *new_doc = BCON_NEW(
-        "user_id", BCON_INT64(user_id),
-        "posts",
-        "[", "{", "post_id", BCON_INT64(post_id),
-        "timestamp", BCON_INT64(timestamp), "}", "]"
-    );
-    bson_error_t error;
-    auto insert_span = opentracing::Tracer::Global()->StartSpan(
-        "MongoInsert", {opentracing::ChildOf(&span->context())});
-    bool inserted = mongoc_collection_insert_one(
-        collection, new_doc, nullptr, nullptr, &error);
-    insert_span->Finish();
-    if (!inserted) {
-      LOG(error) << "Failed to insert user timeline user " << user_id
-                 << " to MongoDB: " << error.message;
-      ServiceException se;
-      se.errorCode = ErrorCode::SE_MONGODB_ERROR;
-      se.message = error.message;
-      bson_destroy(new_doc);
-      bson_destroy(query);
-      mongoc_cursor_destroy(cursor);
-      mongoc_collection_destroy(collection);
-      mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
-      throw se;
-    }
-    bson_destroy(new_doc);
-  } else {
-    bson_t *update = BCON_NEW(
-        "$push", "{",
-            "posts", "{",
-                "$each", "[", "{",
-                    "post_id", BCON_INT64(post_id),
-                    "timestamp", BCON_INT64(timestamp),
-                "}", "]",
-                "$position", BCON_INT32(0),
-            "}",
-        "}"
-    );
-    bson_error_t error;
-    bson_t reply;
-    auto update_span = opentracing::Tracer::Global()->StartSpan(
-        "MongoInsert", {opentracing::ChildOf(&span->context())});
-    bool updated = mongoc_collection_find_and_modify(
-        collection, query, nullptr, update, nullptr, false, false,
-        true, &reply, &error);
-    update_span->Finish();
+
+  bson_t *update = BCON_NEW(
+      "$push", "{",
+          "posts", "{",
+              "$each", "[", "{",
+                  "post_id", BCON_INT64(post_id),
+                  "timestamp", BCON_INT64(timestamp),
+              "}", "]",
+              "$position", BCON_INT32(0),
+          "}",
+      "}"
+  );
+  bson_error_t error;
+  bson_t reply;
+  auto update_span = opentracing::Tracer::Global()->StartSpan(
+      "MongoInsert", {opentracing::ChildOf(&span->context())});
+  // If no document matches the query criteria,
+  // insert a single document (upsert: true)
+  bool updated = mongoc_collection_find_and_modify(
+      collection, query, nullptr, update, nullptr, false, true,
+      true, &reply, &error);
+  update_span->Finish();
+
+  if (!updated) {
+    // update the newly inserted document (upsert: false)
+    updated = mongoc_collection_find_and_modify(
+      collection, query, nullptr, update, nullptr, false, false,
+      true, &reply, &error);
     if (!updated) {
       LOG(error) << "Failed to update user-timeline for user " << user_id
-                 << " to MongoDB: " << error.message;
+                  << " to MongoDB: " << error.message;
       ServiceException se;
       se.errorCode = ErrorCode::SE_MONGODB_ERROR;
       se.message = error.message;
       bson_destroy(update);
       bson_destroy(query);
       bson_destroy(&reply);
-      mongoc_cursor_destroy(cursor);
       mongoc_collection_destroy(collection);
       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
       throw se;
     }
-    bson_destroy(update);
-    bson_destroy(&reply);
   }
+
+  bson_destroy(update);
+  bson_destroy(&reply);
   bson_destroy(query);
-  mongoc_cursor_destroy(cursor);
   mongoc_collection_destroy(collection);
   mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
 

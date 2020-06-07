@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: user-service
+spec:
+  ports:
+  - port: 9090
+  selector:
+    death-star-project: media-microsvc
+    app: user-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      death-star-project: media-microsvc
+      app: user-service
+  template:
+    metadata:
+      labels: 
+        death-star-project: media-microsvc
+        app: user-service
+      name: user-service
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: user-service
+        image: yg397/media-microservices
+        command: ["UserService"]
+      restartPolicy: Always
