@@ -27,7 +27,7 @@ pulled from Docker Hub.
 
 ### Register users and movie information
 ```
-python3 scripts/write_movie_info.py && scripts//register_users.sh
+python3 scripts/write_movie_info.py -c <path-to-casts.json> -m <path-to-movies.json> --server_address <address:port> && scripts/register_users.sh && scripts/register_movies.sh
 ```
 
 ### Running HTTP workload generator
