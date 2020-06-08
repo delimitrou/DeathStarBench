@@ -4,7 +4,7 @@ A social network with unidirectional follow relationships, implemented with loos
 
 ## Application Structure
 
-![Social Network Architecture](socialNet_arch.png)
+![Social Network Architecture](figures/socialNet_arch.png)
 
 Supported actions: 
 * Create text post (optional media: image, video, shortened URL, user tag)
@@ -70,7 +70,27 @@ View Jaeger traces by accessing `http://localhost:16686`
 
 Example of a Jaeger trace for a compose post request: 
 
-![jaeger_example](socialNet_jaeger.png)
+![jaeger_example](figures/socialNet_jaeger.png)
+
+#### Use Front End
+After starting all containers using `docker-compose up -d`, visit `http://localhost:8080` to use the front end.
+
+First you could see the login and signup page:
+![login_page](figures/login.png)
+![signup_page](figures/signup.png)
+
+In order to load default users into database, visit `http://localhost:8080/main.html` once. Then click compose to post new contents.
+
+After composing a few posts, you could see your own posts in user timeline page. Click follow button on the right side to follow defualt users:
+![user_timeline_page](figures/user_timeline.png)
+
+To see your own posts in home timeline page, click the username and profile button:
+![home_timeline_page](figures/home_timeline.png)
+
+Posts could be mixed with text, user mention and image.
+
+Click the contact button to follow/unfollow other users; follower/followee list would be shown below in form of user-id:
+![follow_page](figures/follow.png)
 
 ### Development Status
 
@@ -78,10 +98,10 @@ This application is still actively being developed, so keep an eye on the repo t
 
 #### Planned updates
 
-* Front-end design
 * Upgraded recommender
 * Upgraded search engine 
 
 ### Questions and contact
 
 You are welcome to submit a pull request if you find a bug or have extended the application in an interesting way. For any questions please contact us at: <microservices-bench-L@list.cornell.edu>
+

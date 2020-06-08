@@ -14,7 +14,7 @@ function _M.Unfollow()
   local tracer = bridge_tracer.new_from_global()
   local parent_span_context = tracer:binary_extract(
       ngx.var.opentracing_binary_context)
-  local span = tracer:start_span("Unollow",
+  local span = tracer:start_span("Unfollow",
       {["references"] = {{"child_of", parent_span_context}}})
   local carrier = {}
   tracer:text_map_inject(span:context(), carrier)
