@@ -283,8 +283,12 @@ void UserHandler::RegisterUser(
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
   // Compose user_id
+  _thread_lock->lock();
   int64_t timestamp = duration_cast<milliseconds>(
       system_clock::now().time_since_epoch()).count() - CUSTOM_EPOCH;
+  int idx = GetCounter(timestamp);
+  _thread_lock->unlock();
+
   std::stringstream sstream;
   sstream << std::hex << timestamp;
   std::string timestamp_hex(sstream.str());
@@ -294,9 +298,6 @@ void UserHandler::RegisterUser(
     timestamp_hex =
         std::string(10 - timestamp_hex.size(), '0') + timestamp_hex;
   }
-  _thread_lock->lock();
-  int idx = GetCounter(timestamp);
-  _thread_lock->unlock();
   // Empty the sstream buffer.
   sstream.clear();
   sstream.str(std::string());
