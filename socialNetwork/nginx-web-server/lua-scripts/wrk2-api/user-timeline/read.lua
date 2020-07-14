@@ -75,6 +75,8 @@ function _M.ReadUserTimeline()
   local status, ret = pcall(client.ReadUserTimeline, client, req_id,
       tonumber(args.user_id), tonumber(args.start), tonumber(args.stop), carrier)
   GenericObjectPool:returnConnection(client)
+
+  span:finish()
   if not status then
     ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     if (ret.message) then
