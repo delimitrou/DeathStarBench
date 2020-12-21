@@ -26,20 +26,36 @@ def getEdges(file):
     edges.append(line.split())
   return edges
 
+def printResults(results):
+  result_type_count = {}
+  for result in results:
+    try:
+      result_type_count[result] += 1
+    except KeyError:
+      result_type_count[result] = 1
+  for result_type, count in result_type_count.items():
+    if result_type.startswith("Success"):
+      print("Succeeded:", count)
+    elif "500 Internal Server Error" in result_type:
+      print("Failed:", count, "Error:", "Internal Server Error")
+    else:
+      print("Failed:", count, "Error:", result_type.strip())
+
 async def register(addr, nodes):
   idx = 0
   tasks = []
   conn = aiohttp.TCPConnector(limit=200)
   async with aiohttp.ClientSession(connector=conn) as session:
+    print("Registering Users...")
     for i in range(1, nodes + 1):
       task = asyncio.ensure_future(upload_register(session, addr, str(i)))
       tasks.append(task)
       idx += 1
       if idx % 200 == 0:
-        resps = await asyncio.gather(*tasks)
-        print("Registered", idx, "users successfully")
-    resps = await asyncio.gather(*tasks)
-    print("Registered", idx, "users successfully")
+        _ = await asyncio.gather(*tasks)
+        print(idx)
+    results = await asyncio.gather(*tasks)
+    printResults(results)
 
 
 async def follow(addr, edges):
@@ -47,6 +63,7 @@ async def follow(addr, edges):
   tasks = []
   conn = aiohttp.TCPConnector(limit=200)
   async with aiohttp.ClientSession(connector=conn) as session:
+    print("Adding follows...")
     for edge in edges:
       task = asyncio.ensure_future(upload_follow(session, addr, edge[0], edge[1]))
       tasks.append(task)
@@ -54,10 +71,10 @@ async def follow(addr, edges):
       tasks.append(task)
       idx += 1
       if idx % 200 == 0:
-        resps = await asyncio.gather(*tasks)
-        print(idx, "edges finished")
-    resps = await asyncio.gather(*tasks)
-    print(idx, "edges finished")
+        _ = await asyncio.gather(*tasks)
+        print(idx)
+    results = await asyncio.gather(*tasks)
+    printResults(results)
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
