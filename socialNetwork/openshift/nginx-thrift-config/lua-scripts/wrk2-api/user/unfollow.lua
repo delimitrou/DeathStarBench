@@ -4,6 +4,17 @@ local function _StrIsEmpty(s)
   return s == nil or s == ''
 end
 
+local function _NgxInternalError(ngx, label, msg)
+  ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
+  local ErrorMessage = "<no message>"
+  if not _StrIsEmpty(msg) then
+    ErrorMessage = msg
+  end
+  ngx.say(label .. ErrorMessage)
+  ngx.log(ngx.ERR, label .. ErrorMessage)
+  ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
 function _M.Unfollow()
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
@@ -41,10 +52,9 @@ function _M.Unfollow()
   end
 
   if not status then
-    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
-    ngx.say("Unfollow Failed: " .. err.message)
-    ngx.log(ngx.ERR, "Unfollow Failed: " .. err.message)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    _NgxInternalError(ngx, "Unfollow failed: ", err.message)
+  else
+    ngx.say("Successfully unfollowed.")
   end
   GenericObjectPool:returnConnection(client)
   span:finish()

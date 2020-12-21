@@ -4,6 +4,17 @@ local function _StrIsEmpty(s)
   return s == nil or s == ''
 end
 
+local function _NgxInternalError(ngx, label, msg)
+  ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
+  local ErrorMessage = "<no message>"
+  if not _StrIsEmpty(msg) then
+    ErrorMessage = msg
+  end
+  ngx.say(label .. ErrorMessage)
+  ngx.log(ngx.ERR, label .. ErrorMessage)
+  ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
 function _M.Follow()
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
@@ -41,10 +52,9 @@ function _M.Follow()
   end
 
   if not status then
-    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
-    ngx.say("Follow Failed: " .. err.message)
-    ngx.log(ngx.ERR, "Follow Failed: " .. err.message)
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    _NgxInternalError(ngx, "Follow Failed: ", err.message)
+  else
+    ngx.say("Successfully followed.")
   end
   GenericObjectPool:returnConnection(client)
   span:finish()
