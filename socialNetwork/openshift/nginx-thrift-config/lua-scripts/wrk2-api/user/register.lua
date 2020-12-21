@@ -4,6 +4,17 @@ local function _StrIsEmpty(s)
   return s == nil or s == ''
 end
 
+local function _NgxInternalError(ngx, label, msg)
+  ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
+  local ErrorMessage = "<no message>"
+  if not _StrIsEmpty(msg) then
+    ErrorMessage = msg
+  end
+  ngx.say(label .. ErrorMessage)
+  ngx.log(ngx.ERR, label .. ErrorMessage)
+  ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
 function _M.RegisterUser()
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
@@ -38,18 +49,10 @@ function _M.RegisterUser()
   GenericObjectPool:returnConnection(client)
 
   if not status then
-    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
-    if (err.message) then
-      ngx.say("User registration failure: " .. err.message)
-      ngx.log(ngx.ERR, "User registration failure: " .. err.message)
-    else
-      ngx.say("User registration failure: " .. err.message)
-      ngx.log(ngx.ERR, "User registration failure: " .. err.message)
-    end
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    _NgxInternalError(ngx, "User registration failure: ", err.message)
+  else
+    ngx.say("Successfully registered.")
   end
-
-
   span:finish()
 end
 

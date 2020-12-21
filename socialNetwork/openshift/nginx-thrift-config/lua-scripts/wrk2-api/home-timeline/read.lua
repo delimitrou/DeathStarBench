@@ -4,6 +4,17 @@ local function _StrIsEmpty(s)
   return s == nil or s == ''
 end
 
+local function _NgxInternalError(ngx, label, msg)
+  ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
+  local ErrorMessage = "<no message>"
+  if not _StrIsEmpty(msg) then
+    ErrorMessage = msg
+  end
+  ngx.say(label .. ErrorMessage)
+  ngx.log(ngx.ERR, label .. ErrorMessage)
+  ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
 local function _LoadTimeline(data)
   local timeline = {}
   for _, timeline_post in ipairs(data) do
@@ -77,15 +88,7 @@ function _M.ReadHomeTimeline()
       tonumber(args.user_id), tonumber(args.start), tonumber(args.stop), carrier)
   GenericObjectPool:returnConnection(client)
   if not status then
-    ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
-    if (ret.message) then
-      ngx.say("Get home-timeline failure: " .. ret.message)
-      ngx.log(ngx.ERR, "Get home-timeline failure: " .. ret.message)
-    else
-      ngx.say("Get home-timeline failure: " .. ret.message)
-      ngx.log(ngx.ERR, "Get home-timeline failure: " .. ret.message)
-    end
-    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+    _NgxInternalError(ngx, "Get home-timeline failure: ", err.message)
   else
     local home_timeline = _LoadTimeline(ret)
     ngx.header.content_type = "application/json; charset=utf-8"
