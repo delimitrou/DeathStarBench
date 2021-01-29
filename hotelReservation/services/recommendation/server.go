@@ -10,6 +10,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -45,7 +46,13 @@ func (s *Server) Run() error {
 		s.hotels = loadRecommendations(s.MongoSession)
 	}
 
+        creds, err := credentials.NewServerTLSFromFile("x509/server_cert.pem", "x509/server_key.pem")
+        if err != nil {
+                return fmt.Errorf("failed to create credentials: %v", err)
+        }
+
 	srv := grpc.NewServer(
+		grpc.Creds(creds),
 		grpc.KeepaliveParams(keepalive.ServerParameters{
 			Timeout: 120 * time.Second,
 		}),
