@@ -6,11 +6,11 @@ import (
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/hailocab/go-geoindex"
 	"github.com/harlow/go-micro-services/registry"
+	"github.com/harlow/go-micro-services/tls"
 	pb "github.com/harlow/go-micro-services/services/recommendation/proto"
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -46,13 +46,7 @@ func (s *Server) Run() error {
 		s.hotels = loadRecommendations(s.MongoSession)
 	}
 
-        creds, err := credentials.NewServerTLSFromFile("x509/server_cert.pem", "x509/server_key.pem")
-        if err != nil {
-                return fmt.Errorf("failed to create credentials: %v", err)
-        }
-
-	srv := grpc.NewServer(
-		grpc.Creds(creds),
+	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepalive.ServerParameters{
 			Timeout: 120 * time.Second,
 		}),
@@ -62,7 +56,13 @@ func (s *Server) Run() error {
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
 		),
-	)
+	}
+
+	if tlsopt := tls.GetServerOpt(); tlsopt != nil {
+		opts = append(opts, tlsopt)
+	}
+
+	srv := grpc.NewServer(opts...)
 
 	pb.RegisterRecommendationServer(srv, s)
 

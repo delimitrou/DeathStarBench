@@ -10,6 +10,8 @@ services:
     restart: always
 
   frontend:
+    environment:
+      - TLS
     build: .
     image: hotel_reserv_frontend_single_node
     entrypoint: frontend
@@ -22,6 +24,8 @@ services:
     cpuset: "0"
 
   profile:
+    environment:
+      - TLS
     build: .
     image: hotel_reserv_profile_single_node
     entrypoint: profile
@@ -46,11 +50,14 @@ services:
       - consul
     restart: always
     cpuset: "2"
-    # environment:
+    environment:
+      - TLS
       # - GRPC_GO_LOG_VERBOSITY_LEVEL=2
       # - GRPC_GO_LOG_SEVERITY_LEVEL=info
 
   geo:
+    environment:
+      - TLS
     build: .
     image: hotel_reserv_geo_single_node
     entrypoint: geo
@@ -64,6 +71,8 @@ services:
     cpuset: "3"
 
   rate:
+    environment:
+      - TLS
     build: .
     image: hotel_reserv_rate_single_node
     entrypoint: rate
@@ -78,6 +87,8 @@ services:
     cpuset: "4"
 
   recommendation:
+    environment:
+      - TLS
     build: .
     image: hotel_reserv_recommend_single_node
     entrypoint: recommendation
@@ -91,6 +102,8 @@ services:
     cpuset: "5"
 
   user:
+    environment:
+      - TLS
     build: .
     image: hotel_reserv_user_single_node
     entrypoint: user
@@ -104,6 +117,8 @@ services:
     cpuset: "6"
 
   reservation:
+    environment:
+      - TLS
     build: .
     image: hotel_reserv_rsv_single_node
     entrypoint: reservation

@@ -14,11 +14,11 @@ import (
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/hailocab/go-geoindex"
 	"github.com/harlow/go-micro-services/registry"
+	"github.com/harlow/go-micro-services/tls"
 	pb "github.com/harlow/go-micro-services/services/geo/proto"
 	opentracing "github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 )
 
@@ -56,23 +56,23 @@ func (s *Server) Run() error {
 	// 	}),
 	// }
 
-        creds, err := credentials.NewServerTLSFromFile("x509/server_cert.pem", "x509/server_key.pem")
-        if err != nil {
-                return fmt.Errorf("failed to create credentials: %v", err)
-        }
-
-	srv := grpc.NewServer(
-		grpc.Creds(creds),
-		grpc.KeepaliveParams(keepalive.ServerParameters {
+	opts := []grpc.ServerOption{
+		grpc.KeepaliveParams(keepalive.ServerParameters{
 			Timeout: 120 * time.Second,
 		}),
-		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy {
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
 		),
-	)
+	}
+
+	if tlsopt := tls.GetServerOpt(); tlsopt != nil {
+		opts = append(opts, tlsopt)
+	}
+
+	srv := grpc.NewServer(opts...)
 
 	pb.RegisterGeoServer(srv, s)
 

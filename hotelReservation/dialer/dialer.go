@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/harlow/go-micro-services/tls"
 	consul "github.com/hashicorp/consul/api"
 	lb "github.com/olivere/grpc/lb/consul"
 	opentracing "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 )
 
@@ -36,17 +36,17 @@ func WithBalancer(registry *consul.Client) DialOption {
 
 // Dial returns a load balanced grpc client conn with tracing interceptor
 func Dial(name string, opts ...DialOption) (*grpc.ClientConn, error) {
-	creds, err := credentials.NewClientTLSFromFile("x509/ca_cert.pem", "x.test.example.com")
-        if err != nil {
-                return nil, fmt.Errorf("failed to load credentials: %v", err)
-        }
 
 	dialopts := []grpc.DialOption{
-		grpc.WithTransportCredentials(creds),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
 			Timeout:             120 * time.Second,
 			PermitWithoutStream: true,
 		}),
+	}
+	if tlsopt := tls.GetDialOpt(); tlsopt != nil {
+		dialopts = append(dialopts, tlsopt)
+	} else {
+		dialopts = append(dialopts, grpc.WithInsecure())
 	}
 
 	for _, fn := range opts {
