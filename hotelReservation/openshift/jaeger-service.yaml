@@ -1,3 +1,20 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-out
+  labels:
+    death-star-project: hotel-res
+    app-name: jaeger
+  namespace: hotel-res
+spec:
+  type: NodePort
+  ports:
+  - port: 16686
+  selector:
+    death-star-project: hotel-res
+    app-name: jaeger
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -20,9 +37,6 @@ spec:
   - name: "14267"
     port: 14267
     targetPort: 14267
-  - name: "16686"
-    port: 16686
-    targetPort: 16686
   - name: "5775"
     port: 5775
     protocol: UDP
