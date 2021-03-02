@@ -63,6 +63,10 @@ spec:
           name: lua-scripts-wrk2-api-user-timeline
         - mountPath: /usr/local/openresty/nginx/pages
           name: pages
+        - mountPath: /usr/local/openresty/nginx/pages/style
+          name: pages-style
+        - mountPath: /usr/local/openresty/nginx/pages/javascript
+          name: pages-javascript
         - mountPath: /usr/local/openresty/nginx/conf/nginx.conf
           subPath: nginx.conf
           name: nginx-conf
@@ -106,6 +110,12 @@ spec:
       - name: pages
         configMap:
           name: nginx-thrift-pages
+      - name: pages-style
+        configMap:
+          name: nginx-thrift-pages-style
+      - name: pages-javascript
+        configMap:
+          name: nginx-thrift-pages-javascript
       - name: gen-lua
         configMap:
           name: nginx-thrift-genlua
