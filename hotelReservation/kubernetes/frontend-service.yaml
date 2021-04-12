@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  ports:
+    - name: "frontend"
+      port: 5000
+      targetPort: 5000
+  selector:
+    app: frontend
+
