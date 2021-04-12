@@ -43,5 +43,5 @@ spec:
       volumes:
         - name: profile
           persistentVolumeClaim:
-            claimName: profile
+            claimName: profile-pvc
 status: {}
