@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
+	"strings"
 
 	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/services/search"
@@ -26,18 +28,35 @@ func main() {
 
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
+	serv_ip := ""
+	jaegeraddr := flag.String("jaegeraddr", "", "Jaeger address")
+	consuladdr := flag.String("consuladdr", "", "Consul address")
 
 	serv_port, _ := strconv.Atoi(result["SearchPort"])
-	serv_ip   := result["SearchIP"]
+	if result["Orchestrator"] == "k8s"{
+		addrs, _ := net.InterfaceAddrs()
+		for _, a := range addrs {
+			if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+				if ipnet.IP.To4() != nil {
+					serv_ip = ipnet.IP.String()
+
+				}
+			}
+		}
+		*jaegeraddr =  "jaeger:"+strings.Split(result["jaegerAddress"], ":")[1]
+		*consuladdr = "consul:" + strings.Split(result["consulAddress"], ":")[1]
+
+	} else {
+		serv_ip	= result["SearchIP"]
+		*jaegeraddr = result["jaegerAddress"]
+		*consuladdr = result["consulAddress"]
+
+	}
+	flag.Parse()
+
+
 
 	fmt.Printf("search ip = %s, port = %d\n", serv_ip, serv_port)
-
-	var (
-		// port       = flag.Int("port", 8082, "The server port")
-		jaegeraddr = flag.String("jaegeraddr", result["jaegerAddress"], "Jaeger address")
-		consuladdr = flag.String("consuladdr", result["consulAddress"], "Consul address")
-	)
-	flag.Parse()
 
 	tracer, err := tracing.Init("search", *jaegeraddr)
 	if err != nil {
