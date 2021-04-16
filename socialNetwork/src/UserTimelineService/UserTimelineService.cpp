@@ -38,15 +38,24 @@ int main(int argc, char *argv[]) {
   std::string redis_addr =
       config_json["user-timeline-redis"]["addr"];
   int redis_port = config_json["user-timeline-redis"]["port"];
+  int redis_conns = config_json["user-timeline-redis"]["connections"];
+  int redis_timeout = config_json["user-timeline-redis"]["timeout_ms"];
+  int redis_keepalive = config_json["user-timeline-redis"]["keepalive_ms"];
 
   int post_storage_port = config_json["post-storage-service"]["port"];
   std::string post_storage_addr = config_json["post-storage-service"]["addr"];
+  int post_storage_conns = config_json["post-storage-service"]["connections"];
+  int post_storage_timeout = config_json["post-storage-service"]["timeout_ms"];
+  int post_storage_keepalive = config_json["post-storage-service"]["keepalive_ms"];
+
+  int mongodb_conns = config_json["user-timeline-mongodb"]["connections"];
+  int mongodb_timeout = config_json["user-timeline-mongodb"]["timeout_ms"];
 
   auto mongodb_client_pool = init_mongodb_client_pool(
-      config_json, "user-timeline", 128);
+      config_json, "user-timeline", mongodb_conns);
 
   ClientPool<RedisClient> redis_client_pool("user-timeline-redis", 
-      redis_addr, redis_port, 0, 128, 1000);
+      redis_addr, redis_port, 0, redis_conns, redis_timeout, redis_keepalive);
 
   if (mongodb_client_pool == nullptr) {
     return EXIT_FAILURE;
@@ -54,7 +63,7 @@ int main(int argc, char *argv[]) {
 
   ClientPool<ThriftClient<PostStorageServiceClient>>
       post_storage_client_pool("post-storage-client", post_storage_addr,
-                               post_storage_port, 0, 128, 1000);
+                               post_storage_port, 0, post_storage_conns, post_storage_timeout, post_storage_keepalive);
 
   mongoc_client_t *mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
   if (!mongodb_client) {
@@ -81,7 +90,7 @@ int main(int argc, char *argv[]) {
       std::make_shared<TBinaryProtocolFactory>()
   );
 
-  std::cout << "Starting the user-timeline-service server..." << std::endl;
+  LOG(info) << "Starting the user-timeline-service server...";
   server.serve();
 
 

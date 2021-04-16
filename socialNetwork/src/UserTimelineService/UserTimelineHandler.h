@@ -60,7 +60,7 @@ void UserTimelineHandler::WriteUserTimeline(
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "WriteUserTimeline",
+      "write_user_timeline_server",
       { opentracing::ChildOf(parent_span->get()) });
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
@@ -83,8 +83,7 @@ void UserTimelineHandler::WriteUserTimeline(
   }
   bson_t *query = bson_new();
 
-  BSON_APPEND_INT64(query, "user_id", user_id);
-
+  BSON_APPEND_INT64(query, "user_id", user_id);  
   bson_t *update = BCON_NEW(
       "$push", "{",
           "posts", "{",
@@ -99,9 +98,7 @@ void UserTimelineHandler::WriteUserTimeline(
   bson_error_t error;
   bson_t reply;
   auto update_span = opentracing::Tracer::Global()->StartSpan(
-      "MongoInsert", {opentracing::ChildOf(&span->context())});
-  // If no document matches the query criteria,
-  // insert a single document (upsert: true)
+      "user_timeline_mongo_insert_client", {opentracing::ChildOf(&span->context())});
   bool updated = mongoc_collection_find_and_modify(
       collection, query, nullptr, update, nullptr, false, true,
       true, &reply, &error);
@@ -142,7 +139,7 @@ void UserTimelineHandler::WriteUserTimeline(
   }
   auto redis_client = redis_client_wrapper->GetClient();
   auto redis_span = opentracing::Tracer::Global()->StartSpan(
-      "RedisUpdate", {opentracing::ChildOf(&span->context())});
+      "user_timeline_redis_update_client", {opentracing::ChildOf(&span->context())});
   auto num_posts = redis_client->zcard(std::to_string(user_id));
   redis_client->sync_commit();
   auto num_posts_reply = num_posts.get();
@@ -154,11 +151,11 @@ void UserTimelineHandler::WriteUserTimeline(
     redis_client->zadd(key, options, value);
     redis_client->sync_commit();
   }
-  _redis_client_pool->Push(redis_client_wrapper);
+  _redis_client_pool->Keepalive(redis_client_wrapper);
   redis_span->Finish();
   span->Finish();
-
 }
+
 void UserTimelineHandler::ReadUserTimeline(
     std::vector<Post> &_return,
     int64_t req_id,
@@ -173,7 +170,7 @@ void UserTimelineHandler::ReadUserTimeline(
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "ReadUserTimeline",
+      "read_user_timeline_server",
       { opentracing::ChildOf(parent_span->get()) });
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
@@ -190,7 +187,7 @@ void UserTimelineHandler::ReadUserTimeline(
   }
   auto redis_client = redis_client_wrapper->GetClient();
   auto redis_span = opentracing::Tracer::Global()->StartSpan(
-      "RedisFind", {opentracing::ChildOf(&span->context())});
+      "user_timeline_redis_find_client", {opentracing::ChildOf(&span->context())});
   auto post_ids_future = redis_client->zrevrange(
       std::to_string(user_id), start, stop - 1);
   redis_client->commit();
@@ -201,10 +198,10 @@ void UserTimelineHandler::ReadUserTimeline(
     post_ids_reply = post_ids_future.get();
   } catch (...) {
     LOG(error) << "Failed to read post_ids from user-timeline-redis";
-    _redis_client_pool->Push(redis_client_wrapper);
+    _redis_client_pool->Remove(redis_client_wrapper);
     throw;
   }
-  _redis_client_pool->Push(redis_client_wrapper);
+  _redis_client_pool->Keepalive(redis_client_wrapper);
   
   std::vector<int64_t> post_ids;
   auto post_ids_reply_array = post_ids_reply.as_array();
@@ -244,7 +241,7 @@ void UserTimelineHandler::ReadUserTimeline(
         "}");
 
     auto find_span = opentracing::Tracer::Global()->StartSpan(
-        "MongoFindUserTimeline", { opentracing::ChildOf(&span->context()) });
+        "user_timeline_mongo_find_client", { opentracing::ChildOf(&span->context()) });
     mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(
         collection, query, opts, nullptr);
     find_span->Finish();
@@ -300,11 +297,11 @@ void UserTimelineHandler::ReadUserTimeline(
             post_client->ReadPosts(
                 _return_posts, req_id, post_ids, writer_text_map);
           } catch (...) {
-            _post_client_pool->Push(post_client_wrapper);
+            _post_client_pool->Remove(post_client_wrapper);
             LOG(error) << "Failed to read posts from post-storage-service";
             throw;
           }
-          _post_client_pool->Push(post_client_wrapper);
+          _post_client_pool->Keepalive(post_client_wrapper);
           return _return_posts;
       });
 
@@ -320,7 +317,7 @@ void UserTimelineHandler::ReadUserTimeline(
     }
     redis_client = redis_client_wrapper->GetClient();
     auto redis_update_span = opentracing::Tracer::Global()->StartSpan(
-        "RedisUpdate", {opentracing::ChildOf(&span->context())});
+        "user_timeline_redis_update_client", {opentracing::ChildOf(&span->context())});
     std::string user_id_str = std::to_string(user_id);
     redis_client->del(std::vector<std::string>{user_id_str});
     std::vector<std::string> options{"NX"};
@@ -339,8 +336,10 @@ void UserTimelineHandler::ReadUserTimeline(
         zadd_reply_future.get();
       } catch (...) {
         LOG(error) << "Failed to Update Redis Server";
+        _redis_client_pool->Remove(redis_client_wrapper);
+        throw;
       }
-      _redis_client_pool->Push(redis_client_wrapper);
+      _redis_client_pool->Keepalive(redis_client_wrapper);
     }
     throw;
   }
@@ -351,10 +350,10 @@ void UserTimelineHandler::ReadUserTimeline(
       zadd_reply_future.get();
     } catch (...) {
       LOG(error) << "Failed to Update Redis Server";
-      _redis_client_pool->Push(redis_client_wrapper);
+      _redis_client_pool->Remove(redis_client_wrapper);
       throw;
     }
-    _redis_client_pool->Push(redis_client_wrapper);
+    _redis_client_pool->Keepalive(redis_client_wrapper);
   }
 
   span->Finish();

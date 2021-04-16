@@ -1,0 +1,418 @@
+version: "3.8"
+
+services:
+  jaeger-agent:
+    image: jaegertracing/jaeger-agent:latest
+    hostname: jaeger-agent
+    command: ["--reporter.grpc.host-port=jaeger-collector:14250"]
+    # ports:
+    #   - target: 6831
+    #     published: 6831
+    #     protocol: udp
+    #     mode: host
+    #   - target: 5778
+    #     published: 5778
+    #     protocol: tcp
+    #     mode: host
+    #   - target: 14271
+    #     published: 14271
+    #     protocol: tcp
+    #     mode: host
+    deploy:
+      restart_policy:
+        condition: any
+    depends_on:
+      - jaeger-collector
+
+  compose-post-service:
+    depends_on:
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["ComposePostService"]
+    hostname: compose-post-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  home-timeline-redis:
+    depends_on:
+      - jaeger-agent
+    hostname: home-timeline-redis
+    image: redis
+
+  home-timeline-service:
+    depends_on:
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["HomeTimelineService"]
+    hostname: home-timeline-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  media-frontend:
+    depends_on:
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    hostname: media-frontend
+    image: yg397/media-frontend:xenial
+    ports:
+      - 18081:8080
+    volumes:
+      - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
+      - ./media-frontend/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+
+  media-memcached:
+    depends_on:
+      - jaeger-agent
+    hostname: media-memcached
+    image: memcached
+    command: 
+      - "-m 16384"
+      - "-t 8"
+      - "-I 32m"
+      - "-c 4096"
+
+  media-mongodb:
+    depends_on:
+      - jaeger-agent
+    hostname: media-mongodb
+    image: mongo
+    command: "mongod --nojournal --quiet"
+    # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 2"
+
+  media-service:
+    depends_on:
+      - media-mongodb
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["MediaService"]
+    hostname: media-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  nginx-web-server:
+    depends_on:
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    hostname: nginx-web-server
+    image: yg397/openresty-thrift:xenial
+    ports:
+      - 18080:8080
+    volumes:
+      - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
+      - ./nginx-web-server/pages:/usr/local/openresty/nginx/pages
+      - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
+      - ./gen-lua:/gen-lua
+
+  post-storage-memcached:
+    depends_on:
+      - jaeger-agent
+    hostname: post-storage-memcached
+    image: memcached
+    command: 
+      - "-m 16384"
+      - "-t 8"
+      - "-I 32m"
+      - "-c 4096"
+
+  post-storage-mongodb:
+    depends_on:
+      - jaeger-agent
+    hostname: post-storage-mongodb
+    image: mongo
+    command: "mongod --nojournal --quiet"
+    # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 75"
+
+  post-storage-service:
+    depends_on:
+      - post-storage-mongodb
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["PostStorageService"]
+    hostname: post-storage-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  social-graph-mongodb:
+    depends_on:
+      - jaeger-agent
+    hostname: social-graph-mongodb
+    image: mongo
+    command: "mongod --nojournal --quiet"
+    # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 16"
+
+  social-graph-redis:
+    depends_on:
+      - jaeger-agent
+    hostname: social-graph-redis
+    image: redis
+
+  social-graph-service:
+    depends_on:
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["SocialGraphService"]
+    hostname: social-graph-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  text-service:
+    depends_on:
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["TextService"]
+    hostname: text-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  unique-id-service:
+    depends_on:
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["UniqueIdService"]
+    hostname: unique-id-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  url-shorten-memcached:
+    depends_on:
+      - jaeger-agent
+    hostname: url-shorten-memcached
+    image: memcached
+    command: 
+      - "-m 16384"
+      - "-t 8"
+      - "-I 32m"
+      - "-c 4096"
+
+  url-shorten-mongodb:
+    depends_on:
+      - jaeger-agent
+    hostname: url-shorten-mongodb
+    image: mongo
+    command: "mongod --nojournal --quiet"
+    # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 36"
+
+  url-shorten-service:
+    depends_on:
+      - url-shorten-mongodb
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["UrlShortenService"]
+    hostname: url-shorten-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  user-memcached:
+    depends_on:
+      - jaeger-agent
+    hostname: user-memcached
+    image: memcached
+    command: 
+      - "-m 16384"
+      - "-t 8"
+      - "-I 32m"
+      - "-c 4096"
+
+  user-mention-service:
+    depends_on:
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["UserMentionService"]
+    hostname: user-mention-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  user-mongodb:
+    depends_on:
+      - jaeger-agent
+    hostname: user-mongodb
+    image: mongo
+    command: "mongod --nojournal --quiet"
+    # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 8"
+
+  user-service:
+    depends_on:
+      - user-mongodb
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["UserService"]
+    hostname: user-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  user-timeline-mongodb:
+    depends_on:
+      - jaeger-agent
+    hostname: user-timeline-mongodb
+    image: mongo
+    command: "mongod --nojournal --quiet"
+    # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 75"
+
+  user-timeline-redis:
+    depends_on:
+      - jaeger-agent
+    hostname: user-timeline-redis
+    image: redis
+
+  user-timeline-service:
+    depends_on:
+      - user-timeline-mongodb
+      - jaeger-agent
+    deploy:
+      replicas: 6
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    command: ["UserTimelineService"]
+    hostname: user-timeline-service
+    image: yg397/social-network-microservices:better_tracing
+    volumes:
+      - ./config:/social-network-microservices/config
+
+  jaeger-collector:
+    image: jaegertracing/jaeger-collector
+    command:
+      [
+        "--cassandra.keyspace=jaeger_v1_dc1",
+        "--cassandra.servers=cassandra",
+        "--collector.zipkin.host-port=9411",
+        "--collector.num-workers=100",
+        "--collector.queue-size=100000"
+      ]
+    ports:
+      - "14269:14269"
+    deploy:
+      restart_policy:
+        condition: any
+    depends_on:
+      - cassandra-schema
+
+  jaeger-query:
+    image: jaegertracing/jaeger-query
+    command:
+      ["--cassandra.keyspace=jaeger_v1_dc1", "--cassandra.servers=cassandra"]
+    ports:
+      - "16686:16686"
+    deploy:
+      restart_policy:
+        condition: any
+    depends_on:
+      - cassandra-schema
+
+  cassandra-schema:
+    image: jaegertracing/jaeger-cassandra-schema
+    deploy:
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - cassandra
+
+  cassandra:
+    image: cassandra:3.9
+    deploy:
+
+networks:
+  default:
+    driver: overlay
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.11.0.0/16

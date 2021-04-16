@@ -387,8 +387,8 @@ local UserTimelineServiceIface = __TObject:new{
 
 local UserTimelineServiceProcessor = __TObject.new(__TProcessor
 , {
- __type = 'UserTimelineServiceProcessor'
-})
+      __type = 'UserTimelineServiceProcessor'
+    })
 
 function UserTimelineServiceProcessor:process(iprot, oprot, server_ctx)
   local name, mtype, seqid = iprot:readMessageBegin()
@@ -450,4 +450,6 @@ function UserTimelineServiceProcessor:process_ReadUserTimeline(seqid, iprot, opr
   oprot.trans:flush()
 end
 
-return UserTimelineServiceClient
+return {
+  UserTimelineServiceClient = UserTimelineServiceClient
+}

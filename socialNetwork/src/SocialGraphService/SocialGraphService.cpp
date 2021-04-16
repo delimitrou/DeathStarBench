@@ -31,21 +31,33 @@ int main(int argc, char *argv[]) {
   }
 
   int port = config_json["social-graph-service"]["port"];
+
   int redis_port = config_json["social-graph-redis"]["port"];
   std::string redis_addr = config_json["social-graph-redis"]["addr"];
+  int redis_conns = config_json["social-graph-redis"]["connections"];
+  int redis_timeout = config_json["social-graph-redis"]["timeout_ms"];
+  int redis_keepalive = config_json["social-graph-redis"]["keepalive_ms"];
+
+  int mongodb_conns = config_json["social-graph-mongodb"]["connections"];
+  int mongodb_timeout = config_json["social-graph-mongodb"]["timeout_ms"];
+
   std::string user_addr = config_json["user-service"]["addr"];
   int user_port = config_json["user-service"]["port"];
+  int user_conns = config_json["user-service"]["connections"];
+  int user_timeout = config_json["user-service"]["timeout_ms"];
+  int user_keepalive = config_json["user-service"]["keepalive_ms"];
 
   mongoc_client_pool_t *mongodb_client_pool =
-      init_mongodb_client_pool(config_json, "social-graph", 128);
+      init_mongodb_client_pool(config_json, "social-graph", mongodb_conns);
 
   if (mongodb_client_pool == nullptr) {
     return EXIT_FAILURE;
   }
   ClientPool<RedisClient> redis_client_pool("redis", redis_addr, redis_port,
-      0, 128, 1000);
+      0, redis_conns, redis_timeout, redis_keepalive);
+
   ClientPool<ThriftClient<UserServiceClient>> user_client_pool(
-      "social-graph", user_addr, user_port, 0, 128, 1000);
+      "social-graph", user_addr, user_port, 0, user_conns, user_timeout, user_keepalive);
 
   mongoc_client_t *mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
   if (!mongodb_client) {
@@ -73,7 +85,7 @@ int main(int argc, char *argv[]) {
       std::make_shared<TBinaryProtocolFactory>()
   );
 
-  std::cout << "Starting the social-graph-service server ..." << std::endl;
+  LOG(info) << "Starting the social-graph-service server ...";
   server.serve();
 }
 

@@ -62,6 +62,8 @@ class UserMention;
 
 class Creator;
 
+class TextServiceReturn;
+
 class Post;
 
 typedef struct _User__isset {
@@ -377,6 +379,60 @@ class Creator : public virtual ::apache::thrift::TBase {
 void swap(Creator &a, Creator &b);
 
 std::ostream& operator<<(std::ostream& out, const Creator& obj);
+
+typedef struct _TextServiceReturn__isset {
+  _TextServiceReturn__isset() : text(false), user_mentions(false), urls(false) {}
+  bool text :1;
+  bool user_mentions :1;
+  bool urls :1;
+} _TextServiceReturn__isset;
+
+class TextServiceReturn : public virtual ::apache::thrift::TBase {
+ public:
+
+  TextServiceReturn(const TextServiceReturn&);
+  TextServiceReturn& operator=(const TextServiceReturn&);
+  TextServiceReturn() : text() {
+  }
+
+  virtual ~TextServiceReturn() throw();
+  std::string text;
+  std::vector<UserMention>  user_mentions;
+  std::vector<Url>  urls;
+
+  _TextServiceReturn__isset __isset;
+
+  void __set_text(const std::string& val);
+
+  void __set_user_mentions(const std::vector<UserMention> & val);
+
+  void __set_urls(const std::vector<Url> & val);
+
+  bool operator == (const TextServiceReturn & rhs) const
+  {
+    if (!(text == rhs.text))
+      return false;
+    if (!(user_mentions == rhs.user_mentions))
+      return false;
+    if (!(urls == rhs.urls))
+      return false;
+    return true;
+  }
+  bool operator != (const TextServiceReturn &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const TextServiceReturn & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+void swap(TextServiceReturn &a, TextServiceReturn &b);
+
+std::ostream& operator<<(std::ostream& out, const TextServiceReturn& obj);
 
 typedef struct _Post__isset {
   _Post__isset() : post_id(false), creator(false), req_id(false), text(false), user_mentions(false), media(false), urls(false), timestamp(false), post_type(false) {}

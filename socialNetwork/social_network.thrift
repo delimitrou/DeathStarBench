@@ -54,6 +54,12 @@ struct Creator {
   2: string username;
 }
 
+struct TextServiceReturn {
+ 1: string text;
+ 2: list<UserMention> user_mentions;
+ 3: list<Url> urls;
+}
+
 struct Post {
   1: i64 post_id;
   2: Creator creator;
@@ -67,7 +73,7 @@ struct Post {
 }
 
 service UniqueIdService {
-  void UploadUniqueId (
+  i64 ComposeUniqueId (
       1: i64 req_id,
       2: PostType post_type,
       3: map<string, string> carrier
@@ -75,7 +81,7 @@ service UniqueIdService {
 }
 
 service TextService {
-  void UploadText (
+  TextServiceReturn ComposeText (
       1: i64 req_id,
       2: string text,
       3: map<string, string> carrier
@@ -92,15 +98,15 @@ service UserService {
       6: map<string, string> carrier
   ) throws (1: ServiceException se)
 
-    void RegisterUserWithId (
-        1: i64 req_id,
-        2: string first_name,
-        3: string last_name,
-        4: string username,
-        5: string password,
-        6: i64 user_id,
-        7: map<string, string> carrier
-    ) throws (1: ServiceException se)
+  void RegisterUserWithId (
+      1: i64 req_id,
+      2: string first_name,
+      3: string last_name,
+      4: string username,
+      5: string password,
+      6: i64 user_id,
+      7: map<string, string> carrier
+  ) throws (1: ServiceException se)
 
   string Login(
       1: i64 req_id,
@@ -109,14 +115,14 @@ service UserService {
       4: map<string, string> carrier
   ) throws (1: ServiceException se)
 
-  void UploadCreatorWithUserId(
+  Creator ComposeCreatorWithUserId(
       1: i64 req_id,
       2: i64 user_id,
       3: string username,
       4: map<string, string> carrier
   ) throws (1: ServiceException se)
 
-  void UploadCreatorWithUsername(
+  Creator ComposeCreatorWithUsername(
       1: i64 req_id,
       2: string username,
       3: map<string, string> carrier
@@ -130,41 +136,15 @@ service UserService {
 }
 
 service ComposePostService {
-  void UploadText(
-      1: i64 req_id,
-      2: string text,
-      3: map<string, string> carrier
-  ) throws (1: ServiceException se)
-
-  void UploadMedia(
-      1: i64 req_id,
-      2: list<Media> media,
-      3: map<string, string> carrier
-  ) throws (1: ServiceException se)
-
-  void UploadUniqueId(
-      1: i64 req_id,
-      2: i64 post_id,
-      3: PostType post_type
-      4: map<string, string> carrier
-  ) throws (1: ServiceException se)
-
-  void UploadCreator(
-      1: i64 req_id,
-      2: Creator creator,
-      3: map<string, string> carrier
-  ) throws (1: ServiceException se)
-
-  void UploadUrls(
-      1: i64 req_id,
-      2: list<Url> urls,
-      3: map<string, string> carrier
-  ) throws (1: ServiceException se)
-
-  void UploadUserMentions(
-      1: i64 req_id,
-      2: list<UserMention> user_mentions,
-      3: map<string, string> carrier
+  void ComposePost(
+    1: i64 req_id,
+    2: string username,
+    3: i64 user_id,
+    4: string text,
+    5: list<i64> media_ids, 
+    6: list<string> media_types,
+    7: PostType post_type,
+    8: map<string, string> carrier
   ) throws (1: ServiceException se)
 }
 
@@ -195,6 +175,15 @@ service HomeTimelineService {
     3: i32 start,
     4: i32 stop,
     5: map<string, string> carrier
+  ) throws (1: ServiceException se)
+
+  void WriteHomeTimeline(
+    1: i64 req_id,
+    2: i64 post_id,
+    3: i64 user_id,
+    4: i64 timestamp,
+    5: list<i64> user_mentions_id,
+    6: map<string, string> carrier
   ) throws (1: ServiceException se)
 }
 
@@ -241,7 +230,7 @@ service SocialGraphService{
       2: i64 user_id,
       3: i64 followee_id,
       4: map<string, string> carrier
-   ) throws (1: ServiceException se)
+  ) throws (1: ServiceException se)
 
   void FollowWithUsername(
       1: i64 req_id,
@@ -258,14 +247,14 @@ service SocialGraphService{
   ) throws (1: ServiceException se)
 
   void InsertUser(
-     1: i64 req_id,
-     2: i64 user_id,
-     3: map<string, string> carrier
+      1: i64 req_id,
+      2: i64 user_id,
+      3: map<string, string> carrier
   ) throws (1: ServiceException se)
 }
 
 service UserMentionService {
-  void UploadUserMentions(
+  list<UserMention> ComposeUserMentions(
       1: i64 req_id,
       2: list<string> usernames,
       3: map<string, string> carrier
@@ -273,21 +262,21 @@ service UserMentionService {
 }
 
 service UrlShortenService {
-  list<string> UploadUrls(
+  list<Url> ComposeUrls(
       1: i64 req_id,
       2: list<string> urls,
       3: map<string, string> carrier
   ) throws (1: ServiceException se)
 
-    list<string> GetExtendedUrls(
-        1: i64 req_id,
-        2: list<string> shortened_urls,
-        3: map<string, string> carrier
-    ) throws (1: ServiceException se)
+  list<string> GetExtendedUrls(
+      1: i64 req_id,
+      2: list<string> shortened_urls,
+      3: map<string, string> carrier
+  ) throws (1: ServiceException se)
 }
 
 service MediaService {
-  void UploadMedia(
+  list<Media> ComposeMedia(
       1: i64 req_id,
       2: list<string> media_types,
       3: list<i64> media_ids,

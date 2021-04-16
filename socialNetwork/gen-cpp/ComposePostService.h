@@ -21,12 +21,7 @@ namespace social_network {
 class ComposePostServiceIf {
  public:
   virtual ~ComposePostServiceIf() {}
-  virtual void UploadText(const int64_t req_id, const std::string& text, const std::map<std::string, std::string> & carrier) = 0;
-  virtual void UploadMedia(const int64_t req_id, const std::vector<Media> & media, const std::map<std::string, std::string> & carrier) = 0;
-  virtual void UploadUniqueId(const int64_t req_id, const int64_t post_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier) = 0;
-  virtual void UploadCreator(const int64_t req_id, const Creator& creator, const std::map<std::string, std::string> & carrier) = 0;
-  virtual void UploadUrls(const int64_t req_id, const std::vector<Url> & urls, const std::map<std::string, std::string> & carrier) = 0;
-  virtual void UploadUserMentions(const int64_t req_id, const std::vector<UserMention> & user_mentions, const std::map<std::string, std::string> & carrier) = 0;
+  virtual void ComposePost(const int64_t req_id, const std::string& username, const int64_t user_id, const std::string& text, const std::vector<int64_t> & media_ids, const std::vector<std::string> & media_types, const PostType::type post_type, const std::map<std::string, std::string> & carrier) = 0;
 };
 
 class ComposePostServiceIfFactory {
@@ -56,299 +51,72 @@ class ComposePostServiceIfSingletonFactory : virtual public ComposePostServiceIf
 class ComposePostServiceNull : virtual public ComposePostServiceIf {
  public:
   virtual ~ComposePostServiceNull() {}
-  void UploadText(const int64_t /* req_id */, const std::string& /* text */, const std::map<std::string, std::string> & /* carrier */) {
-    return;
-  }
-  void UploadMedia(const int64_t /* req_id */, const std::vector<Media> & /* media */, const std::map<std::string, std::string> & /* carrier */) {
-    return;
-  }
-  void UploadUniqueId(const int64_t /* req_id */, const int64_t /* post_id */, const PostType::type /* post_type */, const std::map<std::string, std::string> & /* carrier */) {
-    return;
-  }
-  void UploadCreator(const int64_t /* req_id */, const Creator& /* creator */, const std::map<std::string, std::string> & /* carrier */) {
-    return;
-  }
-  void UploadUrls(const int64_t /* req_id */, const std::vector<Url> & /* urls */, const std::map<std::string, std::string> & /* carrier */) {
-    return;
-  }
-  void UploadUserMentions(const int64_t /* req_id */, const std::vector<UserMention> & /* user_mentions */, const std::map<std::string, std::string> & /* carrier */) {
+  void ComposePost(const int64_t /* req_id */, const std::string& /* username */, const int64_t /* user_id */, const std::string& /* text */, const std::vector<int64_t> & /* media_ids */, const std::vector<std::string> & /* media_types */, const PostType::type /* post_type */, const std::map<std::string, std::string> & /* carrier */) {
     return;
   }
 };
 
-typedef struct _ComposePostService_UploadText_args__isset {
-  _ComposePostService_UploadText_args__isset() : req_id(false), text(false), carrier(false) {}
+typedef struct _ComposePostService_ComposePost_args__isset {
+  _ComposePostService_ComposePost_args__isset() : req_id(false), username(false), user_id(false), text(false), media_ids(false), media_types(false), post_type(false), carrier(false) {}
   bool req_id :1;
+  bool username :1;
+  bool user_id :1;
   bool text :1;
-  bool carrier :1;
-} _ComposePostService_UploadText_args__isset;
-
-class ComposePostService_UploadText_args {
- public:
-
-  ComposePostService_UploadText_args(const ComposePostService_UploadText_args&);
-  ComposePostService_UploadText_args& operator=(const ComposePostService_UploadText_args&);
-  ComposePostService_UploadText_args() : req_id(0), text() {
-  }
-
-  virtual ~ComposePostService_UploadText_args() throw();
-  int64_t req_id;
-  std::string text;
-  std::map<std::string, std::string>  carrier;
-
-  _ComposePostService_UploadText_args__isset __isset;
-
-  void __set_req_id(const int64_t val);
-
-  void __set_text(const std::string& val);
-
-  void __set_carrier(const std::map<std::string, std::string> & val);
-
-  bool operator == (const ComposePostService_UploadText_args & rhs) const
-  {
-    if (!(req_id == rhs.req_id))
-      return false;
-    if (!(text == rhs.text))
-      return false;
-    if (!(carrier == rhs.carrier))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadText_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadText_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class ComposePostService_UploadText_pargs {
- public:
-
-
-  virtual ~ComposePostService_UploadText_pargs() throw();
-  const int64_t* req_id;
-  const std::string* text;
-  const std::map<std::string, std::string> * carrier;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadText_result__isset {
-  _ComposePostService_UploadText_result__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadText_result__isset;
-
-class ComposePostService_UploadText_result {
- public:
-
-  ComposePostService_UploadText_result(const ComposePostService_UploadText_result&);
-  ComposePostService_UploadText_result& operator=(const ComposePostService_UploadText_result&);
-  ComposePostService_UploadText_result() {
-  }
-
-  virtual ~ComposePostService_UploadText_result() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadText_result__isset __isset;
-
-  void __set_se(const ServiceException& val);
-
-  bool operator == (const ComposePostService_UploadText_result & rhs) const
-  {
-    if (!(se == rhs.se))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadText_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadText_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadText_presult__isset {
-  _ComposePostService_UploadText_presult__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadText_presult__isset;
-
-class ComposePostService_UploadText_presult {
- public:
-
-
-  virtual ~ComposePostService_UploadText_presult() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadText_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _ComposePostService_UploadMedia_args__isset {
-  _ComposePostService_UploadMedia_args__isset() : req_id(false), media(false), carrier(false) {}
-  bool req_id :1;
-  bool media :1;
-  bool carrier :1;
-} _ComposePostService_UploadMedia_args__isset;
-
-class ComposePostService_UploadMedia_args {
- public:
-
-  ComposePostService_UploadMedia_args(const ComposePostService_UploadMedia_args&);
-  ComposePostService_UploadMedia_args& operator=(const ComposePostService_UploadMedia_args&);
-  ComposePostService_UploadMedia_args() : req_id(0) {
-  }
-
-  virtual ~ComposePostService_UploadMedia_args() throw();
-  int64_t req_id;
-  std::vector<Media>  media;
-  std::map<std::string, std::string>  carrier;
-
-  _ComposePostService_UploadMedia_args__isset __isset;
-
-  void __set_req_id(const int64_t val);
-
-  void __set_media(const std::vector<Media> & val);
-
-  void __set_carrier(const std::map<std::string, std::string> & val);
-
-  bool operator == (const ComposePostService_UploadMedia_args & rhs) const
-  {
-    if (!(req_id == rhs.req_id))
-      return false;
-    if (!(media == rhs.media))
-      return false;
-    if (!(carrier == rhs.carrier))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadMedia_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadMedia_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class ComposePostService_UploadMedia_pargs {
- public:
-
-
-  virtual ~ComposePostService_UploadMedia_pargs() throw();
-  const int64_t* req_id;
-  const std::vector<Media> * media;
-  const std::map<std::string, std::string> * carrier;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadMedia_result__isset {
-  _ComposePostService_UploadMedia_result__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadMedia_result__isset;
-
-class ComposePostService_UploadMedia_result {
- public:
-
-  ComposePostService_UploadMedia_result(const ComposePostService_UploadMedia_result&);
-  ComposePostService_UploadMedia_result& operator=(const ComposePostService_UploadMedia_result&);
-  ComposePostService_UploadMedia_result() {
-  }
-
-  virtual ~ComposePostService_UploadMedia_result() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadMedia_result__isset __isset;
-
-  void __set_se(const ServiceException& val);
-
-  bool operator == (const ComposePostService_UploadMedia_result & rhs) const
-  {
-    if (!(se == rhs.se))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadMedia_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadMedia_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadMedia_presult__isset {
-  _ComposePostService_UploadMedia_presult__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadMedia_presult__isset;
-
-class ComposePostService_UploadMedia_presult {
- public:
-
-
-  virtual ~ComposePostService_UploadMedia_presult() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadMedia_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _ComposePostService_UploadUniqueId_args__isset {
-  _ComposePostService_UploadUniqueId_args__isset() : req_id(false), post_id(false), post_type(false), carrier(false) {}
-  bool req_id :1;
-  bool post_id :1;
+  bool media_ids :1;
+  bool media_types :1;
   bool post_type :1;
   bool carrier :1;
-} _ComposePostService_UploadUniqueId_args__isset;
+} _ComposePostService_ComposePost_args__isset;
 
-class ComposePostService_UploadUniqueId_args {
+class ComposePostService_ComposePost_args {
  public:
 
-  ComposePostService_UploadUniqueId_args(const ComposePostService_UploadUniqueId_args&);
-  ComposePostService_UploadUniqueId_args& operator=(const ComposePostService_UploadUniqueId_args&);
-  ComposePostService_UploadUniqueId_args() : req_id(0), post_id(0), post_type((PostType::type)0) {
+  ComposePostService_ComposePost_args(const ComposePostService_ComposePost_args&);
+  ComposePostService_ComposePost_args& operator=(const ComposePostService_ComposePost_args&);
+  ComposePostService_ComposePost_args() : req_id(0), username(), user_id(0), text(), post_type((PostType::type)0) {
   }
 
-  virtual ~ComposePostService_UploadUniqueId_args() throw();
+  virtual ~ComposePostService_ComposePost_args() throw();
   int64_t req_id;
-  int64_t post_id;
+  std::string username;
+  int64_t user_id;
+  std::string text;
+  std::vector<int64_t>  media_ids;
+  std::vector<std::string>  media_types;
   PostType::type post_type;
   std::map<std::string, std::string>  carrier;
 
-  _ComposePostService_UploadUniqueId_args__isset __isset;
+  _ComposePostService_ComposePost_args__isset __isset;
 
   void __set_req_id(const int64_t val);
 
-  void __set_post_id(const int64_t val);
+  void __set_username(const std::string& val);
+
+  void __set_user_id(const int64_t val);
+
+  void __set_text(const std::string& val);
+
+  void __set_media_ids(const std::vector<int64_t> & val);
+
+  void __set_media_types(const std::vector<std::string> & val);
 
   void __set_post_type(const PostType::type val);
 
   void __set_carrier(const std::map<std::string, std::string> & val);
 
-  bool operator == (const ComposePostService_UploadUniqueId_args & rhs) const
+  bool operator == (const ComposePostService_ComposePost_args & rhs) const
   {
     if (!(req_id == rhs.req_id))
       return false;
-    if (!(post_id == rhs.post_id))
+    if (!(username == rhs.username))
+      return false;
+    if (!(user_id == rhs.user_id))
+      return false;
+    if (!(text == rhs.text))
+      return false;
+    if (!(media_ids == rhs.media_ids))
+      return false;
+    if (!(media_types == rhs.media_types))
       return false;
     if (!(post_type == rhs.post_type))
       return false;
@@ -356,11 +124,11 @@ class ComposePostService_UploadUniqueId_args {
       return false;
     return true;
   }
-  bool operator != (const ComposePostService_UploadUniqueId_args &rhs) const {
+  bool operator != (const ComposePostService_ComposePost_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const ComposePostService_UploadUniqueId_args & ) const;
+  bool operator < (const ComposePostService_ComposePost_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -368,13 +136,17 @@ class ComposePostService_UploadUniqueId_args {
 };
 
 
-class ComposePostService_UploadUniqueId_pargs {
+class ComposePostService_ComposePost_pargs {
  public:
 
 
-  virtual ~ComposePostService_UploadUniqueId_pargs() throw();
+  virtual ~ComposePostService_ComposePost_pargs() throw();
   const int64_t* req_id;
-  const int64_t* post_id;
+  const std::string* username;
+  const int64_t* user_id;
+  const std::string* text;
+  const std::vector<int64_t> * media_ids;
+  const std::vector<std::string> * media_types;
   const PostType::type* post_type;
   const std::map<std::string, std::string> * carrier;
 
@@ -382,410 +154,56 @@ class ComposePostService_UploadUniqueId_pargs {
 
 };
 
-typedef struct _ComposePostService_UploadUniqueId_result__isset {
-  _ComposePostService_UploadUniqueId_result__isset() : se(false) {}
+typedef struct _ComposePostService_ComposePost_result__isset {
+  _ComposePostService_ComposePost_result__isset() : se(false) {}
   bool se :1;
-} _ComposePostService_UploadUniqueId_result__isset;
+} _ComposePostService_ComposePost_result__isset;
 
-class ComposePostService_UploadUniqueId_result {
+class ComposePostService_ComposePost_result {
  public:
 
-  ComposePostService_UploadUniqueId_result(const ComposePostService_UploadUniqueId_result&);
-  ComposePostService_UploadUniqueId_result& operator=(const ComposePostService_UploadUniqueId_result&);
-  ComposePostService_UploadUniqueId_result() {
+  ComposePostService_ComposePost_result(const ComposePostService_ComposePost_result&);
+  ComposePostService_ComposePost_result& operator=(const ComposePostService_ComposePost_result&);
+  ComposePostService_ComposePost_result() {
   }
 
-  virtual ~ComposePostService_UploadUniqueId_result() throw();
+  virtual ~ComposePostService_ComposePost_result() throw();
   ServiceException se;
 
-  _ComposePostService_UploadUniqueId_result__isset __isset;
+  _ComposePostService_ComposePost_result__isset __isset;
 
   void __set_se(const ServiceException& val);
 
-  bool operator == (const ComposePostService_UploadUniqueId_result & rhs) const
+  bool operator == (const ComposePostService_ComposePost_result & rhs) const
   {
     if (!(se == rhs.se))
       return false;
     return true;
   }
-  bool operator != (const ComposePostService_UploadUniqueId_result &rhs) const {
+  bool operator != (const ComposePostService_ComposePost_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const ComposePostService_UploadUniqueId_result & ) const;
+  bool operator < (const ComposePostService_ComposePost_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
-typedef struct _ComposePostService_UploadUniqueId_presult__isset {
-  _ComposePostService_UploadUniqueId_presult__isset() : se(false) {}
+typedef struct _ComposePostService_ComposePost_presult__isset {
+  _ComposePostService_ComposePost_presult__isset() : se(false) {}
   bool se :1;
-} _ComposePostService_UploadUniqueId_presult__isset;
+} _ComposePostService_ComposePost_presult__isset;
 
-class ComposePostService_UploadUniqueId_presult {
+class ComposePostService_ComposePost_presult {
  public:
 
 
-  virtual ~ComposePostService_UploadUniqueId_presult() throw();
+  virtual ~ComposePostService_ComposePost_presult() throw();
   ServiceException se;
 
-  _ComposePostService_UploadUniqueId_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _ComposePostService_UploadCreator_args__isset {
-  _ComposePostService_UploadCreator_args__isset() : req_id(false), creator(false), carrier(false) {}
-  bool req_id :1;
-  bool creator :1;
-  bool carrier :1;
-} _ComposePostService_UploadCreator_args__isset;
-
-class ComposePostService_UploadCreator_args {
- public:
-
-  ComposePostService_UploadCreator_args(const ComposePostService_UploadCreator_args&);
-  ComposePostService_UploadCreator_args& operator=(const ComposePostService_UploadCreator_args&);
-  ComposePostService_UploadCreator_args() : req_id(0) {
-  }
-
-  virtual ~ComposePostService_UploadCreator_args() throw();
-  int64_t req_id;
-  Creator creator;
-  std::map<std::string, std::string>  carrier;
-
-  _ComposePostService_UploadCreator_args__isset __isset;
-
-  void __set_req_id(const int64_t val);
-
-  void __set_creator(const Creator& val);
-
-  void __set_carrier(const std::map<std::string, std::string> & val);
-
-  bool operator == (const ComposePostService_UploadCreator_args & rhs) const
-  {
-    if (!(req_id == rhs.req_id))
-      return false;
-    if (!(creator == rhs.creator))
-      return false;
-    if (!(carrier == rhs.carrier))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadCreator_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadCreator_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class ComposePostService_UploadCreator_pargs {
- public:
-
-
-  virtual ~ComposePostService_UploadCreator_pargs() throw();
-  const int64_t* req_id;
-  const Creator* creator;
-  const std::map<std::string, std::string> * carrier;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadCreator_result__isset {
-  _ComposePostService_UploadCreator_result__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadCreator_result__isset;
-
-class ComposePostService_UploadCreator_result {
- public:
-
-  ComposePostService_UploadCreator_result(const ComposePostService_UploadCreator_result&);
-  ComposePostService_UploadCreator_result& operator=(const ComposePostService_UploadCreator_result&);
-  ComposePostService_UploadCreator_result() {
-  }
-
-  virtual ~ComposePostService_UploadCreator_result() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadCreator_result__isset __isset;
-
-  void __set_se(const ServiceException& val);
-
-  bool operator == (const ComposePostService_UploadCreator_result & rhs) const
-  {
-    if (!(se == rhs.se))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadCreator_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadCreator_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadCreator_presult__isset {
-  _ComposePostService_UploadCreator_presult__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadCreator_presult__isset;
-
-class ComposePostService_UploadCreator_presult {
- public:
-
-
-  virtual ~ComposePostService_UploadCreator_presult() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadCreator_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _ComposePostService_UploadUrls_args__isset {
-  _ComposePostService_UploadUrls_args__isset() : req_id(false), urls(false), carrier(false) {}
-  bool req_id :1;
-  bool urls :1;
-  bool carrier :1;
-} _ComposePostService_UploadUrls_args__isset;
-
-class ComposePostService_UploadUrls_args {
- public:
-
-  ComposePostService_UploadUrls_args(const ComposePostService_UploadUrls_args&);
-  ComposePostService_UploadUrls_args& operator=(const ComposePostService_UploadUrls_args&);
-  ComposePostService_UploadUrls_args() : req_id(0) {
-  }
-
-  virtual ~ComposePostService_UploadUrls_args() throw();
-  int64_t req_id;
-  std::vector<Url>  urls;
-  std::map<std::string, std::string>  carrier;
-
-  _ComposePostService_UploadUrls_args__isset __isset;
-
-  void __set_req_id(const int64_t val);
-
-  void __set_urls(const std::vector<Url> & val);
-
-  void __set_carrier(const std::map<std::string, std::string> & val);
-
-  bool operator == (const ComposePostService_UploadUrls_args & rhs) const
-  {
-    if (!(req_id == rhs.req_id))
-      return false;
-    if (!(urls == rhs.urls))
-      return false;
-    if (!(carrier == rhs.carrier))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadUrls_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadUrls_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class ComposePostService_UploadUrls_pargs {
- public:
-
-
-  virtual ~ComposePostService_UploadUrls_pargs() throw();
-  const int64_t* req_id;
-  const std::vector<Url> * urls;
-  const std::map<std::string, std::string> * carrier;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadUrls_result__isset {
-  _ComposePostService_UploadUrls_result__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadUrls_result__isset;
-
-class ComposePostService_UploadUrls_result {
- public:
-
-  ComposePostService_UploadUrls_result(const ComposePostService_UploadUrls_result&);
-  ComposePostService_UploadUrls_result& operator=(const ComposePostService_UploadUrls_result&);
-  ComposePostService_UploadUrls_result() {
-  }
-
-  virtual ~ComposePostService_UploadUrls_result() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadUrls_result__isset __isset;
-
-  void __set_se(const ServiceException& val);
-
-  bool operator == (const ComposePostService_UploadUrls_result & rhs) const
-  {
-    if (!(se == rhs.se))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadUrls_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadUrls_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadUrls_presult__isset {
-  _ComposePostService_UploadUrls_presult__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadUrls_presult__isset;
-
-class ComposePostService_UploadUrls_presult {
- public:
-
-
-  virtual ~ComposePostService_UploadUrls_presult() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadUrls_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _ComposePostService_UploadUserMentions_args__isset {
-  _ComposePostService_UploadUserMentions_args__isset() : req_id(false), user_mentions(false), carrier(false) {}
-  bool req_id :1;
-  bool user_mentions :1;
-  bool carrier :1;
-} _ComposePostService_UploadUserMentions_args__isset;
-
-class ComposePostService_UploadUserMentions_args {
- public:
-
-  ComposePostService_UploadUserMentions_args(const ComposePostService_UploadUserMentions_args&);
-  ComposePostService_UploadUserMentions_args& operator=(const ComposePostService_UploadUserMentions_args&);
-  ComposePostService_UploadUserMentions_args() : req_id(0) {
-  }
-
-  virtual ~ComposePostService_UploadUserMentions_args() throw();
-  int64_t req_id;
-  std::vector<UserMention>  user_mentions;
-  std::map<std::string, std::string>  carrier;
-
-  _ComposePostService_UploadUserMentions_args__isset __isset;
-
-  void __set_req_id(const int64_t val);
-
-  void __set_user_mentions(const std::vector<UserMention> & val);
-
-  void __set_carrier(const std::map<std::string, std::string> & val);
-
-  bool operator == (const ComposePostService_UploadUserMentions_args & rhs) const
-  {
-    if (!(req_id == rhs.req_id))
-      return false;
-    if (!(user_mentions == rhs.user_mentions))
-      return false;
-    if (!(carrier == rhs.carrier))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadUserMentions_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadUserMentions_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class ComposePostService_UploadUserMentions_pargs {
- public:
-
-
-  virtual ~ComposePostService_UploadUserMentions_pargs() throw();
-  const int64_t* req_id;
-  const std::vector<UserMention> * user_mentions;
-  const std::map<std::string, std::string> * carrier;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadUserMentions_result__isset {
-  _ComposePostService_UploadUserMentions_result__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadUserMentions_result__isset;
-
-class ComposePostService_UploadUserMentions_result {
- public:
-
-  ComposePostService_UploadUserMentions_result(const ComposePostService_UploadUserMentions_result&);
-  ComposePostService_UploadUserMentions_result& operator=(const ComposePostService_UploadUserMentions_result&);
-  ComposePostService_UploadUserMentions_result() {
-  }
-
-  virtual ~ComposePostService_UploadUserMentions_result() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadUserMentions_result__isset __isset;
-
-  void __set_se(const ServiceException& val);
-
-  bool operator == (const ComposePostService_UploadUserMentions_result & rhs) const
-  {
-    if (!(se == rhs.se))
-      return false;
-    return true;
-  }
-  bool operator != (const ComposePostService_UploadUserMentions_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ComposePostService_UploadUserMentions_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _ComposePostService_UploadUserMentions_presult__isset {
-  _ComposePostService_UploadUserMentions_presult__isset() : se(false) {}
-  bool se :1;
-} _ComposePostService_UploadUserMentions_presult__isset;
-
-class ComposePostService_UploadUserMentions_presult {
- public:
-
-
-  virtual ~ComposePostService_UploadUserMentions_presult() throw();
-  ServiceException se;
-
-  _ComposePostService_UploadUserMentions_presult__isset __isset;
+  _ComposePostService_ComposePost_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -816,24 +234,9 @@ class ComposePostServiceClient : virtual public ComposePostServiceIf {
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void UploadText(const int64_t req_id, const std::string& text, const std::map<std::string, std::string> & carrier);
-  void send_UploadText(const int64_t req_id, const std::string& text, const std::map<std::string, std::string> & carrier);
-  void recv_UploadText();
-  void UploadMedia(const int64_t req_id, const std::vector<Media> & media, const std::map<std::string, std::string> & carrier);
-  void send_UploadMedia(const int64_t req_id, const std::vector<Media> & media, const std::map<std::string, std::string> & carrier);
-  void recv_UploadMedia();
-  void UploadUniqueId(const int64_t req_id, const int64_t post_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier);
-  void send_UploadUniqueId(const int64_t req_id, const int64_t post_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier);
-  void recv_UploadUniqueId();
-  void UploadCreator(const int64_t req_id, const Creator& creator, const std::map<std::string, std::string> & carrier);
-  void send_UploadCreator(const int64_t req_id, const Creator& creator, const std::map<std::string, std::string> & carrier);
-  void recv_UploadCreator();
-  void UploadUrls(const int64_t req_id, const std::vector<Url> & urls, const std::map<std::string, std::string> & carrier);
-  void send_UploadUrls(const int64_t req_id, const std::vector<Url> & urls, const std::map<std::string, std::string> & carrier);
-  void recv_UploadUrls();
-  void UploadUserMentions(const int64_t req_id, const std::vector<UserMention> & user_mentions, const std::map<std::string, std::string> & carrier);
-  void send_UploadUserMentions(const int64_t req_id, const std::vector<UserMention> & user_mentions, const std::map<std::string, std::string> & carrier);
-  void recv_UploadUserMentions();
+  void ComposePost(const int64_t req_id, const std::string& username, const int64_t user_id, const std::string& text, const std::vector<int64_t> & media_ids, const std::vector<std::string> & media_types, const PostType::type post_type, const std::map<std::string, std::string> & carrier);
+  void send_ComposePost(const int64_t req_id, const std::string& username, const int64_t user_id, const std::string& text, const std::vector<int64_t> & media_ids, const std::vector<std::string> & media_types, const PostType::type post_type, const std::map<std::string, std::string> & carrier);
+  void recv_ComposePost();
  protected:
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -849,21 +252,11 @@ class ComposePostServiceProcessor : public ::apache::thrift::TDispatchProcessor 
   typedef  void (ComposePostServiceProcessor::*ProcessFunction)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*);
   typedef std::map<std::string, ProcessFunction> ProcessMap;
   ProcessMap processMap_;
-  void process_UploadText(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_UploadMedia(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_UploadUniqueId(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_UploadCreator(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_UploadUrls(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_UploadUserMentions(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_ComposePost(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   ComposePostServiceProcessor(::apache::thrift::stdcxx::shared_ptr<ComposePostServiceIf> iface) :
     iface_(iface) {
-    processMap_["UploadText"] = &ComposePostServiceProcessor::process_UploadText;
-    processMap_["UploadMedia"] = &ComposePostServiceProcessor::process_UploadMedia;
-    processMap_["UploadUniqueId"] = &ComposePostServiceProcessor::process_UploadUniqueId;
-    processMap_["UploadCreator"] = &ComposePostServiceProcessor::process_UploadCreator;
-    processMap_["UploadUrls"] = &ComposePostServiceProcessor::process_UploadUrls;
-    processMap_["UploadUserMentions"] = &ComposePostServiceProcessor::process_UploadUserMentions;
+    processMap_["ComposePost"] = &ComposePostServiceProcessor::process_ComposePost;
   }
 
   virtual ~ComposePostServiceProcessor() {}
@@ -892,58 +285,13 @@ class ComposePostServiceMultiface : virtual public ComposePostServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void UploadText(const int64_t req_id, const std::string& text, const std::map<std::string, std::string> & carrier) {
+  void ComposePost(const int64_t req_id, const std::string& username, const int64_t user_id, const std::string& text, const std::vector<int64_t> & media_ids, const std::vector<std::string> & media_types, const PostType::type post_type, const std::map<std::string, std::string> & carrier) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadText(req_id, text, carrier);
+      ifaces_[i]->ComposePost(req_id, username, user_id, text, media_ids, media_types, post_type, carrier);
     }
-    ifaces_[i]->UploadText(req_id, text, carrier);
-  }
-
-  void UploadMedia(const int64_t req_id, const std::vector<Media> & media, const std::map<std::string, std::string> & carrier) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadMedia(req_id, media, carrier);
-    }
-    ifaces_[i]->UploadMedia(req_id, media, carrier);
-  }
-
-  void UploadUniqueId(const int64_t req_id, const int64_t post_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadUniqueId(req_id, post_id, post_type, carrier);
-    }
-    ifaces_[i]->UploadUniqueId(req_id, post_id, post_type, carrier);
-  }
-
-  void UploadCreator(const int64_t req_id, const Creator& creator, const std::map<std::string, std::string> & carrier) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadCreator(req_id, creator, carrier);
-    }
-    ifaces_[i]->UploadCreator(req_id, creator, carrier);
-  }
-
-  void UploadUrls(const int64_t req_id, const std::vector<Url> & urls, const std::map<std::string, std::string> & carrier) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadUrls(req_id, urls, carrier);
-    }
-    ifaces_[i]->UploadUrls(req_id, urls, carrier);
-  }
-
-  void UploadUserMentions(const int64_t req_id, const std::vector<UserMention> & user_mentions, const std::map<std::string, std::string> & carrier) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadUserMentions(req_id, user_mentions, carrier);
-    }
-    ifaces_[i]->UploadUserMentions(req_id, user_mentions, carrier);
+    ifaces_[i]->ComposePost(req_id, username, user_id, text, media_ids, media_types, post_type, carrier);
   }
 
 };
@@ -976,24 +324,9 @@ class ComposePostServiceConcurrentClient : virtual public ComposePostServiceIf {
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void UploadText(const int64_t req_id, const std::string& text, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadText(const int64_t req_id, const std::string& text, const std::map<std::string, std::string> & carrier);
-  void recv_UploadText(const int32_t seqid);
-  void UploadMedia(const int64_t req_id, const std::vector<Media> & media, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadMedia(const int64_t req_id, const std::vector<Media> & media, const std::map<std::string, std::string> & carrier);
-  void recv_UploadMedia(const int32_t seqid);
-  void UploadUniqueId(const int64_t req_id, const int64_t post_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadUniqueId(const int64_t req_id, const int64_t post_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier);
-  void recv_UploadUniqueId(const int32_t seqid);
-  void UploadCreator(const int64_t req_id, const Creator& creator, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadCreator(const int64_t req_id, const Creator& creator, const std::map<std::string, std::string> & carrier);
-  void recv_UploadCreator(const int32_t seqid);
-  void UploadUrls(const int64_t req_id, const std::vector<Url> & urls, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadUrls(const int64_t req_id, const std::vector<Url> & urls, const std::map<std::string, std::string> & carrier);
-  void recv_UploadUrls(const int32_t seqid);
-  void UploadUserMentions(const int64_t req_id, const std::vector<UserMention> & user_mentions, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadUserMentions(const int64_t req_id, const std::vector<UserMention> & user_mentions, const std::map<std::string, std::string> & carrier);
-  void recv_UploadUserMentions(const int32_t seqid);
+  void ComposePost(const int64_t req_id, const std::string& username, const int64_t user_id, const std::string& text, const std::vector<int64_t> & media_ids, const std::vector<std::string> & media_types, const PostType::type post_type, const std::map<std::string, std::string> & carrier);
+  int32_t send_ComposePost(const int64_t req_id, const std::string& username, const int64_t user_id, const std::string& text, const std::vector<int64_t> & media_ids, const std::vector<std::string> & media_types, const PostType::type post_type, const std::map<std::string, std::string> & carrier);
+  void recv_ComposePost(const int32_t seqid);
  protected:
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;

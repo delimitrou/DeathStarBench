@@ -24,7 +24,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
-    print('  void UploadText(i64 req_id, string text,  carrier)')
+    print('  string ComposeText(i64 req_id, string text,  carrier)')
     print('')
     sys.exit(0)
 
@@ -104,11 +104,11 @@ protocol = TBinaryProtocol(transport)
 client = TextService.Client(protocol)
 transport.open()
 
-if cmd == 'UploadText':
+if cmd == 'ComposeText':
     if len(args) != 3:
-        print('UploadText requires 3 args')
+        print('ComposeText requires 3 args')
         sys.exit(1)
-    pp.pprint(client.UploadText(eval(args[0]), args[1], eval(args[2]),))
+    pp.pprint(client.ComposeText(eval(args[0]), args[1], eval(args[2]),))
 
 else:
     print('Unrecognized method %s' % cmd)

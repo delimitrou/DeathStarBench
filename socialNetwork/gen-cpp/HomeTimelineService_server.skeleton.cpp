@@ -25,6 +25,11 @@ class HomeTimelineServiceHandler : virtual public HomeTimelineServiceIf {
     printf("ReadHomeTimeline\n");
   }
 
+  void WriteHomeTimeline(const int64_t req_id, const int64_t post_id, const int64_t user_id, const int64_t timestamp, const std::vector<int64_t> & user_mentions_id, const std::map<std::string, std::string> & carrier) {
+    // Your implementation goes here
+    printf("WriteHomeTimeline\n");
+  }
+
 };
 
 int main(int argc, char **argv) {

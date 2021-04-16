@@ -3,6 +3,7 @@ add_executable(
     HomeTimelineService.cpp
     ${THRIFT_GEN_CPP_DIR}/HomeTimelineService.cpp
     ${THRIFT_GEN_CPP_DIR}/PostStorageService.cpp
+    ${THRIFT_GEN_CPP_DIR}/SocialGraphService.cpp
     ${THRIFT_GEN_CPP_DIR}/social_network_types.cpp
 )
 

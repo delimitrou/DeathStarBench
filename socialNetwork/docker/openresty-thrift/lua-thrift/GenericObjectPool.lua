@@ -8,7 +8,8 @@ local ngx = ngx
 local GenericObjectPool = Object:new({
     __type = 'GenericObjectPool',
     maxTotal = 100,
-    maxIdleTime = 60000
+    maxIdleTime = 10000,
+    timeout = 10000
     })
 function GenericObjectPool:init(conf)
 end
@@ -17,7 +18,7 @@ end
 --ngx nginx容器变量
 --
 function GenericObjectPool:connection(thriftClient,ip,port)
-    local client = RpcClientFactory:createClient(thriftClient,ip,port)
+    local client = RpcClientFactory:createClient(thriftClient,ip,port,self.timeout)
     return client
 end
 --
@@ -38,8 +39,17 @@ end
 --Maxtotal 连接池大小
 --
 function GenericObjectPool:setMaxTotal(maxTotal)
-  self.maxTotal = maxTotal
+    self.maxTotal = maxTotal
 end
+
+function GenericObjectPool:setMaxTotal(maxIdleTime)
+    self.maxIdleTime = maxIdleTime
+end
+
+function GenericObjectPool:setMaxTotal(timeout)
+    self.timeout = timeout
+end
+
 function GenericObjectPool:clear()
 
 end

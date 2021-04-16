@@ -42,28 +42,25 @@ int main(int argc, char *argv[]) {
   }
 
   int port = config_json["unique-id-service"]["port"];
+  std::string netif = config_json["unique-id-service"]["netif"];
 
-  std::string compose_post_addr = config_json["compose-post-service"]["addr"];
-  int compose_post_port = config_json["compose-post-service"]["port"];
-
-  std::string machine_id;
-  if (GetMachineId(&machine_id) != 0) {
+  std::string machine_id = GetMachineId(netif);
+  if (machine_id == "") {
     exit(EXIT_FAILURE);
   }
+  LOG(info) << "machine_id = " << machine_id;
 
   std::mutex thread_lock;
-  ClientPool<ThriftClient<ComposePostServiceClient>> compose_post_client_pool(
-      "compose-post", compose_post_addr, compose_post_port, 0, 128, 1000);
 
   TThreadedServer server (
       std::make_shared<UniqueIdServiceProcessor>(
           std::make_shared<UniqueIdHandler>(
-              &thread_lock, machine_id, &compose_post_client_pool)),
+              &thread_lock, machine_id)),
       std::make_shared<TServerSocket>("0.0.0.0", port),
       std::make_shared<TFramedTransportFactory>(),
       std::make_shared<TBinaryProtocolFactory>()
   );
 
-  std::cout << "Starting the unique-id-service server ..." << std::endl;
+  LOG(info) << "Starting the unique-id-service server ...";
   server.serve();
 }

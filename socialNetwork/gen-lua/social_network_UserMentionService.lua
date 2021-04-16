@@ -13,14 +13,14 @@ UserMentionServiceClient = __TObject.new(__TClient, {
   __type = 'UserMentionServiceClient'
 })
 
-function UserMentionServiceClient:UploadUserMentions(req_id, usernames, carrier)
-  self:send_UploadUserMentions(req_id, usernames, carrier)
-  self:recv_UploadUserMentions(req_id, usernames, carrier)
+function UserMentionServiceClient:ComposeUserMentions(req_id, usernames, carrier)
+  self:send_ComposeUserMentions(req_id, usernames, carrier)
+  return self:recv_ComposeUserMentions(req_id, usernames, carrier)
 end
 
-function UserMentionServiceClient:send_UploadUserMentions(req_id, usernames, carrier)
-  self.oprot:writeMessageBegin('UploadUserMentions', TMessageType.CALL, self._seqid)
-  local args = UploadUserMentions_args:new{}
+function UserMentionServiceClient:send_ComposeUserMentions(req_id, usernames, carrier)
+  self.oprot:writeMessageBegin('ComposeUserMentions', TMessageType.CALL, self._seqid)
+  local args = ComposeUserMentions_args:new{}
   args.req_id = req_id
   args.usernames = usernames
   args.carrier = carrier
@@ -29,7 +29,7 @@ function UserMentionServiceClient:send_UploadUserMentions(req_id, usernames, car
   self.oprot.trans:flush()
 end
 
-function UserMentionServiceClient:recv_UploadUserMentions(req_id, usernames, carrier)
+function UserMentionServiceClient:recv_ComposeUserMentions(req_id, usernames, carrier)
   local fname, mtype, rseqid = self.iprot:readMessageBegin()
   if mtype == TMessageType.EXCEPTION then
     local x = TApplicationException:new{}
@@ -37,9 +37,15 @@ function UserMentionServiceClient:recv_UploadUserMentions(req_id, usernames, car
     self.iprot:readMessageEnd()
     error(x)
   end
-  local result = UploadUserMentions_result:new{}
+  local result = ComposeUserMentions_result:new{}
   result:read(self.iprot)
   self.iprot:readMessageEnd()
+  if result.success ~= nil then
+    return result.success
+  elseif result.se then
+    error(result.se)
+  end
+  error(TApplicationException:new{errorCode = TApplicationException.MISSING_RESULT})
 end
 UserMentionServiceIface = __TObject:new{
   __type = 'UserMentionServiceIface'
@@ -69,13 +75,13 @@ function UserMentionServiceProcessor:process(iprot, oprot, server_ctx)
   end
 end
 
-function UserMentionServiceProcessor:process_UploadUserMentions(seqid, iprot, oprot, server_ctx)
-  local args = UploadUserMentions_args:new{}
+function UserMentionServiceProcessor:process_ComposeUserMentions(seqid, iprot, oprot, server_ctx)
+  local args = ComposeUserMentions_args:new{}
   local reply_type = TMessageType.REPLY
   args:read(iprot)
   iprot:readMessageEnd()
-  local result = UploadUserMentions_result:new{}
-  local status, res = pcall(self.handler.UploadUserMentions, self.handler, args.req_id, args.usernames, args.carrier)
+  local result = ComposeUserMentions_result:new{}
+  local status, res = pcall(self.handler.ComposeUserMentions, self.handler, args.req_id, args.usernames, args.carrier)
   if not status then
     reply_type = TMessageType.EXCEPTION
     result = TApplicationException:new{message = res}
@@ -84,7 +90,7 @@ function UserMentionServiceProcessor:process_UploadUserMentions(seqid, iprot, op
   else
     result.success = res
   end
-  oprot:writeMessageBegin('UploadUserMentions', reply_type, seqid)
+  oprot:writeMessageBegin('ComposeUserMentions', reply_type, seqid)
   result:write(oprot)
   oprot:writeMessageEnd()
   oprot.trans:flush()
@@ -92,13 +98,13 @@ end
 
 -- HELPER FUNCTIONS AND STRUCTURES
 
-UploadUserMentions_args = __TObject:new{
+ComposeUserMentions_args = __TObject:new{
   req_id,
   usernames,
   carrier
 }
 
-function UploadUserMentions_args:read(iprot)
+function ComposeUserMentions_args:read(iprot)
   iprot:readStructBegin()
   while true do
     local fname, ftype, fid = iprot:readFieldBegin()
@@ -113,10 +119,10 @@ function UploadUserMentions_args:read(iprot)
     elseif fid == 2 then
       if ftype == TType.LIST then
         self.usernames = {}
-        local _etype239, _size236 = iprot:readListBegin()
-        for _i=1,_size236 do
-          local _elem240 = iprot:readString()
-          table.insert(self.usernames, _elem240)
+        local _etype263, _size260 = iprot:readListBegin()
+        for _i=1,_size260 do
+          local _elem264 = iprot:readString()
+          table.insert(self.usernames, _elem264)
         end
         iprot:readListEnd()
       else
@@ -125,11 +131,11 @@ function UploadUserMentions_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype242, _vtype243, _size241 = iprot:readMapBegin() 
-        for _i=1,_size241 do
-          local _key245 = iprot:readString()
-          local _val246 = iprot:readString()
-          self.carrier[_key245] = _val246
+        local _ktype266, _vtype267, _size265 = iprot:readMapBegin() 
+        for _i=1,_size265 do
+          local _key269 = iprot:readString()
+          local _val270 = iprot:readString()
+          self.carrier[_key269] = _val270
         end
         iprot:readMapEnd()
       else
@@ -143,8 +149,8 @@ function UploadUserMentions_args:read(iprot)
   iprot:readStructEnd()
 end
 
-function UploadUserMentions_args:write(oprot)
-  oprot:writeStructBegin('UploadUserMentions_args')
+function ComposeUserMentions_args:write(oprot)
+  oprot:writeStructBegin('ComposeUserMentions_args')
   if self.req_id ~= nil then
     oprot:writeFieldBegin('req_id', TType.I64, 1)
     oprot:writeI64(self.req_id)
@@ -153,8 +159,8 @@ function UploadUserMentions_args:write(oprot)
   if self.usernames ~= nil then
     oprot:writeFieldBegin('usernames', TType.LIST, 2)
     oprot:writeListBegin(TType.STRING, #self.usernames)
-    for _,iter247 in ipairs(self.usernames) do
-      oprot:writeString(iter247)
+    for _,iter271 in ipairs(self.usernames) do
+      oprot:writeString(iter271)
     end
     oprot:writeListEnd()
     oprot:writeFieldEnd()
@@ -162,9 +168,9 @@ function UploadUserMentions_args:write(oprot)
   if self.carrier ~= nil then
     oprot:writeFieldBegin('carrier', TType.MAP, 3)
     oprot:writeMapBegin(TType.STRING, TType.STRING, ttable_size(self.carrier))
-    for kiter248,viter249 in pairs(self.carrier) do
-      oprot:writeString(kiter248)
-      oprot:writeString(viter249)
+    for kiter272,viter273 in pairs(self.carrier) do
+      oprot:writeString(kiter272)
+      oprot:writeString(viter273)
     end
     oprot:writeMapEnd()
     oprot:writeFieldEnd()
@@ -173,16 +179,30 @@ function UploadUserMentions_args:write(oprot)
   oprot:writeStructEnd()
 end
 
-UploadUserMentions_result = __TObject:new{
+ComposeUserMentions_result = __TObject:new{
+  success,
   se
 }
 
-function UploadUserMentions_result:read(iprot)
+function ComposeUserMentions_result:read(iprot)
   iprot:readStructBegin()
   while true do
     local fname, ftype, fid = iprot:readFieldBegin()
     if ftype == TType.STOP then
       break
+    elseif fid == 0 then
+      if ftype == TType.LIST then
+        self.success = {}
+        local _etype277, _size274 = iprot:readListBegin()
+        for _i=1,_size274 do
+          local _elem278 = UserMention:new{}
+          _elem278:read(iprot)
+          table.insert(self.success, _elem278)
+        end
+        iprot:readListEnd()
+      else
+        iprot:skip(ftype)
+      end
     elseif fid == 1 then
       if ftype == TType.STRUCT then
         self.se = ServiceException:new{}
@@ -198,8 +218,17 @@ function UploadUserMentions_result:read(iprot)
   iprot:readStructEnd()
 end
 
-function UploadUserMentions_result:write(oprot)
-  oprot:writeStructBegin('UploadUserMentions_result')
+function ComposeUserMentions_result:write(oprot)
+  oprot:writeStructBegin('ComposeUserMentions_result')
+  if self.success ~= nil then
+    oprot:writeFieldBegin('success', TType.LIST, 0)
+    oprot:writeListBegin(TType.STRUCT, #self.success)
+    for _,iter279 in ipairs(self.success) do
+      iter279:write(oprot)
+    end
+    oprot:writeListEnd()
+    oprot:writeFieldEnd()
+  end
   if self.se ~= nil then
     oprot:writeFieldBegin('se', TType.STRUCT, 1)
     self.se:write(oprot)

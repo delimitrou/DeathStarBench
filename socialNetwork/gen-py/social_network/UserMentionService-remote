@@ -24,7 +24,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
-    print('  void UploadUserMentions(i64 req_id,  usernames,  carrier)')
+    print('   ComposeUserMentions(i64 req_id,  usernames,  carrier)')
     print('')
     sys.exit(0)
 
@@ -104,11 +104,11 @@ protocol = TBinaryProtocol(transport)
 client = UserMentionService.Client(protocol)
 transport.open()
 
-if cmd == 'UploadUserMentions':
+if cmd == 'ComposeUserMentions':
     if len(args) != 3:
-        print('UploadUserMentions requires 3 args')
+        print('ComposeUserMentions requires 3 args')
         sys.exit(1)
-    pp.pprint(client.UploadUserMentions(eval(args[0]), eval(args[1]), eval(args[2]),))
+    pp.pprint(client.ComposeUserMentions(eval(args[0]), eval(args[1]), eval(args[2]),))
 
 else:
     print('Unrecognized method %s' % cmd)

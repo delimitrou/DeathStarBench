@@ -4,13 +4,17 @@ add_executable(
     ${THRIFT_GEN_CPP_DIR}/ComposePostService.cpp
     ${THRIFT_GEN_CPP_DIR}/PostStorageService.cpp
     ${THRIFT_GEN_CPP_DIR}/UserTimelineService.cpp
+    ${THRIFT_GEN_CPP_DIR}/UserService.cpp
+    ${THRIFT_GEN_CPP_DIR}/UniqueIdService.cpp
+    ${THRIFT_GEN_CPP_DIR}/MediaService.cpp
+    ${THRIFT_GEN_CPP_DIR}/TextService.cpp
+    ${THRIFT_GEN_CPP_DIR}/HomeTimelineService.cpp
     ${THRIFT_GEN_CPP_DIR}/social_network_types.cpp
 )
 
 target_include_directories(
     ComposePostService PRIVATE
     /usr/local/include/jaegertracing
-    /usr/local/include/cpp_redis
 )
 
 target_link_libraries(
@@ -23,8 +27,6 @@ target_link_libraries(
     Boost::log_setup
     OpenSSL::SSL
     /usr/local/lib/libjaegertracing.so
-    /usr/local/lib/libcpp_redis.a
-    /usr/local/lib/libtacopie.a
     /usr/local/lib/libSimpleAmqpClient.so
 
 )

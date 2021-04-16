@@ -57,7 +57,7 @@ class Iface(object):
         """
         pass
 
-    def UploadCreatorWithUserId(self, req_id, user_id, username, carrier):
+    def ComposeCreatorWithUserId(self, req_id, user_id, username, carrier):
         """
         Parameters:
          - req_id
@@ -68,7 +68,7 @@ class Iface(object):
         """
         pass
 
-    def UploadCreatorWithUsername(self, req_id, username, carrier):
+    def ComposeCreatorWithUsername(self, req_id, username, carrier):
         """
         Parameters:
          - req_id
@@ -222,7 +222,7 @@ class Client(Iface):
             raise result.se
         raise TApplicationException(TApplicationException.MISSING_RESULT, "Login failed: unknown result")
 
-    def UploadCreatorWithUserId(self, req_id, user_id, username, carrier):
+    def ComposeCreatorWithUserId(self, req_id, user_id, username, carrier):
         """
         Parameters:
          - req_id
@@ -231,12 +231,12 @@ class Client(Iface):
          - carrier
 
         """
-        self.send_UploadCreatorWithUserId(req_id, user_id, username, carrier)
-        self.recv_UploadCreatorWithUserId()
+        self.send_ComposeCreatorWithUserId(req_id, user_id, username, carrier)
+        return self.recv_ComposeCreatorWithUserId()
 
-    def send_UploadCreatorWithUserId(self, req_id, user_id, username, carrier):
-        self._oprot.writeMessageBegin('UploadCreatorWithUserId', TMessageType.CALL, self._seqid)
-        args = UploadCreatorWithUserId_args()
+    def send_ComposeCreatorWithUserId(self, req_id, user_id, username, carrier):
+        self._oprot.writeMessageBegin('ComposeCreatorWithUserId', TMessageType.CALL, self._seqid)
+        args = ComposeCreatorWithUserId_args()
         args.req_id = req_id
         args.user_id = user_id
         args.username = username
@@ -245,7 +245,7 @@ class Client(Iface):
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_UploadCreatorWithUserId(self):
+    def recv_ComposeCreatorWithUserId(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -253,14 +253,16 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = UploadCreatorWithUserId_result()
+        result = ComposeCreatorWithUserId_result()
         result.read(iprot)
         iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
         if result.se is not None:
             raise result.se
-        return
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "ComposeCreatorWithUserId failed: unknown result")
 
-    def UploadCreatorWithUsername(self, req_id, username, carrier):
+    def ComposeCreatorWithUsername(self, req_id, username, carrier):
         """
         Parameters:
          - req_id
@@ -268,12 +270,12 @@ class Client(Iface):
          - carrier
 
         """
-        self.send_UploadCreatorWithUsername(req_id, username, carrier)
-        self.recv_UploadCreatorWithUsername()
+        self.send_ComposeCreatorWithUsername(req_id, username, carrier)
+        return self.recv_ComposeCreatorWithUsername()
 
-    def send_UploadCreatorWithUsername(self, req_id, username, carrier):
-        self._oprot.writeMessageBegin('UploadCreatorWithUsername', TMessageType.CALL, self._seqid)
-        args = UploadCreatorWithUsername_args()
+    def send_ComposeCreatorWithUsername(self, req_id, username, carrier):
+        self._oprot.writeMessageBegin('ComposeCreatorWithUsername', TMessageType.CALL, self._seqid)
+        args = ComposeCreatorWithUsername_args()
         args.req_id = req_id
         args.username = username
         args.carrier = carrier
@@ -281,7 +283,7 @@ class Client(Iface):
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_UploadCreatorWithUsername(self):
+    def recv_ComposeCreatorWithUsername(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -289,12 +291,14 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = UploadCreatorWithUsername_result()
+        result = ComposeCreatorWithUsername_result()
         result.read(iprot)
         iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
         if result.se is not None:
             raise result.se
-        return
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "ComposeCreatorWithUsername failed: unknown result")
 
     def GetUserId(self, req_id, username, carrier):
         """
@@ -342,8 +346,8 @@ class Processor(Iface, TProcessor):
         self._processMap["RegisterUser"] = Processor.process_RegisterUser
         self._processMap["RegisterUserWithId"] = Processor.process_RegisterUserWithId
         self._processMap["Login"] = Processor.process_Login
-        self._processMap["UploadCreatorWithUserId"] = Processor.process_UploadCreatorWithUserId
-        self._processMap["UploadCreatorWithUsername"] = Processor.process_UploadCreatorWithUsername
+        self._processMap["ComposeCreatorWithUserId"] = Processor.process_ComposeCreatorWithUserId
+        self._processMap["ComposeCreatorWithUsername"] = Processor.process_ComposeCreatorWithUsername
         self._processMap["GetUserId"] = Processor.process_GetUserId
 
     def process(self, iprot, oprot):
@@ -439,13 +443,13 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_UploadCreatorWithUserId(self, seqid, iprot, oprot):
-        args = UploadCreatorWithUserId_args()
+    def process_ComposeCreatorWithUserId(self, seqid, iprot, oprot):
+        args = ComposeCreatorWithUserId_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = UploadCreatorWithUserId_result()
+        result = ComposeCreatorWithUserId_result()
         try:
-            self._handler.UploadCreatorWithUserId(args.req_id, args.user_id, args.username, args.carrier)
+            result.success = self._handler.ComposeCreatorWithUserId(args.req_id, args.user_id, args.username, args.carrier)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -460,18 +464,18 @@ class Processor(Iface, TProcessor):
             logging.exception('Unexpected exception in handler')
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("UploadCreatorWithUserId", msg_type, seqid)
+        oprot.writeMessageBegin("ComposeCreatorWithUserId", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_UploadCreatorWithUsername(self, seqid, iprot, oprot):
-        args = UploadCreatorWithUsername_args()
+    def process_ComposeCreatorWithUsername(self, seqid, iprot, oprot):
+        args = ComposeCreatorWithUsername_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = UploadCreatorWithUsername_result()
+        result = ComposeCreatorWithUsername_result()
         try:
-            self._handler.UploadCreatorWithUsername(args.req_id, args.username, args.carrier)
+            result.success = self._handler.ComposeCreatorWithUsername(args.req_id, args.username, args.carrier)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -486,7 +490,7 @@ class Processor(Iface, TProcessor):
             logging.exception('Unexpected exception in handler')
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("UploadCreatorWithUsername", msg_type, seqid)
+        oprot.writeMessageBegin("ComposeCreatorWithUsername", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -1104,7 +1108,7 @@ Login_result.thrift_spec = (
 )
 
 
-class UploadCreatorWithUserId_args(object):
+class ComposeCreatorWithUserId_args(object):
     """
     Attributes:
      - req_id
@@ -1165,7 +1169,7 @@ class UploadCreatorWithUserId_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('UploadCreatorWithUserId_args')
+        oprot.writeStructBegin('ComposeCreatorWithUserId_args')
         if self.req_id is not None:
             oprot.writeFieldBegin('req_id', TType.I64, 1)
             oprot.writeI64(self.req_id)
@@ -1202,8 +1206,8 @@ class UploadCreatorWithUserId_args(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(UploadCreatorWithUserId_args)
-UploadCreatorWithUserId_args.thrift_spec = (
+all_structs.append(ComposeCreatorWithUserId_args)
+ComposeCreatorWithUserId_args.thrift_spec = (
     None,  # 0
     (1, TType.I64, 'req_id', None, None, ),  # 1
     (2, TType.I64, 'user_id', None, None, ),  # 2
@@ -1212,15 +1216,17 @@ UploadCreatorWithUserId_args.thrift_spec = (
 )
 
 
-class UploadCreatorWithUserId_result(object):
+class ComposeCreatorWithUserId_result(object):
     """
     Attributes:
+     - success
      - se
 
     """
 
 
-    def __init__(self, se=None,):
+    def __init__(self, success=None, se=None,):
+        self.success = success
         self.se = se
 
     def read(self, iprot):
@@ -1232,7 +1238,13 @@ class UploadCreatorWithUserId_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 1:
+            if fid == 0:
+                if ftype == TType.STRUCT:
+                    self.success = Creator()
+                    self.success.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
                 if ftype == TType.STRUCT:
                     self.se = ServiceException()
                     self.se.read(iprot)
@@ -1247,7 +1259,11 @@ class UploadCreatorWithUserId_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('UploadCreatorWithUserId_result')
+        oprot.writeStructBegin('ComposeCreatorWithUserId_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRUCT, 0)
+            self.success.write(oprot)
+            oprot.writeFieldEnd()
         if self.se is not None:
             oprot.writeFieldBegin('se', TType.STRUCT, 1)
             self.se.write(oprot)
@@ -1268,14 +1284,14 @@ class UploadCreatorWithUserId_result(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(UploadCreatorWithUserId_result)
-UploadCreatorWithUserId_result.thrift_spec = (
-    None,  # 0
+all_structs.append(ComposeCreatorWithUserId_result)
+ComposeCreatorWithUserId_result.thrift_spec = (
+    (0, TType.STRUCT, 'success', [Creator, None], None, ),  # 0
     (1, TType.STRUCT, 'se', [ServiceException, None], None, ),  # 1
 )
 
 
-class UploadCreatorWithUsername_args(object):
+class ComposeCreatorWithUsername_args(object):
     """
     Attributes:
      - req_id
@@ -1329,7 +1345,7 @@ class UploadCreatorWithUsername_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('UploadCreatorWithUsername_args')
+        oprot.writeStructBegin('ComposeCreatorWithUsername_args')
         if self.req_id is not None:
             oprot.writeFieldBegin('req_id', TType.I64, 1)
             oprot.writeI64(self.req_id)
@@ -1362,8 +1378,8 @@ class UploadCreatorWithUsername_args(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(UploadCreatorWithUsername_args)
-UploadCreatorWithUsername_args.thrift_spec = (
+all_structs.append(ComposeCreatorWithUsername_args)
+ComposeCreatorWithUsername_args.thrift_spec = (
     None,  # 0
     (1, TType.I64, 'req_id', None, None, ),  # 1
     (2, TType.STRING, 'username', 'UTF8', None, ),  # 2
@@ -1371,15 +1387,17 @@ UploadCreatorWithUsername_args.thrift_spec = (
 )
 
 
-class UploadCreatorWithUsername_result(object):
+class ComposeCreatorWithUsername_result(object):
     """
     Attributes:
+     - success
      - se
 
     """
 
 
-    def __init__(self, se=None,):
+    def __init__(self, success=None, se=None,):
+        self.success = success
         self.se = se
 
     def read(self, iprot):
@@ -1391,7 +1409,13 @@ class UploadCreatorWithUsername_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 1:
+            if fid == 0:
+                if ftype == TType.STRUCT:
+                    self.success = Creator()
+                    self.success.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
                 if ftype == TType.STRUCT:
                     self.se = ServiceException()
                     self.se.read(iprot)
@@ -1406,7 +1430,11 @@ class UploadCreatorWithUsername_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('UploadCreatorWithUsername_result')
+        oprot.writeStructBegin('ComposeCreatorWithUsername_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRUCT, 0)
+            self.success.write(oprot)
+            oprot.writeFieldEnd()
         if self.se is not None:
             oprot.writeFieldBegin('se', TType.STRUCT, 1)
             self.se.write(oprot)
@@ -1427,9 +1455,9 @@ class UploadCreatorWithUsername_result(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(UploadCreatorWithUsername_result)
-UploadCreatorWithUsername_result.thrift_spec = (
-    None,  # 0
+all_structs.append(ComposeCreatorWithUsername_result)
+ComposeCreatorWithUsername_result.thrift_spec = (
+    (0, TType.STRUCT, 'success', [Creator, None], None, ),  # 0
     (1, TType.STRUCT, 'se', [ServiceException, None], None, ),  # 1
 )
 

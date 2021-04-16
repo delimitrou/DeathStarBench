@@ -40,9 +40,16 @@ int main(int argc, char *argv[]) {
   
   int port = config_json["post-storage-service"]["port"];
 
+  int mongodb_conns = config_json["post-storage-mongodb"]["connections"];
+  int mongodb_timeout = config_json["post-storage-mongodb"]["timeout_ms"];
+
+  int memcached_conns = config_json["post-storage-memcached"]["connections"];
+  int memcached_timeout = config_json["post-storage-memcached"]["timeout_ms"];
+
+
   memcached_client_pool =
-      init_memcached_client_pool(config_json, "post-storage", 32, 128);
-  mongodb_client_pool = init_mongodb_client_pool(config_json, "post-storage", 128);
+      init_memcached_client_pool(config_json, "post-storage", 32, memcached_conns);
+  mongodb_client_pool = init_mongodb_client_pool(config_json, "post-storage", mongodb_conns);
   if (memcached_client_pool == nullptr || mongodb_client_pool == nullptr) {
     return EXIT_FAILURE;
   }
@@ -71,7 +78,7 @@ int main(int argc, char *argv[]) {
       std::make_shared<TBinaryProtocolFactory>()
   );
 
-  std::cout << "Starting the post-storage-service server..." << std::endl;
+  LOG(info) << "Starting the post-storage-service server...";
   server.serve();
 }
 

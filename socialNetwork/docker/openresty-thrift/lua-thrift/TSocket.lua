@@ -26,7 +26,7 @@ local terror = Thrift.terror
 -- TSocketBase
 local TSocketBase = TTransportBase:new{
   __type = 'TSocketBase',
-  timeout = 1000,
+  timeout = 10000,
   host = 'localhost',
   port = 9090,
   handle

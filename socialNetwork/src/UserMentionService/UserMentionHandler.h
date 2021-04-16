@@ -7,10 +7,8 @@
 #include <libmemcached/util.h>
 
 #include "../../gen-cpp/UserMentionService.h"
-#include "../../gen-cpp/ComposePostService.h"
 #include "../../gen-cpp/social_network_types.h"
 #include "../ClientPool.h"
-#include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
 #include "../utils.h"
@@ -20,29 +18,26 @@ namespace social_network {
 class UserMentionHandler : public UserMentionServiceIf {
  public:
   UserMentionHandler(memcached_pool_st *,
-                     mongoc_client_pool_t *,
-                     ClientPool<ThriftClient<ComposePostServiceClient>> *);
+                     mongoc_client_pool_t *);
   ~UserMentionHandler() override = default;
 
-  void UploadUserMentions(int64_t, const std::vector<std::string> &,
+  void ComposeUserMentions(std::vector<UserMention> &_return, int64_t, const std::vector<std::string> &,
       const std::map<std::string, std::string> &) override ;
 
  private:
   memcached_pool_st *_memcached_client_pool;
   mongoc_client_pool_t *_mongodb_client_pool;
-  ClientPool<ThriftClient<ComposePostServiceClient>> *_compose_client_pool;
 };
 
 UserMentionHandler::UserMentionHandler(
     memcached_pool_st *memcached_client_pool,
-    mongoc_client_pool_t *mongodb_client_pool,
-    ClientPool<ThriftClient<ComposePostServiceClient>> *compose_client_pool) {
+    mongoc_client_pool_t *mongodb_client_pool) {
   _memcached_client_pool = memcached_client_pool;
   _mongodb_client_pool = mongodb_client_pool;
-  _compose_client_pool = compose_client_pool;
 }
 
-void UserMentionHandler::UploadUserMentions(
+void UserMentionHandler::ComposeUserMentions(
+    std::vector<UserMention> &_return,
     int64_t req_id,
     const std::vector<std::string> &usernames,
     const std::map<std::string, std::string> &carrier) {
@@ -53,7 +48,7 @@ void UserMentionHandler::UploadUserMentions(
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "UploadUserMentions",
+      "compose_user_mentions_server",
       { opentracing::ChildOf(parent_span->get()) });
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
@@ -88,6 +83,8 @@ void UserMentionHandler::UploadUserMentions(
       idx++;
     }
 
+    auto get_span = opentracing::Tracer::Global()->StartSpan(
+      "compose_user_mentions_memcached_get_client", { opentracing::ChildOf(&span->context()) });
     rc = memcached_mget(client, keys, key_sizes, usernames.size());
     if (rc != MEMCACHED_SUCCESS) {
       LOG(error) << "Cannot get usernames of request " << req_id << ": "
@@ -96,6 +93,7 @@ void UserMentionHandler::UploadUserMentions(
       se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
       se.message = memcached_strerror(client, rc);
       memcached_pool_push(_memcached_client_pool, client);
+      get_span->Finish();
       throw se;
     }
 
@@ -106,8 +104,7 @@ void UserMentionHandler::UploadUserMentions(
     uint32_t flags;
 
     while (true) {
-      return_value = memcached_fetch(client, return_key, &return_key_length,
-                                     &return_value_length, &flags, &rc);
+      return_value = memcached_fetch(client, return_key, &return_key_length, &return_value_length, &flags, &rc);
       if (return_value == nullptr) {
         LOG(debug) << "Memcached mget finished "
                    << memcached_strerror(client, rc);
@@ -121,6 +118,7 @@ void UserMentionHandler::UploadUserMentions(
         ServiceException se;
         se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
         se.message =  "Cannot get usernames of request " + std::to_string(req_id);
+        get_span->Finish();
         throw se;
       }
       UserMention new_user_mention;
@@ -135,6 +133,7 @@ void UserMentionHandler::UploadUserMentions(
     }
     memcached_quit(client);
     memcached_pool_push(_memcached_client_pool, client);
+    get_span->Finish();
     for (int i = 0; i < usernames.size(); ++i) {
       delete keys[i];
     }
@@ -179,6 +178,8 @@ void UserMentionHandler::UploadUserMentions(
       bson_append_array_end(&query_child_0, &query_username_list);
       bson_append_document_end(query, &query_child_0);
 
+      auto find_span = opentracing::Tracer::Global()->StartSpan(
+      "compose_user_mentions_mongo_find_client", { opentracing::ChildOf(&span->context()) });
       mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(
           collection, query, nullptr, nullptr);
       const bson_t *doc;
@@ -196,6 +197,7 @@ void UserMentionHandler::UploadUserMentions(
           mongoc_cursor_destroy(cursor);
           mongoc_collection_destroy(collection);
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+          find_span->Finish();
           throw se;
         }
         if (bson_iter_init_find(&iter, doc, "username")) {
@@ -208,6 +210,7 @@ void UserMentionHandler::UploadUserMentions(
           mongoc_cursor_destroy(cursor);
           mongoc_collection_destroy(collection);
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+          find_span->Finish();
           throw se;
         }
         user_mentions.emplace_back(new_user_mention);
@@ -216,27 +219,11 @@ void UserMentionHandler::UploadUserMentions(
       mongoc_cursor_destroy(cursor);
       mongoc_collection_destroy(collection);
       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+      find_span->Finish();
     }
   }
 
-  // Upload to compose post service
-  auto compose_post_client_wrapper = _compose_client_pool->Pop();
-  if (!compose_post_client_wrapper) {
-    ServiceException se;
-    se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-    se.message = "Failed to connect to compose-post-service";
-    throw se;
-  }
-  auto compose_post_client = compose_post_client_wrapper->GetClient();
-  try {
-    compose_post_client->UploadUserMentions(req_id, user_mentions,
-                                            writer_text_map);
-  } catch (...) {
-    _compose_client_pool->Push(compose_post_client_wrapper);
-    LOG(error) << "Failed to upload user_mentions to user-mention-service";
-    throw;
-  }  
-  _compose_client_pool->Push(compose_post_client_wrapper);
+  _return = user_mentions;
   span->Finish();
 }
 

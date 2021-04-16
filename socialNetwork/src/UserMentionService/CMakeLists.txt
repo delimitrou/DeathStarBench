@@ -2,7 +2,6 @@ add_executable(
     UserMentionService
     UserMentionService.cpp
     ${THRIFT_GEN_CPP_DIR}/UserMentionService.cpp
-    ${THRIFT_GEN_CPP_DIR}/ComposePostService.cpp
     ${THRIFT_GEN_CPP_DIR}/social_network_types.cpp
 )
 

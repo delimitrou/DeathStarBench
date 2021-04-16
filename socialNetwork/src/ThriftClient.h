@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 #include <iostream>
+#include <chrono>
 #include <boost/log/trivial.hpp>
 
 #include <thrift/protocol/TBinaryProtocol.h>
@@ -12,6 +13,7 @@
 #include <thrift/stdcxx.h>
 #include "logger.h"
 #include "GenericClient.h"
+
 
 namespace social_network {
 
@@ -26,6 +28,7 @@ template<class TThriftClient>
 class ThriftClient : public GenericClient {
  public:
   ThriftClient(const std::string &addr, int port);
+  ThriftClient(const std::string &addr, int port, int keepalive_ms);
 
   ThriftClient(const ThriftClient &) = delete;
   ThriftClient &operator=(const ThriftClient &) = delete;
@@ -38,14 +41,12 @@ class ThriftClient : public GenericClient {
 
   void Connect() override;
   void Disconnect() override;
-  void KeepAlive() override;
-  void KeepAlive(int timeout_ms) override;
   bool IsConnected() override;
 
  private:
   TThriftClient *_client;
 
-  std::shared_ptr<TTransport> _socket;
+  std::shared_ptr<TSocket> _socket;
   std::shared_ptr<TTransport> _transport;
   std::shared_ptr<TProtocol> _protocol;
 };
@@ -55,10 +56,28 @@ ThriftClient<TThriftClient>::ThriftClient(
     const std::string &addr, int port) {
   _addr = addr;
   _port = port;
-  _socket = std::shared_ptr<TTransport>(new TSocket(addr, port));
+  _socket = std::shared_ptr<TSocket>(new TSocket(addr, port));
+  _socket->setKeepAlive(true);
   _transport = std::shared_ptr<TTransport>(new TFramedTransport(_socket));
   _protocol = std::shared_ptr<TProtocol>(new TBinaryProtocol(_transport));
   _client = new TThriftClient(_protocol);
+  _connect_timestamp = 0;
+  _keepalive_ms = 0;
+}
+
+template<class TThriftClient>
+ThriftClient<TThriftClient>::ThriftClient(
+    const std::string &addr, int port, int keepalive_ms) {
+  _addr = addr;
+  _port = port;
+  _socket = std::shared_ptr<TSocket>(new TSocket(addr, port));
+  _socket->setKeepAlive(true);
+  _transport = std::shared_ptr<TTransport>(new TFramedTransport(_socket));
+  _protocol = std::shared_ptr<TProtocol>(new TBinaryProtocol(_transport));
+  _client = new TThriftClient(_protocol);
+  _connect_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch()).count();
+  _keepalive_ms = keepalive_ms;
 }
 
 template<class TThriftClient>
@@ -97,17 +116,6 @@ void ThriftClient<TThriftClient>::Disconnect() {
       throw tx;
     }
   }
-}
-
-template<class TThriftClient>
-void ThriftClient<TThriftClient>::KeepAlive() {
-
-}
-
-// TODO: Implement KeepAlive Timeout
-template<class TThriftClient>
-void ThriftClient<TThriftClient>::KeepAlive(int timeout_ms) {
-
 }
 
 } // namespace social_network

@@ -7,17 +7,10 @@
 #include <mutex>
 #include <sstream>
 #include <iomanip>
-#include <arpa/inet.h>
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
 
 
 #include "../../gen-cpp/UniqueIdService.h"
-#include "../../gen-cpp/ComposePostService.h"
 #include "../../gen-cpp/social_network_types.h"
-#include "../ClientPool.h"
-#include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
 
@@ -50,30 +43,23 @@ static int GetCounter(int64_t timestamp) {
 class UniqueIdHandler : public UniqueIdServiceIf {
  public:
   ~UniqueIdHandler() override = default;
-  UniqueIdHandler(
-      std::mutex *,
-      const std::string &,
-      ClientPool<ThriftClient<ComposePostServiceClient>> *);
+  UniqueIdHandler(std::mutex *, const std::string &);
 
-  void UploadUniqueId(int64_t, PostType::type,
+  int64_t ComposeUniqueId(int64_t, PostType::type,
       const std::map<std::string, std::string> &) override;
 
  private:
   std::mutex *_thread_lock;
   std::string _machine_id;
-  ClientPool<ThriftClient<ComposePostServiceClient>> *_compose_client_pool;
 };
 
 UniqueIdHandler::UniqueIdHandler(
-    std::mutex *thread_lock,
-    const std::string &machine_id,
-    ClientPool<ThriftClient<ComposePostServiceClient>> *compose_client_pool) {
+    std::mutex *thread_lock, const std::string &machine_id) {
   _thread_lock = thread_lock;
   _machine_id = machine_id;
-  _compose_client_pool = compose_client_pool;
 }
 
-void UniqueIdHandler::UploadUniqueId(
+int64_t UniqueIdHandler::ComposeUniqueId(
     int64_t req_id,
     PostType::type post_type,
     const std::map<std::string, std::string> & carrier) {
@@ -84,7 +70,7 @@ void UniqueIdHandler::UploadUniqueId(
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "UploadUniqueId",
+      "compose_unique_id_server",
       { opentracing::ChildOf(parent_span->get()) });
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
@@ -93,7 +79,7 @@ void UniqueIdHandler::UploadUniqueId(
       system_clock::now().time_since_epoch()).count() - CUSTOM_EPOCH;
   int idx = GetCounter(timestamp);
   _thread_lock->unlock();
-
+  
   std::stringstream sstream;
   sstream << std::hex << timestamp;
   std::string timestamp_hex(sstream.str());
@@ -121,30 +107,15 @@ void UniqueIdHandler::UploadUniqueId(
   LOG(debug) << "The post_id of the request "
       << req_id << " is " << post_id;
 
-  // Upload to compose post service
-  auto compose_post_client_wrapper = _compose_client_pool->Pop();
-  if (!compose_post_client_wrapper) {
-    ServiceException se;
-    se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
-    se.message = "Failed to connect to compose-post-service";
-    throw se;
-  }
-  auto compose_post_client = compose_post_client_wrapper->GetClient();
-  try {
-    compose_post_client->UploadUniqueId(req_id, post_id, post_type, writer_text_map);    
-  } catch (...) {
-    _compose_client_pool->Push(compose_post_client_wrapper);
-    LOG(error) << "Failed to upload unique-id to compose-post-service";
-    throw;
-  }
-  _compose_client_pool->Push(compose_post_client_wrapper);
-
   span->Finish();
+  return post_id;
 }
 
 /*
  * The following code which obtaines machine ID from machine's MAC address was
  * inspired from https://stackoverflow.com/a/16859693.
+ * 
+ * MAC address is obtained from /sys/class/net/<netif>/address
  */
 u_int16_t HashMacAddressPid(const std::string &mac)
 {
@@ -156,57 +127,36 @@ u_int16_t HashMacAddressPid(const std::string &mac)
   return hash;
 }
 
-int GetMachineId (std::string *mac_hash) {
+std::string GetMachineId (std::string &netif) {
+  std::string mac_hash;
+
+  std::string mac_addr_filename = "/sys/class/net/" + netif + "/address";
+  std::ifstream mac_addr_file;
+  mac_addr_file.open(mac_addr_filename);
+  if (!mac_addr_file) {
+    LOG(fatal) << "Cannot read MAC address from net interface " << netif;
+    return "";
+  }
   std::string mac;
-  int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP );
-  if ( sock < 0 ) {
-    LOG(error) << "Unable to obtain MAC address";
-    return -1;
+  mac_addr_file >> mac;
+  if (mac == "") {
+    LOG(fatal) << "Cannot read MAC address from net interface " << netif;
+    return "";
   }
+  mac_addr_file.close();
 
-  struct ifconf conf{};
-  char ifconfbuf[ 128 * sizeof(struct ifreq)  ];
-  memset( ifconfbuf, 0, sizeof( ifconfbuf ));
-  conf.ifc_buf = ifconfbuf;
-  conf.ifc_len = sizeof( ifconfbuf );
-  if ( ioctl( sock, SIOCGIFCONF, &conf ))
-  {
-    LOG(error) << "Unable to obtain MAC address";
-    return -1;
-  }
-
-  struct ifreq* ifr;
-  for (
-      ifr = conf.ifc_req;
-      reinterpret_cast<char *>(ifr) <
-          reinterpret_cast<char *>(conf.ifc_req) + conf.ifc_len;
-      ifr++) {
-    if ( ifr->ifr_addr.sa_data == (ifr+1)->ifr_addr.sa_data ) {
-      continue;  // duplicate, skip it
-    }
-
-    if ( ioctl( sock, SIOCGIFFLAGS, ifr )) {
-      continue;  // failed to get flags, skip it
-    }
-    if ( ioctl( sock, SIOCGIFHWADDR, ifr ) == 0 ) {
-      mac = std::string(ifr->ifr_addr.sa_data);
-      if (!mac.empty()) {
-        break;
-      }
-    }
-  }
-  close(sock);
+  LOG(info) << "MAC address = " << mac;
 
   std::stringstream stream;
   stream << std::hex << HashMacAddressPid(mac);
-  *mac_hash = stream.str();
+  mac_hash = stream.str();
 
-  if (mac_hash->size() > 3) {
-    mac_hash->erase(0, mac_hash->size() - 3);
-  } else if (mac_hash->size() < 3) {
-    *mac_hash = std::string(3 - mac_hash->size(), '0') + *mac_hash;
+  if (mac_hash.size() > 3) {
+    mac_hash.erase(0, mac_hash.size() - 3);
+  } else if (mac_hash.size() < 3) {
+    mac_hash = std::string(3 - mac_hash.size(), '0') + mac_hash;
   }
-  return 0;
+  return mac_hash;
 }
 
 } // namespace social_network

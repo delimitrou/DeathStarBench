@@ -6,139 +6,21 @@
 --
 
 
-local Thrift = require 'Thrift'
-local TType = Thrift.TType
-local TMessageType = Thrift.TMessageType
-local __TObject = Thrift.__TObject
-local TApplicationException = Thrift.TApplicationException
-local __TClient = Thrift.__TClient
-local __TProcessor = Thrift.__TProcessor
-local ttype = Thrift.ttype
-local ttable_size = Thrift.ttable_size
-local social_network_ttypes = require 'social_network_ttypes'
-local ServiceException = social_network_ttypes.ServiceException
+require 'Thrift'
+require 'social_network_ttypes'
 
--- HELPER FUNCTIONS AND STRUCTURES
-
-local UploadUniqueId_args = __TObject:new{
-  req_id,
-  post_type,
-  carrier
-}
-
-function UploadUniqueId_args:read(iprot)
-  iprot:readStructBegin()
-  while true do
-    local fname, ftype, fid = iprot:readFieldBegin()
-    if ftype == TType.STOP then
-      break
-    elseif fid == 1 then
-      if ftype == TType.I64 then
-        self.req_id = iprot:readI64()
-      else
-        iprot:skip(ftype)
-      end
-    elseif fid == 2 then
-      if ftype == TType.I32 then
-        self.post_type = iprot:readI32()
-      else
-        iprot:skip(ftype)
-      end
-    elseif fid == 3 then
-      if ftype == TType.MAP then
-        self.carrier = {}
-        local _ktype19, _vtype20, _size18 = iprot:readMapBegin()
-        for _i=1,_size18 do
-          local _key22 = iprot:readString()
-          local _val23 = iprot:readString()
-          self.carrier[_key22] = _val23
-        end
-        iprot:readMapEnd()
-      else
-        iprot:skip(ftype)
-      end
-    else
-      iprot:skip(ftype)
-    end
-    iprot:readFieldEnd()
-  end
-  iprot:readStructEnd()
-end
-
-function UploadUniqueId_args:write(oprot)
-  oprot:writeStructBegin('UploadUniqueId_args')
-  if self.req_id ~= nil then
-    oprot:writeFieldBegin('req_id', TType.I64, 1)
-    oprot:writeI64(self.req_id)
-    oprot:writeFieldEnd()
-  end
-  if self.post_type ~= nil then
-    oprot:writeFieldBegin('post_type', TType.I32, 2)
-    oprot:writeI32(self.post_type)
-    oprot:writeFieldEnd()
-  end
-  if self.carrier ~= nil then
-    oprot:writeFieldBegin('carrier', TType.MAP, 3)
-    oprot:writeMapBegin(TType.STRING, TType.STRING, ttable_size(self.carrier))
-    for kiter24,viter25 in pairs(self.carrier) do
-      oprot:writeString(kiter24)
-      oprot:writeString(viter25)
-    end
-    oprot:writeMapEnd()
-    oprot:writeFieldEnd()
-  end
-  oprot:writeFieldStop()
-  oprot:writeStructEnd()
-end
-
-local UploadUniqueId_result = __TObject:new{
-  se
-}
-
-function UploadUniqueId_result:read(iprot)
-  iprot:readStructBegin()
-  while true do
-    local fname, ftype, fid = iprot:readFieldBegin()
-    if ftype == TType.STOP then
-      break
-    elseif fid == 1 then
-      if ftype == TType.STRUCT then
-        self.se = ServiceException:new{}
-        self.se:read(iprot)
-      else
-        iprot:skip(ftype)
-      end
-    else
-      iprot:skip(ftype)
-    end
-    iprot:readFieldEnd()
-  end
-  iprot:readStructEnd()
-end
-
-function UploadUniqueId_result:write(oprot)
-  oprot:writeStructBegin('UploadUniqueId_result')
-  if self.se ~= nil then
-    oprot:writeFieldBegin('se', TType.STRUCT, 1)
-    self.se:write(oprot)
-    oprot:writeFieldEnd()
-  end
-  oprot:writeFieldStop()
-  oprot:writeStructEnd()
-end
-
-local UniqueIdServiceClient = __TObject.new(__TClient, {
+UniqueIdServiceClient = __TObject.new(__TClient, {
   __type = 'UniqueIdServiceClient'
 })
 
-function UniqueIdServiceClient:UploadUniqueId(req_id, post_type, carrier)
-  self:send_UploadUniqueId(req_id, post_type, carrier)
-  self:recv_UploadUniqueId(req_id, post_type, carrier)
+function UniqueIdServiceClient:ComposeUniqueId(req_id, post_type, carrier)
+  self:send_ComposeUniqueId(req_id, post_type, carrier)
+  return self:recv_ComposeUniqueId(req_id, post_type, carrier)
 end
 
-function UniqueIdServiceClient:send_UploadUniqueId(req_id, post_type, carrier)
-  self.oprot:writeMessageBegin('UploadUniqueId', TMessageType.CALL, self._seqid)
-  local args = UploadUniqueId_args:new{}
+function UniqueIdServiceClient:send_ComposeUniqueId(req_id, post_type, carrier)
+  self.oprot:writeMessageBegin('ComposeUniqueId', TMessageType.CALL, self._seqid)
+  local args = ComposeUniqueId_args:new{}
   args.req_id = req_id
   args.post_type = post_type
   args.carrier = carrier
@@ -147,7 +29,7 @@ function UniqueIdServiceClient:send_UploadUniqueId(req_id, post_type, carrier)
   self.oprot.trans:flush()
 end
 
-function UniqueIdServiceClient:recv_UploadUniqueId(req_id, post_type, carrier)
+function UniqueIdServiceClient:recv_ComposeUniqueId(req_id, post_type, carrier)
   local fname, mtype, rseqid = self.iprot:readMessageBegin()
   if mtype == TMessageType.EXCEPTION then
     local x = TApplicationException:new{}
@@ -155,19 +37,22 @@ function UniqueIdServiceClient:recv_UploadUniqueId(req_id, post_type, carrier)
     self.iprot:readMessageEnd()
     error(x)
   end
-  local result = UploadUniqueId_result:new{}
+  local result = ComposeUniqueId_result:new{}
   result:read(self.iprot)
   self.iprot:readMessageEnd()
-  if result.se then
+  if result.success ~= nil then
+    return result.success
+  elseif result.se then
     error(result.se)
   end
+  error(TApplicationException:new{errorCode = TApplicationException.MISSING_RESULT})
 end
-local UniqueIdServiceIface = __TObject:new{
+UniqueIdServiceIface = __TObject:new{
   __type = 'UniqueIdServiceIface'
 }
 
 
-local UniqueIdServiceProcessor = __TObject.new(__TProcessor
+UniqueIdServiceProcessor = __TObject.new(__TProcessor
 , {
  __type = 'UniqueIdServiceProcessor'
 })
@@ -190,13 +75,13 @@ function UniqueIdServiceProcessor:process(iprot, oprot, server_ctx)
   end
 end
 
-function UniqueIdServiceProcessor:process_UploadUniqueId(seqid, iprot, oprot, server_ctx)
-  local args = UploadUniqueId_args:new{}
+function UniqueIdServiceProcessor:process_ComposeUniqueId(seqid, iprot, oprot, server_ctx)
+  local args = ComposeUniqueId_args:new{}
   local reply_type = TMessageType.REPLY
   args:read(iprot)
   iprot:readMessageEnd()
-  local result = UploadUniqueId_result:new{}
-  local status, res = pcall(self.handler.UploadUniqueId, self.handler, args.req_id, args.post_type, args.carrier)
+  local result = ComposeUniqueId_result:new{}
+  local status, res = pcall(self.handler.ComposeUniqueId, self.handler, args.req_id, args.post_type, args.carrier)
   if not status then
     reply_type = TMessageType.EXCEPTION
     result = TApplicationException:new{message = res}
@@ -205,10 +90,129 @@ function UniqueIdServiceProcessor:process_UploadUniqueId(seqid, iprot, oprot, se
   else
     result.success = res
   end
-  oprot:writeMessageBegin('UploadUniqueId', reply_type, seqid)
+  oprot:writeMessageBegin('ComposeUniqueId', reply_type, seqid)
   result:write(oprot)
   oprot:writeMessageEnd()
   oprot.trans:flush()
 end
 
-return UniqueIdServiceClient
+-- HELPER FUNCTIONS AND STRUCTURES
+
+ComposeUniqueId_args = __TObject:new{
+  req_id,
+  post_type,
+  carrier
+}
+
+function ComposeUniqueId_args:read(iprot)
+  iprot:readStructBegin()
+  while true do
+    local fname, ftype, fid = iprot:readFieldBegin()
+    if ftype == TType.STOP then
+      break
+    elseif fid == 1 then
+      if ftype == TType.I64 then
+        self.req_id = iprot:readI64()
+      else
+        iprot:skip(ftype)
+      end
+    elseif fid == 2 then
+      if ftype == TType.I32 then
+        self.post_type = iprot:readI32()
+      else
+        iprot:skip(ftype)
+      end
+    elseif fid == 3 then
+      if ftype == TType.MAP then
+        self.carrier = {}
+        local _ktype31, _vtype32, _size30 = iprot:readMapBegin() 
+        for _i=1,_size30 do
+          local _key34 = iprot:readString()
+          local _val35 = iprot:readString()
+          self.carrier[_key34] = _val35
+        end
+        iprot:readMapEnd()
+      else
+        iprot:skip(ftype)
+      end
+    else
+      iprot:skip(ftype)
+    end
+    iprot:readFieldEnd()
+  end
+  iprot:readStructEnd()
+end
+
+function ComposeUniqueId_args:write(oprot)
+  oprot:writeStructBegin('ComposeUniqueId_args')
+  if self.req_id ~= nil then
+    oprot:writeFieldBegin('req_id', TType.I64, 1)
+    oprot:writeI64(self.req_id)
+    oprot:writeFieldEnd()
+  end
+  if self.post_type ~= nil then
+    oprot:writeFieldBegin('post_type', TType.I32, 2)
+    oprot:writeI32(self.post_type)
+    oprot:writeFieldEnd()
+  end
+  if self.carrier ~= nil then
+    oprot:writeFieldBegin('carrier', TType.MAP, 3)
+    oprot:writeMapBegin(TType.STRING, TType.STRING, ttable_size(self.carrier))
+    for kiter36,viter37 in pairs(self.carrier) do
+      oprot:writeString(kiter36)
+      oprot:writeString(viter37)
+    end
+    oprot:writeMapEnd()
+    oprot:writeFieldEnd()
+  end
+  oprot:writeFieldStop()
+  oprot:writeStructEnd()
+end
+
+ComposeUniqueId_result = __TObject:new{
+  success,
+  se
+}
+
+function ComposeUniqueId_result:read(iprot)
+  iprot:readStructBegin()
+  while true do
+    local fname, ftype, fid = iprot:readFieldBegin()
+    if ftype == TType.STOP then
+      break
+    elseif fid == 0 then
+      if ftype == TType.I64 then
+        self.success = iprot:readI64()
+      else
+        iprot:skip(ftype)
+      end
+    elseif fid == 1 then
+      if ftype == TType.STRUCT then
+        self.se = ServiceException:new{}
+        self.se:read(iprot)
+      else
+        iprot:skip(ftype)
+      end
+    else
+      iprot:skip(ftype)
+    end
+    iprot:readFieldEnd()
+  end
+  iprot:readStructEnd()
+end
+
+function ComposeUniqueId_result:write(oprot)
+  oprot:writeStructBegin('ComposeUniqueId_result')
+  if self.success ~= nil then
+    oprot:writeFieldBegin('success', TType.I64, 0)
+    oprot:writeI64(self.success)
+    oprot:writeFieldEnd()
+  end
+  if self.se ~= nil then
+    oprot:writeFieldBegin('se', TType.STRUCT, 1)
+    self.se:write(oprot)
+    oprot:writeFieldEnd()
+  end
+  oprot:writeFieldStop()
+  oprot:writeStructEnd()
+end

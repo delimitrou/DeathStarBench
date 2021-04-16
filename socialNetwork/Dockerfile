@@ -6,7 +6,7 @@ COPY ./ /social-network-microservices
 RUN cd /social-network-microservices \
     && mkdir -p build \
     && cd build \
-    && cmake .. \
+    && cmake -DCMAKE_BUILD_TYPE=Debug .. \
     && make -j${NUM_CPUS} \
     && make install
 

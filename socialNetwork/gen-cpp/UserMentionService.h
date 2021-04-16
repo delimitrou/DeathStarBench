@@ -21,7 +21,7 @@ namespace social_network {
 class UserMentionServiceIf {
  public:
   virtual ~UserMentionServiceIf() {}
-  virtual void UploadUserMentions(const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier) = 0;
+  virtual void ComposeUserMentions(std::vector<UserMention> & _return, const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier) = 0;
 };
 
 class UserMentionServiceIfFactory {
@@ -51,32 +51,32 @@ class UserMentionServiceIfSingletonFactory : virtual public UserMentionServiceIf
 class UserMentionServiceNull : virtual public UserMentionServiceIf {
  public:
   virtual ~UserMentionServiceNull() {}
-  void UploadUserMentions(const int64_t /* req_id */, const std::vector<std::string> & /* usernames */, const std::map<std::string, std::string> & /* carrier */) {
+  void ComposeUserMentions(std::vector<UserMention> & /* _return */, const int64_t /* req_id */, const std::vector<std::string> & /* usernames */, const std::map<std::string, std::string> & /* carrier */) {
     return;
   }
 };
 
-typedef struct _UserMentionService_UploadUserMentions_args__isset {
-  _UserMentionService_UploadUserMentions_args__isset() : req_id(false), usernames(false), carrier(false) {}
+typedef struct _UserMentionService_ComposeUserMentions_args__isset {
+  _UserMentionService_ComposeUserMentions_args__isset() : req_id(false), usernames(false), carrier(false) {}
   bool req_id :1;
   bool usernames :1;
   bool carrier :1;
-} _UserMentionService_UploadUserMentions_args__isset;
+} _UserMentionService_ComposeUserMentions_args__isset;
 
-class UserMentionService_UploadUserMentions_args {
+class UserMentionService_ComposeUserMentions_args {
  public:
 
-  UserMentionService_UploadUserMentions_args(const UserMentionService_UploadUserMentions_args&);
-  UserMentionService_UploadUserMentions_args& operator=(const UserMentionService_UploadUserMentions_args&);
-  UserMentionService_UploadUserMentions_args() : req_id(0) {
+  UserMentionService_ComposeUserMentions_args(const UserMentionService_ComposeUserMentions_args&);
+  UserMentionService_ComposeUserMentions_args& operator=(const UserMentionService_ComposeUserMentions_args&);
+  UserMentionService_ComposeUserMentions_args() : req_id(0) {
   }
 
-  virtual ~UserMentionService_UploadUserMentions_args() throw();
+  virtual ~UserMentionService_ComposeUserMentions_args() throw();
   int64_t req_id;
   std::vector<std::string>  usernames;
   std::map<std::string, std::string>  carrier;
 
-  _UserMentionService_UploadUserMentions_args__isset __isset;
+  _UserMentionService_ComposeUserMentions_args__isset __isset;
 
   void __set_req_id(const int64_t val);
 
@@ -84,7 +84,7 @@ class UserMentionService_UploadUserMentions_args {
 
   void __set_carrier(const std::map<std::string, std::string> & val);
 
-  bool operator == (const UserMentionService_UploadUserMentions_args & rhs) const
+  bool operator == (const UserMentionService_ComposeUserMentions_args & rhs) const
   {
     if (!(req_id == rhs.req_id))
       return false;
@@ -94,11 +94,11 @@ class UserMentionService_UploadUserMentions_args {
       return false;
     return true;
   }
-  bool operator != (const UserMentionService_UploadUserMentions_args &rhs) const {
+  bool operator != (const UserMentionService_ComposeUserMentions_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const UserMentionService_UploadUserMentions_args & ) const;
+  bool operator < (const UserMentionService_ComposeUserMentions_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -106,11 +106,11 @@ class UserMentionService_UploadUserMentions_args {
 };
 
 
-class UserMentionService_UploadUserMentions_pargs {
+class UserMentionService_ComposeUserMentions_pargs {
  public:
 
 
-  virtual ~UserMentionService_UploadUserMentions_pargs() throw();
+  virtual ~UserMentionService_ComposeUserMentions_pargs() throw();
   const int64_t* req_id;
   const std::vector<std::string> * usernames;
   const std::map<std::string, std::string> * carrier;
@@ -119,56 +119,64 @@ class UserMentionService_UploadUserMentions_pargs {
 
 };
 
-typedef struct _UserMentionService_UploadUserMentions_result__isset {
-  _UserMentionService_UploadUserMentions_result__isset() : se(false) {}
+typedef struct _UserMentionService_ComposeUserMentions_result__isset {
+  _UserMentionService_ComposeUserMentions_result__isset() : success(false), se(false) {}
+  bool success :1;
   bool se :1;
-} _UserMentionService_UploadUserMentions_result__isset;
+} _UserMentionService_ComposeUserMentions_result__isset;
 
-class UserMentionService_UploadUserMentions_result {
+class UserMentionService_ComposeUserMentions_result {
  public:
 
-  UserMentionService_UploadUserMentions_result(const UserMentionService_UploadUserMentions_result&);
-  UserMentionService_UploadUserMentions_result& operator=(const UserMentionService_UploadUserMentions_result&);
-  UserMentionService_UploadUserMentions_result() {
+  UserMentionService_ComposeUserMentions_result(const UserMentionService_ComposeUserMentions_result&);
+  UserMentionService_ComposeUserMentions_result& operator=(const UserMentionService_ComposeUserMentions_result&);
+  UserMentionService_ComposeUserMentions_result() {
   }
 
-  virtual ~UserMentionService_UploadUserMentions_result() throw();
+  virtual ~UserMentionService_ComposeUserMentions_result() throw();
+  std::vector<UserMention>  success;
   ServiceException se;
 
-  _UserMentionService_UploadUserMentions_result__isset __isset;
+  _UserMentionService_ComposeUserMentions_result__isset __isset;
+
+  void __set_success(const std::vector<UserMention> & val);
 
   void __set_se(const ServiceException& val);
 
-  bool operator == (const UserMentionService_UploadUserMentions_result & rhs) const
+  bool operator == (const UserMentionService_ComposeUserMentions_result & rhs) const
   {
+    if (!(success == rhs.success))
+      return false;
     if (!(se == rhs.se))
       return false;
     return true;
   }
-  bool operator != (const UserMentionService_UploadUserMentions_result &rhs) const {
+  bool operator != (const UserMentionService_ComposeUserMentions_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const UserMentionService_UploadUserMentions_result & ) const;
+  bool operator < (const UserMentionService_ComposeUserMentions_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
-typedef struct _UserMentionService_UploadUserMentions_presult__isset {
-  _UserMentionService_UploadUserMentions_presult__isset() : se(false) {}
+typedef struct _UserMentionService_ComposeUserMentions_presult__isset {
+  _UserMentionService_ComposeUserMentions_presult__isset() : success(false), se(false) {}
+  bool success :1;
   bool se :1;
-} _UserMentionService_UploadUserMentions_presult__isset;
+} _UserMentionService_ComposeUserMentions_presult__isset;
 
-class UserMentionService_UploadUserMentions_presult {
+class UserMentionService_ComposeUserMentions_presult {
  public:
 
 
-  virtual ~UserMentionService_UploadUserMentions_presult() throw();
+  virtual ~UserMentionService_ComposeUserMentions_presult() throw();
+  std::vector<UserMention> * success;
   ServiceException se;
 
-  _UserMentionService_UploadUserMentions_presult__isset __isset;
+  _UserMentionService_ComposeUserMentions_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -199,9 +207,9 @@ class UserMentionServiceClient : virtual public UserMentionServiceIf {
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void UploadUserMentions(const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier);
-  void send_UploadUserMentions(const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier);
-  void recv_UploadUserMentions();
+  void ComposeUserMentions(std::vector<UserMention> & _return, const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier);
+  void send_ComposeUserMentions(const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier);
+  void recv_ComposeUserMentions(std::vector<UserMention> & _return);
  protected:
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -217,11 +225,11 @@ class UserMentionServiceProcessor : public ::apache::thrift::TDispatchProcessor 
   typedef  void (UserMentionServiceProcessor::*ProcessFunction)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*);
   typedef std::map<std::string, ProcessFunction> ProcessMap;
   ProcessMap processMap_;
-  void process_UploadUserMentions(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_ComposeUserMentions(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   UserMentionServiceProcessor(::apache::thrift::stdcxx::shared_ptr<UserMentionServiceIf> iface) :
     iface_(iface) {
-    processMap_["UploadUserMentions"] = &UserMentionServiceProcessor::process_UploadUserMentions;
+    processMap_["ComposeUserMentions"] = &UserMentionServiceProcessor::process_ComposeUserMentions;
   }
 
   virtual ~UserMentionServiceProcessor() {}
@@ -250,13 +258,14 @@ class UserMentionServiceMultiface : virtual public UserMentionServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void UploadUserMentions(const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier) {
+  void ComposeUserMentions(std::vector<UserMention> & _return, const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadUserMentions(req_id, usernames, carrier);
+      ifaces_[i]->ComposeUserMentions(_return, req_id, usernames, carrier);
     }
-    ifaces_[i]->UploadUserMentions(req_id, usernames, carrier);
+    ifaces_[i]->ComposeUserMentions(_return, req_id, usernames, carrier);
+    return;
   }
 
 };
@@ -289,9 +298,9 @@ class UserMentionServiceConcurrentClient : virtual public UserMentionServiceIf {
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void UploadUserMentions(const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadUserMentions(const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier);
-  void recv_UploadUserMentions(const int32_t seqid);
+  void ComposeUserMentions(std::vector<UserMention> & _return, const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier);
+  int32_t send_ComposeUserMentions(const int64_t req_id, const std::vector<std::string> & usernames, const std::map<std::string, std::string> & carrier);
+  void recv_ComposeUserMentions(std::vector<UserMention> & _return, const int32_t seqid);
  protected:
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;

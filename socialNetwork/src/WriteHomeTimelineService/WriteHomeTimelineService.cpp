@@ -16,8 +16,6 @@
 #include "../../gen-cpp/social_network_types.h"
 #include "../../gen-cpp/SocialGraphService.h"
 
-#define NUM_WORKERS 4
-
 using namespace social_network;
 
 static std::exception_ptr _teptr;
@@ -43,11 +41,8 @@ void OnReceivedWorker(const AMQP::Message &msg) {
     TextMapReader span_reader(carrier);
     auto parent_span = opentracing::Tracer::Global()->Extract(span_reader);
     auto span = opentracing::Tracer::Global()->StartSpan(
-        "FanoutHomeTimelines",
+        "write_home_timeline_server",
         {opentracing::ChildOf(parent_span->get())});
-    std::map<std::string, std::string> writer_text_map;
-    TextMapWriter writer(writer_text_map);
-    opentracing::Tracer::Global()->Inject(span->context(), writer);
 
     // Extract information from rabbitmq messages
     int64_t user_id = msg_json["user_id"];
@@ -57,6 +52,12 @@ void OnReceivedWorker(const AMQP::Message &msg) {
     std::vector<int64_t> user_mentions_id = msg_json["user_mentions_id"];
 
     // Find followers of the user
+    auto followers_span = opentracing::Tracer::Global()->StartSpan(
+        "get_followers_client", {opentracing::ChildOf(&span->context())});
+    std::map<std::string, std::string> writer_text_map;
+    TextMapWriter writer(writer_text_map);
+    opentracing::Tracer::Global()->Inject(followers_span->context(), writer);
+
     auto social_graph_client_wrapper = _social_graph_client_pool->Pop();
     if (!social_graph_client_wrapper) {
       ServiceException se;
@@ -71,10 +72,11 @@ void OnReceivedWorker(const AMQP::Message &msg) {
                                         writer_text_map);
     } catch (...) {
       LOG(error) << "Failed to get followers from social-network-service";
-      _social_graph_client_pool->Push(social_graph_client_wrapper);
+      _social_graph_client_pool->Remove(social_graph_client_wrapper);
       throw;
     }
-    _social_graph_client_pool->Push(social_graph_client_wrapper);
+    _social_graph_client_pool->Keepalive(social_graph_client_wrapper);
+    followers_span->Finish();
 
     std::set<int64_t> followers_id_set(followers_id.begin(),
         followers_id.end());
@@ -82,7 +84,7 @@ void OnReceivedWorker(const AMQP::Message &msg) {
 
     // Update Redis ZSet
     auto redis_span = opentracing::Tracer::Global()->StartSpan(
-        "RedisUpdate", {opentracing::ChildOf(&span->context())});
+        "write_home_timeline_redis_update_client", {opentracing::ChildOf(&span->context())});
     auto redis_client_wrapper = _redis_client_pool->Pop();
     if (!redis_client_wrapper) {
       ServiceException se;
@@ -103,7 +105,7 @@ void OnReceivedWorker(const AMQP::Message &msg) {
 
     redis_client->sync_commit();
     redis_span->Finish();
-    _redis_client_pool->Push(redis_client_wrapper);
+    _redis_client_pool->Keepalive(redis_client_wrapper);
   } catch (...) {
     LOG(error) << "OnReveived worker error";
     throw;
@@ -161,6 +163,7 @@ int main(int argc, char *argv[]) {
   }
 
   int port = config_json["write-home-timeline-service"]["port"];
+  int n_workers = config_json["write-home-timeline-service"]["workers"];
 
   std::string rabbitmq_addr =
       config_json["write-home-timeline-rabbitmq"]["addr"];
@@ -169,41 +172,44 @@ int main(int argc, char *argv[]) {
   std::string redis_addr =
       config_json["home-timeline-redis"]["addr"];
   int redis_port = config_json["home-timeline-redis"]["port"];
+  int redis_conns = config_json["home-timeline-redis"]["connections"];
+  int redis_timeout = config_json["home-timeline-redis"]["timeout_ms"];
+  int redis_keepalive = config_json["home-timeline-redis"]["keepalive_ms"];
 
   std::string social_graph_service_addr =
       config_json["social-graph-service"]["addr"];
   int social_graph_service_port = config_json["social-graph-service"]["port"];
+  int social_graph_service_conns = config_json["social-graph-service"]["connections"];
+  int social_graph_service_timeout = config_json["social-graph-service"]["timeout_ms"];
+  int social_graph_service_keepalive = config_json["social-graph-service"]["keepalive_ms"];
 
-  ClientPool<RedisClient> redis_client_pool("redis", redis_addr, redis_port,
-                                            0, 128, 1000);
+  ClientPool<RedisClient> redis_client_pool("redis", redis_addr, redis_port, 
+      0, redis_conns, redis_timeout, redis_keepalive);
 
   ClientPool<ThriftClient<SocialGraphServiceClient>>
       social_graph_client_pool(
           "social-graph-service", social_graph_service_addr,
-          social_graph_service_port, 0, 128, 1000);
+          social_graph_service_port, 0, social_graph_service_conns, social_graph_service_timeout, social_graph_service_keepalive);
 
   _redis_client_pool = &redis_client_pool;
   _social_graph_client_pool = &social_graph_client_pool;
 
-  std::unique_ptr<std::thread> threads_ptr[NUM_WORKERS];
-  for (auto & thread_ptr : threads_ptr) {
+  std::unique_ptr<std::thread> threads_ptr[n_workers];
+  for (auto &thread_ptr : threads_ptr) {
     thread_ptr = std::make_unique<std::thread>(
         WorkerThread, std::ref(rabbitmq_addr), rabbitmq_port);
   }
   for (auto &thread_ptr : threads_ptr) {
     thread_ptr->join();
     if (_teptr) {
-      try{
+      try {
         std::rethrow_exception(_teptr);
-      }
-      catch(const std::exception &ex)
-      {
+      } catch (const std::exception &ex) {
         LOG(error) << "Thread exited with exception: " << ex.what();
+        exit(1);
       }
     }
   }
-
-
 
   return 0;
 }
