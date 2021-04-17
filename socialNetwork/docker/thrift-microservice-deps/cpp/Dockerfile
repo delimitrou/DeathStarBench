@@ -10,6 +10,8 @@ ARG LIB_CPP_JWT_VERSION=1.1.1
 ARG LIB_CPP_REDIS_VERSION=4.3.1
 ARG LIB_AMQP_CPP_VERSION=4.1.4
 ARG LIB_SIMPLEAMQPCLIENT_VERSION=2.4.0
+ARG LIB_HIREDIS_VERSION=1.0.0
+ARG LIB_REDIS_PLUS_PLUS_VERSION=1.2.3
 
 ARG NUM_CPUS=40
 ARG BUILD_DEPS="ca-certificates g++ cmake wget git libmemcached-dev automake bison flex libboost-all-dev libevent-dev libssl-dev libtool make pkg-config librabbitmq-dev"
@@ -110,6 +112,22 @@ RUN apt-get update \
   && cmake .. -DCMAKE_BUILD_TYPE=Release \
   && make -j${NUM_CPUS} \
   && make install \
+  # Install Hiredis
+  && cd /tmp \
+  && git clone https://github.com/redis/hiredis.git \
+  && cd hiredis \
+  && git checkout v${LIB_HIREDIS_VERSION} \
+  && make -j${NUM_CPUS} \
+  && make install \
+  # Install Redis plus plus
+  && cd /tmp \
+  && git clone https://github.com/sewenew/redis-plus-plus.git \
+  && cd redis-plus-plus \
+  && git checkout ${LIB_REDIS_PLUS_PLUS_VERSION} \
+  && cmake . \
+  && make -j${NUM_CPUS} \
+  && make install \
+  # Clean up
   && cd /tmp \
   && rm -rf \
     mongo-c-driver-${LIB_MONGOC_VERSION}.tar.gz \

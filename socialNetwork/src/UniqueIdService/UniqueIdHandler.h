@@ -1,13 +1,12 @@
 #ifndef SOCIAL_NETWORK_MICROSERVICES_UNIQUEIDHANDLER_H
 #define SOCIAL_NETWORK_MICROSERVICES_UNIQUEIDHANDLER_H
 
-#include <iostream>
-#include <string>
 #include <chrono>
+#include <iomanip>
+#include <iostream>
 #include <mutex>
 #include <sstream>
-#include <iomanip>
-
+#include <string>
 
 #include "../../gen-cpp/UniqueIdService.h"
 #include "../../gen-cpp/social_network_types.h"
@@ -19,8 +18,8 @@
 
 namespace social_network {
 
-using std::chrono::milliseconds;
 using std::chrono::duration_cast;
+using std::chrono::milliseconds;
 using std::chrono::system_clock;
 
 static int64_t current_timestamp = -1;
@@ -46,40 +45,39 @@ class UniqueIdHandler : public UniqueIdServiceIf {
   UniqueIdHandler(std::mutex *, const std::string &);
 
   int64_t ComposeUniqueId(int64_t, PostType::type,
-      const std::map<std::string, std::string> &) override;
+                          const std::map<std::string, std::string> &) override;
 
  private:
   std::mutex *_thread_lock;
   std::string _machine_id;
 };
 
-UniqueIdHandler::UniqueIdHandler(
-    std::mutex *thread_lock, const std::string &machine_id) {
+UniqueIdHandler::UniqueIdHandler(std::mutex *thread_lock,
+                                 const std::string &machine_id) {
   _thread_lock = thread_lock;
   _machine_id = machine_id;
 }
 
 int64_t UniqueIdHandler::ComposeUniqueId(
-    int64_t req_id,
-    PostType::type post_type,
-    const std::map<std::string, std::string> & carrier) {
-
+    int64_t req_id, PostType::type post_type,
+    const std::map<std::string, std::string> &carrier) {
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "compose_unique_id_server",
-      { opentracing::ChildOf(parent_span->get()) });
+      "compose_unique_id_server", {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
   _thread_lock->lock();
-  int64_t timestamp = duration_cast<milliseconds>(
-      system_clock::now().time_since_epoch()).count() - CUSTOM_EPOCH;
+  int64_t timestamp =
+      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+          .count() -
+      CUSTOM_EPOCH;
   int idx = GetCounter(timestamp);
   _thread_lock->unlock();
-  
+
   std::stringstream sstream;
   sstream << std::hex << timestamp;
   std::string timestamp_hex(sstream.str());
@@ -104,8 +102,7 @@ int64_t UniqueIdHandler::ComposeUniqueId(
   }
   std::string post_id_str = _machine_id + timestamp_hex + counter_hex;
   int64_t post_id = stoul(post_id_str, nullptr, 16) & 0x7FFFFFFFFFFFFFFF;
-  LOG(debug) << "The post_id of the request "
-      << req_id << " is " << post_id;
+  LOG(debug) << "The post_id of the request " << req_id << " is " << post_id;
 
   span->Finish();
   return post_id;
@@ -114,20 +111,19 @@ int64_t UniqueIdHandler::ComposeUniqueId(
 /*
  * The following code which obtaines machine ID from machine's MAC address was
  * inspired from https://stackoverflow.com/a/16859693.
- * 
+ *
  * MAC address is obtained from /sys/class/net/<netif>/address
  */
-u_int16_t HashMacAddressPid(const std::string &mac)
-{
+u_int16_t HashMacAddressPid(const std::string &mac) {
   u_int16_t hash = 0;
   std::string mac_pid = mac + std::to_string(getpid());
-  for ( unsigned int i = 0; i < mac_pid.size(); i++ ) {
-    hash += ( mac[i] << (( i & 1 ) * 8 ));
+  for (unsigned int i = 0; i < mac_pid.size(); i++) {
+    hash += (mac[i] << ((i & 1) * 8));
   }
   return hash;
 }
 
-std::string GetMachineId (std::string &netif) {
+std::string GetMachineId(std::string &netif) {
   std::string mac_hash;
 
   std::string mac_addr_filename = "/sys/class/net/" + netif + "/address";
@@ -159,6 +155,6 @@ std::string GetMachineId (std::string &netif) {
   return mac_hash;
 }
 
-} // namespace social_network
+}  // namespace social_network
 
-#endif //SOCIAL_NETWORK_MICROSERVICES_UNIQUEIDHANDLER_H
+#endif  // SOCIAL_NETWORK_MICROSERVICES_UNIQUEIDHANDLER_H

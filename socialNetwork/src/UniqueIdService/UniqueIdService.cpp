@@ -12,24 +12,21 @@
  */
 
 #include <signal.h>
-
-#include <thrift/server/TThreadedServer.h>
 #include <thrift/protocol/TBinaryProtocol.h>
-#include <thrift/transport/TServerSocket.h>
+#include <thrift/server/TThreadedServer.h>
 #include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TServerSocket.h>
 
 #include "../utils.h"
 #include "UniqueIdHandler.h"
 
-using apache::thrift::server::TThreadedServer;
-using apache::thrift::transport::TServerSocket;
-using apache::thrift::transport::TFramedTransportFactory;
 using apache::thrift::protocol::TBinaryProtocolFactory;
+using apache::thrift::server::TThreadedServer;
+using apache::thrift::transport::TFramedTransportFactory;
+using apache::thrift::transport::TServerSocket;
 using namespace social_network;
 
-void sigintHandler(int sig) {
-  exit(EXIT_SUCCESS);
-}
+void sigintHandler(int sig) { exit(EXIT_SUCCESS); }
 
 int main(int argc, char *argv[]) {
   signal(SIGINT, sigintHandler);
@@ -52,14 +49,12 @@ int main(int argc, char *argv[]) {
 
   std::mutex thread_lock;
 
-  TThreadedServer server (
+  TThreadedServer server(
       std::make_shared<UniqueIdServiceProcessor>(
-          std::make_shared<UniqueIdHandler>(
-              &thread_lock, machine_id)),
+          std::make_shared<UniqueIdHandler>(&thread_lock, machine_id)),
       std::make_shared<TServerSocket>("0.0.0.0", port),
       std::make_shared<TFramedTransportFactory>(),
-      std::make_shared<TBinaryProtocolFactory>()
-  );
+      std::make_shared<TBinaryProtocolFactory>());
 
   LOG(info) << "Starting the unique-id-service server ...";
   server.serve();

@@ -1,23 +1,22 @@
+#include <signal.h>
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/server/TThreadedServer.h>
-#include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
-#include <signal.h>
+#include <thrift/transport/TServerSocket.h>
 
 #include "../utils.h"
 #include "../utils_mongodb.h"
+#include "../utils_redis.h"
 #include "SocialGraphHandler.h"
 
 using json = nlohmann::json;
-using apache::thrift::server::TThreadedServer;
-using apache::thrift::transport::TServerSocket;
-using apache::thrift::transport::TFramedTransportFactory;
 using apache::thrift::protocol::TBinaryProtocolFactory;
+using apache::thrift::server::TThreadedServer;
+using apache::thrift::transport::TFramedTransportFactory;
+using apache::thrift::transport::TServerSocket;
 using namespace social_network;
 
-void sigintHandler(int sig) {
-  exit(EXIT_SUCCESS);
-}
+void sigintHandler(int sig) { exit(EXIT_SUCCESS); }
 
 int main(int argc, char *argv[]) {
   signal(SIGINT, sigintHandler);
@@ -31,12 +30,6 @@ int main(int argc, char *argv[]) {
   }
 
   int port = config_json["social-graph-service"]["port"];
-
-  int redis_port = config_json["social-graph-redis"]["port"];
-  std::string redis_addr = config_json["social-graph-redis"]["addr"];
-  int redis_conns = config_json["social-graph-redis"]["connections"];
-  int redis_timeout = config_json["social-graph-redis"]["timeout_ms"];
-  int redis_keepalive = config_json["social-graph-redis"]["keepalive_ms"];
 
   int mongodb_conns = config_json["social-graph-mongodb"]["connections"];
   int mongodb_timeout = config_json["social-graph-mongodb"]["timeout_ms"];
@@ -53,11 +46,10 @@ int main(int argc, char *argv[]) {
   if (mongodb_client_pool == nullptr) {
     return EXIT_FAILURE;
   }
-  ClientPool<RedisClient> redis_client_pool("redis", redis_addr, redis_port,
-      0, redis_conns, redis_timeout, redis_keepalive);
 
   ClientPool<ThriftClient<UserServiceClient>> user_client_pool(
-      "social-graph", user_addr, user_port, 0, user_conns, user_timeout, user_keepalive);
+      "social-graph", user_addr, user_port, 0, user_conns, user_timeout,
+      user_keepalive);
 
   mongoc_client_t *mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
   if (!mongodb_client) {
@@ -74,18 +66,16 @@ int main(int argc, char *argv[]) {
   }
   mongoc_client_pool_push(mongodb_client_pool, mongodb_client);
 
+  Redis redis_client_pool = init_redis_client_pool(config_json, "social-graph");
+
   TThreadedServer server(
       std::make_shared<SocialGraphServiceProcessor>(
           std::make_shared<SocialGraphHandler>(
-              mongodb_client_pool,
-              &redis_client_pool,
-              &user_client_pool)),
+              mongodb_client_pool, &redis_client_pool, &user_client_pool)),
       std::make_shared<TServerSocket>("0.0.0.0", port),
       std::make_shared<TFramedTransportFactory>(),
-      std::make_shared<TBinaryProtocolFactory>()
-  );
+      std::make_shared<TBinaryProtocolFactory>());
 
   LOG(info) << "Starting the social-graph-service server ...";
   server.serve();
 }
-

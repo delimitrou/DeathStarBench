@@ -1,22 +1,19 @@
 #include <signal.h>
-
-#include <thrift/server/TThreadedServer.h>
 #include <thrift/protocol/TBinaryProtocol.h>
-#include <thrift/transport/TServerSocket.h>
+#include <thrift/server/TThreadedServer.h>
 #include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TServerSocket.h>
 
 #include "../utils.h"
 #include "MediaHandler.h"
 
-using apache::thrift::server::TThreadedServer;
-using apache::thrift::transport::TServerSocket;
-using apache::thrift::transport::TFramedTransportFactory;
 using apache::thrift::protocol::TBinaryProtocolFactory;
+using apache::thrift::server::TThreadedServer;
+using apache::thrift::transport::TFramedTransportFactory;
+using apache::thrift::transport::TServerSocket;
 using namespace social_network;
 
-void sigintHandler(int sig) {
-  exit(EXIT_SUCCESS);
-}
+void sigintHandler(int sig) { exit(EXIT_SUCCESS); }
 
 int main(int argc, char *argv[]) {
   signal(SIGINT, sigintHandler);
@@ -29,13 +26,11 @@ int main(int argc, char *argv[]) {
 
   int port = config_json["media-service"]["port"];
 
-  TThreadedServer server (
-      std::make_shared<MediaServiceProcessor>(
-          std::make_shared<MediaHandler>()),
+  TThreadedServer server(
+      std::make_shared<MediaServiceProcessor>(std::make_shared<MediaHandler>()),
       std::make_shared<TServerSocket>("0.0.0.0", port),
       std::make_shared<TFramedTransportFactory>(),
-      std::make_shared<TBinaryProtocolFactory>()
-  );
+      std::make_shared<TBinaryProtocolFactory>());
 
   LOG(info) << "Starting the media-service server...";
   server.serve();

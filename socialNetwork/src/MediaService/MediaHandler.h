@@ -1,9 +1,9 @@
 #ifndef SOCIAL_NETWORK_MICROSERVICES_SRC_MEDIASERVICE_MEDIAHANDLER_H_
 #define SOCIAL_NETWORK_MICROSERVICES_SRC_MEDIASERVICE_MEDIAHANDLER_H_
 
+#include <chrono>
 #include <iostream>
 #include <string>
-#include <chrono>
 
 #include "../../gen-cpp/MediaService.h"
 #include "../logger.h"
@@ -19,34 +19,33 @@ class MediaHandler : public MediaServiceIf {
   MediaHandler() = default;
   ~MediaHandler() override = default;
 
-  void ComposeMedia(std::vector<Media> &_return, int64_t, const std::vector<std::string> &,
-      const std::vector<int64_t> &, const std::map<std::string,
-      std::string> &) override;
+  void ComposeMedia(std::vector<Media> &_return, int64_t,
+                    const std::vector<std::string> &,
+                    const std::vector<int64_t> &,
+                    const std::map<std::string, std::string> &) override;
+
  private:
 };
 
-
 void MediaHandler::ComposeMedia(
-    std::vector<Media> &_return,
-    int64_t req_id,
+    std::vector<Media> &_return, int64_t req_id,
     const std::vector<std::string> &media_types,
     const std::vector<int64_t> &media_ids,
     const std::map<std::string, std::string> &carrier) {
-
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "compose_media_server",
-      { opentracing::ChildOf(parent_span->get()) });
+      "compose_media_server", {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
   if (media_types.size() != media_ids.size()) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_THRIFT_HANDLER_ERROR;
-    se.message = "The lengths of media_id list and media_type list are not equal";
+    se.message =
+        "The lengths of media_id list and media_type list are not equal";
     throw se;
   }
 
@@ -58,9 +57,8 @@ void MediaHandler::ComposeMedia(
   }
 
   span->Finish();
-
 }
 
-} //namespace social_network
+}  // namespace social_network
 
-#endif //SOCIAL_NETWORK_MICROSERVICES_SRC_MEDIASERVICE_MEDIAHANDLER_H_
+#endif  // SOCIAL_NETWORK_MICROSERVICES_SRC_MEDIASERVICE_MEDIAHANDLER_H_

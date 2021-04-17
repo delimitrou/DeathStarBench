@@ -1,11 +1,13 @@
 
-#include <csignal>
 #include <cpp_redis/cpp_redis>
+#include <csignal>
 #include <mutex>
-#include <thread>
-#include <sstream>
 #include <set>
+#include <sstream>
+#include <thread>
 
+#include "../../gen-cpp/SocialGraphService.h"
+#include "../../gen-cpp/social_network_types.h"
 #include "../AmqpLibeventHandler.h"
 #include "../ClientPool.h"
 #include "../RedisClient.h"
@@ -13,8 +15,6 @@
 #include "../logger.h"
 #include "../tracing.h"
 #include "../utils.h"
-#include "../../gen-cpp/social_network_types.h"
-#include "../../gen-cpp/SocialGraphService.h"
 
 using namespace social_network;
 
@@ -23,17 +23,15 @@ static ClientPool<RedisClient> *_redis_client_pool;
 static ClientPool<ThriftClient<SocialGraphServiceClient>>
     *_social_graph_client_pool;
 
-void sigintHandler(int sig) {
-  exit(EXIT_SUCCESS);
-}
+void sigintHandler(int sig) { exit(EXIT_SUCCESS); }
 
 void OnReceivedWorker(const AMQP::Message &msg) {
   try {
     json msg_json = json::parse(std::string(msg.body(), msg.bodySize()));
 
     std::map<std::string, std::string> carrier;
-    for (auto it = msg_json["carrier"].begin();
-        it != msg_json["carrier"].end(); ++it) {
+    for (auto it = msg_json["carrier"].begin(); it != msg_json["carrier"].end();
+         ++it) {
       carrier.emplace(std::make_pair(it.key(), it.value()));
     }
 
@@ -79,12 +77,13 @@ void OnReceivedWorker(const AMQP::Message &msg) {
     followers_span->Finish();
 
     std::set<int64_t> followers_id_set(followers_id.begin(),
-        followers_id.end());
+                                       followers_id.end());
     followers_id_set.insert(user_mentions_id.begin(), user_mentions_id.end());
 
     // Update Redis ZSet
     auto redis_span = opentracing::Tracer::Global()->StartSpan(
-        "write_home_timeline_redis_update_client", {opentracing::ChildOf(&span->context())});
+        "write_home_timeline_redis_update_client",
+        {opentracing::ChildOf(&span->context())});
     auto redis_client_wrapper = _redis_client_pool->Pop();
     if (!redis_client_wrapper) {
       ServiceException se;
@@ -96,8 +95,8 @@ void OnReceivedWorker(const AMQP::Message &msg) {
     std::vector<std::string> options{"NX"};
     std::string post_id_str = std::to_string(post_id);
     std::string timestamp_str = std::to_string(timestamp);
-    std::multimap<std::string, std::string> value =
-        {{timestamp_str, post_id_str}};
+    std::multimap<std::string, std::string> value = {
+        {timestamp_str, post_id_str}};
 
     for (auto &follower_id : followers_id_set) {
       redis_client->zadd(std::to_string(follower_id), options, value);
@@ -113,8 +112,8 @@ void OnReceivedWorker(const AMQP::Message &msg) {
 }
 
 void HeartbeatSend(AmqpLibeventHandler &handler,
-    AMQP::TcpConnection &connection, int interval){
-  while(handler.GetIsRunning()){
+                   AMQP::TcpConnection &connection, int interval) {
+  while (handler.GetIsRunning()) {
     LOG(debug) << "Heartbeat sent";
     connection.heartbeat();
     sleep(interval);
@@ -123,28 +122,26 @@ void HeartbeatSend(AmqpLibeventHandler &handler,
 
 void WorkerThread(std::string &addr, int port) {
   AmqpLibeventHandler handler;
-  AMQP::TcpConnection connection(handler, AMQP::Address(
-      addr, port, AMQP::Login("guest", "guest"), "/"));
+  AMQP::TcpConnection connection(
+      handler, AMQP::Address(addr, port, AMQP::Login("guest", "guest"), "/"));
   AMQP::TcpChannel channel(&connection);
-  channel.onError(
-      [&handler](const char *message) {
-        LOG(error) << "Channel error: " << message;
-        handler.Stop();
-      });
-  channel.declareQueue("write-home-timeline", AMQP::durable).onSuccess(
-      [&connection](const std::string &name, uint32_t messagecount,
-                    uint32_t consumercount) {
+  channel.onError([&handler](const char *message) {
+    LOG(error) << "Channel error: " << message;
+    handler.Stop();
+  });
+  channel.declareQueue("write-home-timeline", AMQP::durable)
+      .onSuccess([&connection](const std::string &name, uint32_t messagecount,
+                               uint32_t consumercount) {
         LOG(debug) << "Created queue: " << name;
       });
-  channel.consume("write-home-timeline", AMQP::noack).onReceived(
-      [](const AMQP::Message &msg, uint64_t tag, bool redelivered) {
+  channel.consume("write-home-timeline", AMQP::noack)
+      .onReceived([](const AMQP::Message &msg, uint64_t tag, bool redelivered) {
         LOG(debug) << "Received: " << std::string(msg.body(), msg.bodySize());
         OnReceivedWorker(msg);
       });
 
-
   std::thread heartbeat_thread(HeartbeatSend, std::ref(handler),
-      std::ref(connection), 30);
+                               std::ref(connection), 30);
   heartbeat_thread.detach();
   handler.Start();
   LOG(debug) << "Closing connection.";
@@ -169,8 +166,7 @@ int main(int argc, char *argv[]) {
       config_json["write-home-timeline-rabbitmq"]["addr"];
   int rabbitmq_port = config_json["write-home-timeline-rabbitmq"]["port"];
 
-  std::string redis_addr =
-      config_json["home-timeline-redis"]["addr"];
+  std::string redis_addr = config_json["home-timeline-redis"]["addr"];
   int redis_port = config_json["home-timeline-redis"]["port"];
   int redis_conns = config_json["home-timeline-redis"]["connections"];
   int redis_timeout = config_json["home-timeline-redis"]["timeout_ms"];
@@ -179,17 +175,21 @@ int main(int argc, char *argv[]) {
   std::string social_graph_service_addr =
       config_json["social-graph-service"]["addr"];
   int social_graph_service_port = config_json["social-graph-service"]["port"];
-  int social_graph_service_conns = config_json["social-graph-service"]["connections"];
-  int social_graph_service_timeout = config_json["social-graph-service"]["timeout_ms"];
-  int social_graph_service_keepalive = config_json["social-graph-service"]["keepalive_ms"];
+  int social_graph_service_conns =
+      config_json["social-graph-service"]["connections"];
+  int social_graph_service_timeout =
+      config_json["social-graph-service"]["timeout_ms"];
+  int social_graph_service_keepalive =
+      config_json["social-graph-service"]["keepalive_ms"];
 
-  ClientPool<RedisClient> redis_client_pool("redis", redis_addr, redis_port, 
-      0, redis_conns, redis_timeout, redis_keepalive);
+  ClientPool<RedisClient> redis_client_pool("redis", redis_addr, redis_port, 0,
+                                            redis_conns, redis_timeout,
+                                            redis_keepalive);
 
-  ClientPool<ThriftClient<SocialGraphServiceClient>>
-      social_graph_client_pool(
-          "social-graph-service", social_graph_service_addr,
-          social_graph_service_port, 0, social_graph_service_conns, social_graph_service_timeout, social_graph_service_keepalive);
+  ClientPool<ThriftClient<SocialGraphServiceClient>> social_graph_client_pool(
+      "social-graph-service", social_graph_service_addr,
+      social_graph_service_port, 0, social_graph_service_conns,
+      social_graph_service_timeout, social_graph_service_keepalive);
 
   _redis_client_pool = &redis_client_pool;
   _social_graph_client_pool = &social_graph_client_pool;

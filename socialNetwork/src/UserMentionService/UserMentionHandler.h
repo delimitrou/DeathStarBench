@@ -1,10 +1,10 @@
 #ifndef SOCIAL_NETWORK_MICROSERVICES_SRC_USERMENTIONSERVICE_USERMENTIONHANDLER_H_
 #define SOCIAL_NETWORK_MICROSERVICES_SRC_USERMENTIONSERVICE_USERMENTIONHANDLER_H_
 
-#include <mongoc.h>
 #include <bson.h>
 #include <libmemcached/memcached.h>
 #include <libmemcached/util.h>
+#include <mongoc.h>
 
 #include "../../gen-cpp/UserMentionService.h"
 #include "../../gen-cpp/social_network_types.h"
@@ -17,12 +17,12 @@ namespace social_network {
 
 class UserMentionHandler : public UserMentionServiceIf {
  public:
-  UserMentionHandler(memcached_pool_st *,
-                     mongoc_client_pool_t *);
+  UserMentionHandler(memcached_pool_st *, mongoc_client_pool_t *);
   ~UserMentionHandler() override = default;
 
-  void ComposeUserMentions(std::vector<UserMention> &_return, int64_t, const std::vector<std::string> &,
-      const std::map<std::string, std::string> &) override ;
+  void ComposeUserMentions(std::vector<UserMention> &_return, int64_t,
+                           const std::vector<std::string> &,
+                           const std::map<std::string, std::string> &) override;
 
  private:
   memcached_pool_st *_memcached_client_pool;
@@ -37,11 +37,9 @@ UserMentionHandler::UserMentionHandler(
 }
 
 void UserMentionHandler::ComposeUserMentions(
-    std::vector<UserMention> &_return,
-    int64_t req_id,
+    std::vector<UserMention> &_return, int64_t req_id,
     const std::vector<std::string> &usernames,
     const std::map<std::string, std::string> &carrier) {
-
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
@@ -49,7 +47,7 @@ void UserMentionHandler::ComposeUserMentions(
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
       "compose_user_mentions_server",
-      { opentracing::ChildOf(parent_span->get()) });
+      {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
   std::vector<UserMention> user_mentions;
@@ -70,21 +68,22 @@ void UserMentionHandler::ComposeUserMentions(
       throw se;
     }
 
-    char** keys;
+    char **keys;
     size_t *key_sizes;
-    keys = new char* [usernames.size()];
-    key_sizes = new size_t [usernames.size()];
+    keys = new char *[usernames.size()];
+    key_sizes = new size_t[usernames.size()];
     int idx = 0;
     for (auto &username : usernames) {
       std::string key_str = username + ":user_id";
-      keys[idx] = new char [key_str.length() + 1];
+      keys[idx] = new char[key_str.length() + 1];
       strcpy(keys[idx], key_str.c_str());
       key_sizes[idx] = key_str.length();
       idx++;
     }
 
     auto get_span = opentracing::Tracer::Global()->StartSpan(
-      "compose_user_mentions_memcached_get_client", { opentracing::ChildOf(&span->context()) });
+        "compose_user_mentions_memcached_get_client",
+        {opentracing::ChildOf(&span->context())});
     rc = memcached_mget(client, keys, key_sizes, usernames.size());
     if (rc != MEMCACHED_SUCCESS) {
       LOG(error) << "Cannot get usernames of request " << req_id << ": "
@@ -104,7 +103,8 @@ void UserMentionHandler::ComposeUserMentions(
     uint32_t flags;
 
     while (true) {
-      return_value = memcached_fetch(client, return_key, &return_key_length, &return_value_length, &flags, &rc);
+      return_value = memcached_fetch(client, return_key, &return_key_length,
+                                     &return_value_length, &flags, &rc);
       if (return_value == nullptr) {
         LOG(debug) << "Memcached mget finished "
                    << memcached_strerror(client, rc);
@@ -117,13 +117,15 @@ void UserMentionHandler::ComposeUserMentions(
         LOG(error) << "Cannot get components of request " << req_id;
         ServiceException se;
         se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
-        se.message =  "Cannot get usernames of request " + std::to_string(req_id);
+        se.message =
+            "Cannot get usernames of request " + std::to_string(req_id);
         get_span->Finish();
         throw se;
       }
       UserMention new_user_mention;
       std::string username(return_key, return_key + return_key_length);
-      username = username.substr(0, username.length() - std::strlen(":user_id"));
+      username =
+          username.substr(0, username.length() - std::strlen(":user_id"));
       new_user_mention.username = username;
       new_user_mention.user_id = std::stoul(
           std::string(return_value, return_value + return_value_length));
@@ -142,8 +144,8 @@ void UserMentionHandler::ComposeUserMentions(
 
     // Find the rest in MongoDB
     if (!usernames_not_cached.empty()) {
-      mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
-          _mongodb_client_pool);
+      mongoc_client_t *mongodb_client =
+          mongoc_client_pool_pop(_mongodb_client_pool);
       if (!mongodb_client) {
         ServiceException se;
         se.errorCode = ErrorCode::SE_MONGODB_ERROR;
@@ -151,8 +153,8 @@ void UserMentionHandler::ComposeUserMentions(
         throw se;
       }
 
-      auto collection = mongoc_client_get_collection(
-          mongodb_client, "user", "user");
+      auto collection =
+          mongoc_client_get_collection(mongodb_client, "user", "user");
       if (!collection) {
         ServiceException se;
         se.errorCode = ErrorCode::SE_MONGODB_ERROR;
@@ -179,9 +181,10 @@ void UserMentionHandler::ComposeUserMentions(
       bson_append_document_end(query, &query_child_0);
 
       auto find_span = opentracing::Tracer::Global()->StartSpan(
-      "compose_user_mentions_mongo_find_client", { opentracing::ChildOf(&span->context()) });
-      mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(
-          collection, query, nullptr, nullptr);
+          "compose_user_mentions_mongo_find_client",
+          {opentracing::ChildOf(&span->context())});
+      mongoc_cursor_t *cursor =
+          mongoc_collection_find_with_opts(collection, query, nullptr, nullptr);
       const bson_t *doc;
 
       while (mongoc_cursor_next(cursor, &doc)) {
@@ -227,6 +230,6 @@ void UserMentionHandler::ComposeUserMentions(
   span->Finish();
 }
 
-}
+}  // namespace social_network
 
-#endif //SOCIAL_NETWORK_MICROSERVICES_SRC_USERMENTIONSERVICE_USERMENTIONHANDLER_H_
+#endif  // SOCIAL_NETWORK_MICROSERVICES_SRC_USERMENTIONSERVICE_USERMENTIONHANDLER_H_
