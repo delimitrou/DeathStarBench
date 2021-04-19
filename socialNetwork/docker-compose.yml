@@ -1,14 +1,5 @@
 version: "3"
 services:
-  # Resolving container hostnames from host machine
-  # CAUTION: could affect host machine networking
-  #  dns-social-network:
-  #    image: defreitas/dns-proxy-server
-  #    volumes:
-  #      - /opt/dns-proxy-server/conf:/app/conf
-  #      - /var/run/docker.sock:/var/run/docker.sock
-  #      - /etc/resolv.conf:/etc/resolv.conf
-
   social-graph-service:
     image: yg397/social-network-microservices:better_tracing
     hostname: social-graph-service
@@ -20,15 +11,15 @@ services:
   social-graph-mongodb:
     image: mongo
     hostname: social-graph-mongodb
-    ports:
-      - 37018:27017
+    # ports:
+    #   - 27018:27017
     restart: always
 
   social-graph-redis:
     image: redis
     hostname: social-graph-redis
-    ports:
-      - 6380:6379
+    # ports:
+    #   - 6380:6379
     restart: always
 
   # write-home-timeline-service:
@@ -53,16 +44,16 @@ services:
   home-timeline-redis:
     image: redis
     hostname: home-timeline-redis
-    ports:
-      - 6381:6379
+    # ports:
+    #   - 6381:6379
     restart: always
 
   home-timeline-redis:
     depends_on:
       - jaeger
     hostname: home-timeline-redis
-    ports:
-      - 6381:6379
+    # ports:
+    #   - 6381:6379
     image: redis
 
   compose-post-service:
@@ -246,7 +237,7 @@ services:
     image: yg397/openresty-thrift:xenial
     hostname: nginx-thrift
     ports:
-      - 18080:8080
+      - 8080:8080
     restart: always
     volumes:
       - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
@@ -259,7 +250,7 @@ services:
     image: yg397/media-frontend:xenial
     hostname: media-frontend
     ports:
-      - 18081:8080
+      - 8081:8080
     restart: always
     volumes:
       - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
@@ -273,7 +264,7 @@ services:
       #      - 6831:6831/udp
       #      - 6832:6832/udp
       #      - 5778:5778
-      - 26686:16686
+      - 16686:16686
     #      - 14268:14268
     #      - 9411:9411
     restart: always
