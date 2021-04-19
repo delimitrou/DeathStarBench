@@ -20,12 +20,24 @@ Supported actions:
 ## Running the social network application
 ### Before you start
 - Install Docker and Docker Compose.
-- Make sure exposed ports in docker-compose files are available 
-- Replace x.x.x.x in config.json with ip address of your servers
+- Make sure exposed ports in docker-compose files are available
+- Consider which platform you want to use (docker-compose/openshift/kubernetes)
+    - Build the required images using the proper method
+        - In case of docker-compose => docker-compose build
+        - In case of Openshift => run the build script according to the readme.
+        - In case of kubernetes => run the build script according to the readme.
+    - If you intend to use kubernetes, make sure that the orchestrator has the k8s value in config.json
+    - If you intend to use other platforms, make sure that the orchestrator has the value other than k8s  and replace x.x.x.x in config.json with ip address of your servers
 
-### Start docker containers
+### Running the containers
+##### Docker-compose
 Start docker containers by running `docker-compose up -d`. All images will be 
 pulled from Docker Hub.
+##### Openshift
+Read the Readme file in Openshift directory.
+
+##### Kubernetes
+Read the Readme file in Kubernetes directory.
 
 #### workload generation
 ```bash

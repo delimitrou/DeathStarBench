@@ -9,8 +9,10 @@ import (
 	"github.com/harlow/go-micro-services/tracing"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/bradfitz/gomemcache/memcache"
 	"time"
@@ -28,26 +30,50 @@ func main() {
 
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
+	
+	serv_port, _ := strconv.Atoi(result["RatePort"])
+	serv_ip := ""
+	rate_mongo_addr := ""
+	rate_memc_addr := ""
+	jaegeraddr := flag.String("jaegeraddr", "", "Jaeger address")
+	consuladdr := flag.String("consuladdr", "", "Consul address")
 
-	mongo_session := initializeDatabase(result["RateMongoAddress"])
+	if result["Orchestrator"] == "k8s"{
+		rate_mongo_addr = "mongodb-rate:"+strings.Split(result["RateMongoAddress"], ":")[1]
+		rate_memc_addr = "memcached-rate:"+strings.Split(result["RateMemcAddress"], ":")[1]
+		addrs, _ := net.InterfaceAddrs()
+		for _, a := range addrs {
+			if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+				if ipnet.IP.To4() != nil {
+					serv_ip = ipnet.IP.String()
 
-	fmt.Printf("rate memc addr port = %s\n", result["RateMemcAddress"])
-	memc_client := memcache.New(result["RateMemcAddress"])
+				}
+			}
+		}
+		*jaegeraddr = "jaeger:"+strings.Split(result["jaegerAddress"], ":")[1]
+		*consuladdr = "consul:" + strings.Split(result["consulAddress"], ":")[1]
+	} else {
+		rate_mongo_addr = result["RateMongoAddress"]
+		rate_memc_addr = result["RateMemcAddress"]
+		serv_ip = result["RateIP"]
+		*jaegeraddr = result["jaegerAddress"]
+		*consuladdr = result["consulAddress"]
+	}
+	flag.Parse()
+	
+
+	mongo_session := initializeDatabase(rate_mongo_addr)
+
+	fmt.Printf("rate memc addr port = %s\n", rate_memc_addr)
+	memc_client := memcache.New(rate_memc_addr)
 	memc_client.Timeout = time.Second * 2
 	memc_client.MaxIdleConns = 512
 
 	defer mongo_session.Close()
-	serv_port, _ := strconv.Atoi(result["RatePort"])
-	serv_ip   := result["RateIP"]
 
 	fmt.Printf("rate ip = %s, port = %d\n", serv_ip, serv_port)
 
-	var (
-		// port       = flag.Int("port", 8084, "The server port")
-		jaegeraddr = flag.String("jaegeraddr", result["consulAddress"], "Jaeger server addr")
-		consuladdr = flag.String("consuladdr", result["consulAddress"], "Consul address")
-	)
-	flag.Parse()
+
 
 	tracer, err := tracing.Init("rate", *jaegeraddr)
 	if err != nil {
