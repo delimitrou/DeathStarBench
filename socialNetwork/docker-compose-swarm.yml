@@ -37,7 +37,7 @@ services:
           memory: 1G
     command: ["ComposePostService"]
     hostname: compose-post-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -60,7 +60,7 @@ services:
           memory: 1G
     command: ["HomeTimelineService"]
     hostname: home-timeline-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -116,7 +116,7 @@ services:
           memory: 1G
     command: ["MediaService"]
     hostname: media-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -175,7 +175,7 @@ services:
           memory: 1G
     command: ["PostStorageService"]
     hostname: post-storage-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -206,7 +206,7 @@ services:
           memory: 1G
     command: ["SocialGraphService"]
     hostname: social-graph-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -223,7 +223,7 @@ services:
           memory: 1G
     command: ["TextService"]
     hostname: text-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -240,7 +240,7 @@ services:
           memory: 1G
     command: ["UniqueIdService"]
     hostname: unique-id-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -277,7 +277,7 @@ services:
           memory: 1G
     command: ["UrlShortenService"]
     hostname: url-shorten-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -305,7 +305,7 @@ services:
           memory: 1G
     command: ["UserMentionService"]
     hostname: user-mention-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -331,7 +331,7 @@ services:
           memory: 1G
     command: ["UserService"]
     hostname: user-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -363,7 +363,7 @@ services:
           memory: 1G
     command: ["UserTimelineService"]
     hostname: user-timeline-service
-    image: yg397/social-network-microservices:better_tracing
+    image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
 
