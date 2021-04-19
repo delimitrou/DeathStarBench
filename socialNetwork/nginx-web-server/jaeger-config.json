@@ -2,13 +2,13 @@
   "service_name": "nginx-web-server",
   "diabled": false,
   "reporter": {
-    "logSpans": true,
+    "logSpans": false,
     "localAgentHostPort": "jaeger-agent:6831",
     "queueSize": 1000000,
-    "bufferFlushInterval": 1
+    "bufferFlushInterval": 10
   },
   "sampler": {
     "type": "probabilistic",
-    "param": 0.05
+    "param": 0.01
   }
 }

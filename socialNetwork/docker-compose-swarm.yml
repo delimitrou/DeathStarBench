@@ -28,7 +28,7 @@ services:
     depends_on:
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -51,7 +51,7 @@ services:
     depends_on:
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -68,7 +68,7 @@ services:
     depends_on:
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -107,7 +107,7 @@ services:
       - media-mongodb
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -124,13 +124,13 @@ services:
     depends_on:
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
         limits:
-          cpus: "1"
-          memory: 1G
+          cpus: "4"
+          memory: 4G
     hostname: nginx-web-server
     image: yg397/openresty-thrift:xenial
     ports:
@@ -166,7 +166,7 @@ services:
       - post-storage-mongodb
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -197,7 +197,7 @@ services:
     depends_on:
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -214,7 +214,7 @@ services:
     depends_on:
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -231,7 +231,7 @@ services:
     depends_on:
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -268,7 +268,7 @@ services:
       - url-shorten-mongodb
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -296,7 +296,7 @@ services:
     depends_on:
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -322,7 +322,7 @@ services:
       - user-mongodb
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
@@ -354,7 +354,7 @@ services:
       - user-timeline-mongodb
       - jaeger-agent
     deploy:
-      replicas: 6
+      replicas: 1
       restart_policy:
         condition: any
       resources:
