@@ -49,7 +49,7 @@ function _M.ComposePost()
   else
     status, ret = pcall(client.ComposePost, client,
         req_id, post.username, tonumber(post.user_id), post.text,
-       {}, {}, tonumber(post.post_type), carrier)
+        {}, {}, tonumber(post.post_type), carrier)
   end
   if not status then
     ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
