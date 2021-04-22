@@ -27,8 +27,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void RegisterUser(i64 req_id, string first_name, string last_name, string username, string password,  carrier)')
     print('  void RegisterUserWithId(i64 req_id, string first_name, string last_name, string username, string password, i64 user_id,  carrier)')
     print('  string Login(i64 req_id, string username, string password,  carrier)')
-    print('  void UploadCreatorWithUserId(i64 req_id, i64 user_id, string username,  carrier)')
-    print('  void UploadCreatorWithUsername(i64 req_id, string username,  carrier)')
+    print('  Creator ComposeCreatorWithUserId(i64 req_id, i64 user_id, string username,  carrier)')
+    print('  Creator ComposeCreatorWithUsername(i64 req_id, string username,  carrier)')
     print('  i64 GetUserId(i64 req_id, string username,  carrier)')
     print('')
     sys.exit(0)
@@ -127,17 +127,17 @@ elif cmd == 'Login':
         sys.exit(1)
     pp.pprint(client.Login(eval(args[0]), args[1], args[2], eval(args[3]),))
 
-elif cmd == 'UploadCreatorWithUserId':
+elif cmd == 'ComposeCreatorWithUserId':
     if len(args) != 4:
-        print('UploadCreatorWithUserId requires 4 args')
+        print('ComposeCreatorWithUserId requires 4 args')
         sys.exit(1)
-    pp.pprint(client.UploadCreatorWithUserId(eval(args[0]), eval(args[1]), args[2], eval(args[3]),))
+    pp.pprint(client.ComposeCreatorWithUserId(eval(args[0]), eval(args[1]), args[2], eval(args[3]),))
 
-elif cmd == 'UploadCreatorWithUsername':
+elif cmd == 'ComposeCreatorWithUsername':
     if len(args) != 3:
-        print('UploadCreatorWithUsername requires 3 args')
+        print('ComposeCreatorWithUsername requires 3 args')
         sys.exit(1)
-    pp.pprint(client.UploadCreatorWithUsername(eval(args[0]), args[1], eval(args[2]),))
+    pp.pprint(client.ComposeCreatorWithUsername(eval(args[0]), args[1], eval(args[2]),))
 
 elif cmd == 'GetUserId':
     if len(args) != 3:

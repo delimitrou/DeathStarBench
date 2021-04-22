@@ -20,34 +20,9 @@ class ComposePostServiceHandler : virtual public ComposePostServiceIf {
     // Your initialization goes here
   }
 
-  void UploadText(const int64_t req_id, const std::string& text, const std::map<std::string, std::string> & carrier) {
+  void ComposePost(const int64_t req_id, const std::string& username, const int64_t user_id, const std::string& text, const std::vector<int64_t> & media_ids, const std::vector<std::string> & media_types, const PostType::type post_type, const std::map<std::string, std::string> & carrier) {
     // Your implementation goes here
-    printf("UploadText\n");
-  }
-
-  void UploadMedia(const int64_t req_id, const std::vector<Media> & media, const std::map<std::string, std::string> & carrier) {
-    // Your implementation goes here
-    printf("UploadMedia\n");
-  }
-
-  void UploadUniqueId(const int64_t req_id, const int64_t post_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier) {
-    // Your implementation goes here
-    printf("UploadUniqueId\n");
-  }
-
-  void UploadCreator(const int64_t req_id, const Creator& creator, const std::map<std::string, std::string> & carrier) {
-    // Your implementation goes here
-    printf("UploadCreator\n");
-  }
-
-  void UploadUrls(const int64_t req_id, const std::vector<Url> & urls, const std::map<std::string, std::string> & carrier) {
-    // Your implementation goes here
-    printf("UploadUrls\n");
-  }
-
-  void UploadUserMentions(const int64_t req_id, const std::vector<UserMention> & user_mentions, const std::map<std::string, std::string> & carrier) {
-    // Your implementation goes here
-    printf("UploadUserMentions\n");
+    printf("ComposePost\n");
   }
 
 };

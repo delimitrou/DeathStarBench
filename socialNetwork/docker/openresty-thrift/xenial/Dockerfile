@@ -7,7 +7,7 @@ LABEL maintainer="Yu Gan <yg397@cornell.edu>"
 
 # Docker Build Arguments
 ARG RESTY_VERSION="1.15.8.1rc1"
-ARG RESTY_LUAROCKS_VERSION="2.4.4"
+ARG RESTY_LUAROCKS_VERSION="3.5.0"
 ARG RESTY_OPENSSL_VERSION="1.1.0j"
 ARG RESTY_PCRE_VERSION="8.42"
 ARG JAEGER_TRACING_VERSION="0.4.2"
@@ -148,7 +148,7 @@ RUN cd /usr/local \
         pcre-${RESTY_PCRE_VERSION}.tar.gz pcre-${RESTY_PCRE_VERSION}
 
 RUN cd /tmp \
-    && curl -fSL https://github.com/luarocks/luarocks/archive/${RESTY_LUAROCKS_VERSION}.tar.gz -o luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
+    && curl -fSL  https://luarocks.github.io/luarocks/releases/luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz -o luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && tar xzf luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && cd luarocks-${RESTY_LUAROCKS_VERSION} \
     && ./configure \

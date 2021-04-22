@@ -46,7 +46,8 @@ function _M.ReadHomeTimeline()
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
   local GenericObjectPool = require "GenericObjectPool"
-  local HomeTimelineServiceClient = require "social_network_HomeTimelineService"
+  local social_network_HomeTimelineService = require "social_network_HomeTimelineService"
+  local HomeTimelineServiceClient = social_network_HomeTimelineService.HomeTimelineServiceClient
   local cjson = require "cjson"
   local jwt = require "resty.jwt"
   local liblualongnumber = require "liblualongnumber"
@@ -55,8 +56,9 @@ function _M.ReadHomeTimeline()
   local tracer = bridge_tracer.new_from_global()
   local parent_span_context = tracer:binary_extract(
       ngx.var.opentracing_binary_context)
-  local span = tracer:start_span("ReadHomeTimeline",
-      {["references"] = {{"child_of", parent_span_context}}})
+
+  local span = tracer:start_span("read_home_timeline_client",
+      { ["references"] = { { "child_of", parent_span_context } } })
   local carrier = {}
   tracer:text_map_inject(span:context(), carrier)
 
@@ -75,25 +77,26 @@ function _M.ReadHomeTimeline()
       HomeTimelineServiceClient, "home-timeline-service", 9090)
   local status, ret = pcall(client.ReadHomeTimeline, client, req_id,
       tonumber(args.user_id), tonumber(args.start), tonumber(args.stop), carrier)
-  GenericObjectPool:returnConnection(client)
-
-  span:finish()
   if not status then
     ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     if (ret.message) then
       ngx.say("Get home-timeline failure: " .. ret.message)
       ngx.log(ngx.ERR, "Get home-timeline failure: " .. ret.message)
     else
-      ngx.say("Get home-timeline failure: " .. ret.message)
-      ngx.log(ngx.ERR, "Get home-timeline failure: " .. ret.message)
+      ngx.say("Get home-timeline failure: " .. ret)
+      ngx.log(ngx.ERR, "Get home-timeline failure: " .. ret)
     end
+    client.iprot.trans:close()
+    span:finish()
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   else
+    GenericObjectPool:returnConnection(client)
     local home_timeline = _LoadTimeline(ret)
     ngx.header.content_type = "application/json; charset=utf-8"
     ngx.say(cjson.encode(home_timeline) )
-
   end
+  span:finish()
+  ngx.exit(ngx.HTTP_OK)
 end
 
 return _M

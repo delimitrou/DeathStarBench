@@ -2,6 +2,7 @@
 #define SOCIAL_NETWORK_MICROSERVICES_REDISCLIENT_H
 
 #include <string>
+#include <chrono>
 #include <cpp_redis/cpp_redis>
 
 #include "logger.h"
@@ -12,6 +13,7 @@ namespace social_network {
 class RedisClient : public GenericClient {
  public:
   RedisClient(const std::string &addr, int port);
+  RedisClient(const std::string &addr, int port, int keepalive_ms);
   RedisClient(const RedisClient &) = delete;
   RedisClient & operator=(const RedisClient &) = delete;
   RedisClient(RedisClient &&) = default;
@@ -23,8 +25,6 @@ class RedisClient : public GenericClient {
 
   void Connect() override ;
   void Disconnect() override ;
-  void KeepAlive() override ;
-  void KeepAlive(int timeout_ms) override ;
   bool IsConnected() override ;
 
  private:
@@ -34,6 +34,15 @@ class RedisClient : public GenericClient {
 RedisClient::RedisClient(const std::string &addr, int port) {
   _addr = addr;
   _port = port;
+  _client = new cpp_redis::client();
+}
+
+RedisClient::RedisClient(const std::string &addr, int port, int keepalive_ms) {
+  _addr = addr;
+  _port = port;
+  _keepalive_ms = keepalive_ms;
+  _connect_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
   _client = new cpp_redis::client();
 }
 
@@ -54,7 +63,7 @@ void RedisClient::Connect() {
         LOG(error) << "Failed to connect " << host << ":" << port;
         throw status;
       }
-    });
+    }, 60000, 16, 100);
   }
 }
 
@@ -66,14 +75,6 @@ void RedisClient::Disconnect() {
 
 bool RedisClient::IsConnected() {
   return _client->is_connected();
-}
-
-void RedisClient::KeepAlive() {
-
-}
-
-void RedisClient::KeepAlive(int timeout_ms) {
-
 }
 
 } // social_network

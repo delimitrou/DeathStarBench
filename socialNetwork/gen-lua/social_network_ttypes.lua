@@ -5,6 +5,7 @@
 -- @generated
 --
 
+
 local Thrift = require 'Thrift'
 local TType = Thrift.TType
 local __TObject = Thrift.__TObject
@@ -359,6 +360,87 @@ function Creator:write(oprot)
   oprot:writeStructEnd()
 end
 
+local TextServiceReturn = __TObject:new{
+  text,
+  user_mentions,
+  urls
+}
+
+function TextServiceReturn:read(iprot)
+  iprot:readStructBegin()
+  while true do
+    local fname, ftype, fid = iprot:readFieldBegin()
+    if ftype == TType.STOP then
+      break
+    elseif fid == 1 then
+      if ftype == TType.STRING then
+        self.text = iprot:readString()
+      else
+        iprot:skip(ftype)
+      end
+    elseif fid == 2 then
+      if ftype == TType.LIST then
+        self.user_mentions = {}
+        local _etype3, _size0 = iprot:readListBegin()
+        for _i=1,_size0 do
+          local _elem4 = UserMention:new{}
+          _elem4:read(iprot)
+          table.insert(self.user_mentions, _elem4)
+        end
+        iprot:readListEnd()
+      else
+        iprot:skip(ftype)
+      end
+    elseif fid == 3 then
+      if ftype == TType.LIST then
+        self.urls = {}
+        local _etype8, _size5 = iprot:readListBegin()
+        for _i=1,_size5 do
+          local _elem9 = Url:new{}
+          _elem9:read(iprot)
+          table.insert(self.urls, _elem9)
+        end
+        iprot:readListEnd()
+      else
+        iprot:skip(ftype)
+      end
+    else
+      iprot:skip(ftype)
+    end
+    iprot:readFieldEnd()
+  end
+  iprot:readStructEnd()
+end
+
+function TextServiceReturn:write(oprot)
+  oprot:writeStructBegin('TextServiceReturn')
+  if self.text ~= nil then
+    oprot:writeFieldBegin('text', TType.STRING, 1)
+    oprot:writeString(self.text)
+    oprot:writeFieldEnd()
+  end
+  if self.user_mentions ~= nil then
+    oprot:writeFieldBegin('user_mentions', TType.LIST, 2)
+    oprot:writeListBegin(TType.STRUCT, #self.user_mentions)
+    for _,iter10 in ipairs(self.user_mentions) do
+      iter10:write(oprot)
+    end
+    oprot:writeListEnd()
+    oprot:writeFieldEnd()
+  end
+  if self.urls ~= nil then
+    oprot:writeFieldBegin('urls', TType.LIST, 3)
+    oprot:writeListBegin(TType.STRUCT, #self.urls)
+    for _,iter11 in ipairs(self.urls) do
+      iter11:write(oprot)
+    end
+    oprot:writeListEnd()
+    oprot:writeFieldEnd()
+  end
+  oprot:writeFieldStop()
+  oprot:writeStructEnd()
+end
+
 local Post = __TObject:new{
   post_id,
   creator,
@@ -405,11 +487,11 @@ function Post:read(iprot)
     elseif fid == 5 then
       if ftype == TType.LIST then
         self.user_mentions = {}
-        local _etype3, _size0 = iprot:readListBegin()
-        for _i=1,_size0 do
-          local _elem4 = UserMention:new{}
-          _elem4:read(iprot)
-          table.insert(self.user_mentions, _elem4)
+        local _etype15, _size12 = iprot:readListBegin()
+        for _i=1,_size12 do
+          local _elem16 = UserMention:new{}
+          _elem16:read(iprot)
+          table.insert(self.user_mentions, _elem16)
         end
         iprot:readListEnd()
       else
@@ -418,11 +500,11 @@ function Post:read(iprot)
     elseif fid == 6 then
       if ftype == TType.LIST then
         self.media = {}
-        local _etype8, _size5 = iprot:readListBegin()
-        for _i=1,_size5 do
-          local _elem9 = Media:new{}
-          _elem9:read(iprot)
-          table.insert(self.media, _elem9)
+        local _etype20, _size17 = iprot:readListBegin()
+        for _i=1,_size17 do
+          local _elem21 = Media:new{}
+          _elem21:read(iprot)
+          table.insert(self.media, _elem21)
         end
         iprot:readListEnd()
       else
@@ -431,11 +513,11 @@ function Post:read(iprot)
     elseif fid == 7 then
       if ftype == TType.LIST then
         self.urls = {}
-        local _etype13, _size10 = iprot:readListBegin()
-        for _i=1,_size10 do
-          local _elem14 = Url:new{}
-          _elem14:read(iprot)
-          table.insert(self.urls, _elem14)
+        local _etype25, _size22 = iprot:readListBegin()
+        for _i=1,_size22 do
+          local _elem26 = Url:new{}
+          _elem26:read(iprot)
+          table.insert(self.urls, _elem26)
         end
         iprot:readListEnd()
       else
@@ -486,8 +568,8 @@ function Post:write(oprot)
   if self.user_mentions ~= nil then
     oprot:writeFieldBegin('user_mentions', TType.LIST, 5)
     oprot:writeListBegin(TType.STRUCT, #self.user_mentions)
-    for _,iter15 in ipairs(self.user_mentions) do
-      iter15:write(oprot)
+    for _,iter27 in ipairs(self.user_mentions) do
+      iter27:write(oprot)
     end
     oprot:writeListEnd()
     oprot:writeFieldEnd()
@@ -495,8 +577,8 @@ function Post:write(oprot)
   if self.media ~= nil then
     oprot:writeFieldBegin('media', TType.LIST, 6)
     oprot:writeListBegin(TType.STRUCT, #self.media)
-    for _,iter16 in ipairs(self.media) do
-      iter16:write(oprot)
+    for _,iter28 in ipairs(self.media) do
+      iter28:write(oprot)
     end
     oprot:writeListEnd()
     oprot:writeFieldEnd()
@@ -504,8 +586,8 @@ function Post:write(oprot)
   if self.urls ~= nil then
     oprot:writeFieldBegin('urls', TType.LIST, 7)
     oprot:writeListBegin(TType.STRUCT, #self.urls)
-    for _,iter17 in ipairs(self.urls) do
-      iter17:write(oprot)
+    for _,iter29 in ipairs(self.urls) do
+      iter29:write(oprot)
     end
     oprot:writeListEnd()
     oprot:writeFieldEnd()
@@ -533,5 +615,6 @@ return {
   Url=Url,
   UserMention=UserMention,
   Creator=Creator,
-  Post=Post
+  Post=Post,
+  TextServiceReturn=TextServiceReturn
 }

@@ -46,7 +46,8 @@ function _M.ReadUserTimeline()
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
   local GenericObjectPool = require "GenericObjectPool"
-  local UserTimelineServiceClient = require "social_network_UserTimelineService"
+  local social_network_UserTimelineService = require "social_network_UserTimelineService"
+  local UserTimelineServiceClient = social_network_UserTimelineService.UserTimelineServiceClient
   local cjson = require "cjson"
   local liblualongnumber = require "liblualongnumber"
 
@@ -74,25 +75,26 @@ function _M.ReadUserTimeline()
       UserTimelineServiceClient, "user-timeline-service", 9090)
   local status, ret = pcall(client.ReadUserTimeline, client, req_id,
       tonumber(args.user_id), tonumber(args.start), tonumber(args.stop), carrier)
-  GenericObjectPool:returnConnection(client)
-
-  span:finish()
   if not status then
     ngx.status = ngx.HTTP_INTERNAL_SERVER_ERROR
     if (ret.message) then
       ngx.say("Get user-timeline failure: " .. ret.message)
       ngx.log(ngx.ERR, "Get user-timeline failure: " .. ret.message)
     else
-      ngx.say("Get user-timeline failure: " .. ret.message)
-      ngx.log(ngx.ERR, "Get user-timeline failure: " .. ret.message)
+      ngx.say("Get user-timeline failure: " .. ret)
+      ngx.log(ngx.ERR, "Get user-timeline failure: " .. ret)
     end
+    client.iprot.trans:close()
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   else
+    GenericObjectPool:returnConnection(client)
     local user_timeline = _LoadTimeline(ret)
     ngx.header.content_type = "application/json; charset=utf-8"
     ngx.say(cjson.encode(user_timeline) )
 
   end
+  span:finish()
+  ngx.exit(ngx.HTTP_OK)
 end
 
 return _M

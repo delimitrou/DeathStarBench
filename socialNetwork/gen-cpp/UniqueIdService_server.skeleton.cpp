@@ -20,9 +20,9 @@ class UniqueIdServiceHandler : virtual public UniqueIdServiceIf {
     // Your initialization goes here
   }
 
-  void UploadUniqueId(const int64_t req_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier) {
+  int64_t ComposeUniqueId(const int64_t req_id, const PostType::type post_type, const std::map<std::string, std::string> & carrier) {
     // Your implementation goes here
-    printf("UploadUniqueId\n");
+    printf("ComposeUniqueId\n");
   }
 
 };

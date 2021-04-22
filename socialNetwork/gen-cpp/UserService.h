@@ -24,8 +24,8 @@ class UserServiceIf {
   virtual void RegisterUser(const int64_t req_id, const std::string& first_name, const std::string& last_name, const std::string& username, const std::string& password, const std::map<std::string, std::string> & carrier) = 0;
   virtual void RegisterUserWithId(const int64_t req_id, const std::string& first_name, const std::string& last_name, const std::string& username, const std::string& password, const int64_t user_id, const std::map<std::string, std::string> & carrier) = 0;
   virtual void Login(std::string& _return, const int64_t req_id, const std::string& username, const std::string& password, const std::map<std::string, std::string> & carrier) = 0;
-  virtual void UploadCreatorWithUserId(const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier) = 0;
-  virtual void UploadCreatorWithUsername(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier) = 0;
+  virtual void ComposeCreatorWithUserId(Creator& _return, const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier) = 0;
+  virtual void ComposeCreatorWithUsername(Creator& _return, const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier) = 0;
   virtual int64_t GetUserId(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier) = 0;
 };
 
@@ -65,10 +65,10 @@ class UserServiceNull : virtual public UserServiceIf {
   void Login(std::string& /* _return */, const int64_t /* req_id */, const std::string& /* username */, const std::string& /* password */, const std::map<std::string, std::string> & /* carrier */) {
     return;
   }
-  void UploadCreatorWithUserId(const int64_t /* req_id */, const int64_t /* user_id */, const std::string& /* username */, const std::map<std::string, std::string> & /* carrier */) {
+  void ComposeCreatorWithUserId(Creator& /* _return */, const int64_t /* req_id */, const int64_t /* user_id */, const std::string& /* username */, const std::map<std::string, std::string> & /* carrier */) {
     return;
   }
-  void UploadCreatorWithUsername(const int64_t /* req_id */, const std::string& /* username */, const std::map<std::string, std::string> & /* carrier */) {
+  void ComposeCreatorWithUsername(Creator& /* _return */, const int64_t /* req_id */, const std::string& /* username */, const std::map<std::string, std::string> & /* carrier */) {
     return;
   }
   int64_t GetUserId(const int64_t /* req_id */, const std::string& /* username */, const std::map<std::string, std::string> & /* carrier */) {
@@ -495,29 +495,29 @@ class UserService_Login_presult {
 
 };
 
-typedef struct _UserService_UploadCreatorWithUserId_args__isset {
-  _UserService_UploadCreatorWithUserId_args__isset() : req_id(false), user_id(false), username(false), carrier(false) {}
+typedef struct _UserService_ComposeCreatorWithUserId_args__isset {
+  _UserService_ComposeCreatorWithUserId_args__isset() : req_id(false), user_id(false), username(false), carrier(false) {}
   bool req_id :1;
   bool user_id :1;
   bool username :1;
   bool carrier :1;
-} _UserService_UploadCreatorWithUserId_args__isset;
+} _UserService_ComposeCreatorWithUserId_args__isset;
 
-class UserService_UploadCreatorWithUserId_args {
+class UserService_ComposeCreatorWithUserId_args {
  public:
 
-  UserService_UploadCreatorWithUserId_args(const UserService_UploadCreatorWithUserId_args&);
-  UserService_UploadCreatorWithUserId_args& operator=(const UserService_UploadCreatorWithUserId_args&);
-  UserService_UploadCreatorWithUserId_args() : req_id(0), user_id(0), username() {
+  UserService_ComposeCreatorWithUserId_args(const UserService_ComposeCreatorWithUserId_args&);
+  UserService_ComposeCreatorWithUserId_args& operator=(const UserService_ComposeCreatorWithUserId_args&);
+  UserService_ComposeCreatorWithUserId_args() : req_id(0), user_id(0), username() {
   }
 
-  virtual ~UserService_UploadCreatorWithUserId_args() throw();
+  virtual ~UserService_ComposeCreatorWithUserId_args() throw();
   int64_t req_id;
   int64_t user_id;
   std::string username;
   std::map<std::string, std::string>  carrier;
 
-  _UserService_UploadCreatorWithUserId_args__isset __isset;
+  _UserService_ComposeCreatorWithUserId_args__isset __isset;
 
   void __set_req_id(const int64_t val);
 
@@ -527,7 +527,7 @@ class UserService_UploadCreatorWithUserId_args {
 
   void __set_carrier(const std::map<std::string, std::string> & val);
 
-  bool operator == (const UserService_UploadCreatorWithUserId_args & rhs) const
+  bool operator == (const UserService_ComposeCreatorWithUserId_args & rhs) const
   {
     if (!(req_id == rhs.req_id))
       return false;
@@ -539,11 +539,11 @@ class UserService_UploadCreatorWithUserId_args {
       return false;
     return true;
   }
-  bool operator != (const UserService_UploadCreatorWithUserId_args &rhs) const {
+  bool operator != (const UserService_ComposeCreatorWithUserId_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const UserService_UploadCreatorWithUserId_args & ) const;
+  bool operator < (const UserService_ComposeCreatorWithUserId_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -551,11 +551,11 @@ class UserService_UploadCreatorWithUserId_args {
 };
 
 
-class UserService_UploadCreatorWithUserId_pargs {
+class UserService_ComposeCreatorWithUserId_pargs {
  public:
 
 
-  virtual ~UserService_UploadCreatorWithUserId_pargs() throw();
+  virtual ~UserService_ComposeCreatorWithUserId_pargs() throw();
   const int64_t* req_id;
   const int64_t* user_id;
   const std::string* username;
@@ -565,82 +565,90 @@ class UserService_UploadCreatorWithUserId_pargs {
 
 };
 
-typedef struct _UserService_UploadCreatorWithUserId_result__isset {
-  _UserService_UploadCreatorWithUserId_result__isset() : se(false) {}
+typedef struct _UserService_ComposeCreatorWithUserId_result__isset {
+  _UserService_ComposeCreatorWithUserId_result__isset() : success(false), se(false) {}
+  bool success :1;
   bool se :1;
-} _UserService_UploadCreatorWithUserId_result__isset;
+} _UserService_ComposeCreatorWithUserId_result__isset;
 
-class UserService_UploadCreatorWithUserId_result {
+class UserService_ComposeCreatorWithUserId_result {
  public:
 
-  UserService_UploadCreatorWithUserId_result(const UserService_UploadCreatorWithUserId_result&);
-  UserService_UploadCreatorWithUserId_result& operator=(const UserService_UploadCreatorWithUserId_result&);
-  UserService_UploadCreatorWithUserId_result() {
+  UserService_ComposeCreatorWithUserId_result(const UserService_ComposeCreatorWithUserId_result&);
+  UserService_ComposeCreatorWithUserId_result& operator=(const UserService_ComposeCreatorWithUserId_result&);
+  UserService_ComposeCreatorWithUserId_result() {
   }
 
-  virtual ~UserService_UploadCreatorWithUserId_result() throw();
+  virtual ~UserService_ComposeCreatorWithUserId_result() throw();
+  Creator success;
   ServiceException se;
 
-  _UserService_UploadCreatorWithUserId_result__isset __isset;
+  _UserService_ComposeCreatorWithUserId_result__isset __isset;
+
+  void __set_success(const Creator& val);
 
   void __set_se(const ServiceException& val);
 
-  bool operator == (const UserService_UploadCreatorWithUserId_result & rhs) const
+  bool operator == (const UserService_ComposeCreatorWithUserId_result & rhs) const
   {
+    if (!(success == rhs.success))
+      return false;
     if (!(se == rhs.se))
       return false;
     return true;
   }
-  bool operator != (const UserService_UploadCreatorWithUserId_result &rhs) const {
+  bool operator != (const UserService_ComposeCreatorWithUserId_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const UserService_UploadCreatorWithUserId_result & ) const;
+  bool operator < (const UserService_ComposeCreatorWithUserId_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
-typedef struct _UserService_UploadCreatorWithUserId_presult__isset {
-  _UserService_UploadCreatorWithUserId_presult__isset() : se(false) {}
+typedef struct _UserService_ComposeCreatorWithUserId_presult__isset {
+  _UserService_ComposeCreatorWithUserId_presult__isset() : success(false), se(false) {}
+  bool success :1;
   bool se :1;
-} _UserService_UploadCreatorWithUserId_presult__isset;
+} _UserService_ComposeCreatorWithUserId_presult__isset;
 
-class UserService_UploadCreatorWithUserId_presult {
+class UserService_ComposeCreatorWithUserId_presult {
  public:
 
 
-  virtual ~UserService_UploadCreatorWithUserId_presult() throw();
+  virtual ~UserService_ComposeCreatorWithUserId_presult() throw();
+  Creator* success;
   ServiceException se;
 
-  _UserService_UploadCreatorWithUserId_presult__isset __isset;
+  _UserService_ComposeCreatorWithUserId_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
 };
 
-typedef struct _UserService_UploadCreatorWithUsername_args__isset {
-  _UserService_UploadCreatorWithUsername_args__isset() : req_id(false), username(false), carrier(false) {}
+typedef struct _UserService_ComposeCreatorWithUsername_args__isset {
+  _UserService_ComposeCreatorWithUsername_args__isset() : req_id(false), username(false), carrier(false) {}
   bool req_id :1;
   bool username :1;
   bool carrier :1;
-} _UserService_UploadCreatorWithUsername_args__isset;
+} _UserService_ComposeCreatorWithUsername_args__isset;
 
-class UserService_UploadCreatorWithUsername_args {
+class UserService_ComposeCreatorWithUsername_args {
  public:
 
-  UserService_UploadCreatorWithUsername_args(const UserService_UploadCreatorWithUsername_args&);
-  UserService_UploadCreatorWithUsername_args& operator=(const UserService_UploadCreatorWithUsername_args&);
-  UserService_UploadCreatorWithUsername_args() : req_id(0), username() {
+  UserService_ComposeCreatorWithUsername_args(const UserService_ComposeCreatorWithUsername_args&);
+  UserService_ComposeCreatorWithUsername_args& operator=(const UserService_ComposeCreatorWithUsername_args&);
+  UserService_ComposeCreatorWithUsername_args() : req_id(0), username() {
   }
 
-  virtual ~UserService_UploadCreatorWithUsername_args() throw();
+  virtual ~UserService_ComposeCreatorWithUsername_args() throw();
   int64_t req_id;
   std::string username;
   std::map<std::string, std::string>  carrier;
 
-  _UserService_UploadCreatorWithUsername_args__isset __isset;
+  _UserService_ComposeCreatorWithUsername_args__isset __isset;
 
   void __set_req_id(const int64_t val);
 
@@ -648,7 +656,7 @@ class UserService_UploadCreatorWithUsername_args {
 
   void __set_carrier(const std::map<std::string, std::string> & val);
 
-  bool operator == (const UserService_UploadCreatorWithUsername_args & rhs) const
+  bool operator == (const UserService_ComposeCreatorWithUsername_args & rhs) const
   {
     if (!(req_id == rhs.req_id))
       return false;
@@ -658,11 +666,11 @@ class UserService_UploadCreatorWithUsername_args {
       return false;
     return true;
   }
-  bool operator != (const UserService_UploadCreatorWithUsername_args &rhs) const {
+  bool operator != (const UserService_ComposeCreatorWithUsername_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const UserService_UploadCreatorWithUsername_args & ) const;
+  bool operator < (const UserService_ComposeCreatorWithUsername_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -670,11 +678,11 @@ class UserService_UploadCreatorWithUsername_args {
 };
 
 
-class UserService_UploadCreatorWithUsername_pargs {
+class UserService_ComposeCreatorWithUsername_pargs {
  public:
 
 
-  virtual ~UserService_UploadCreatorWithUsername_pargs() throw();
+  virtual ~UserService_ComposeCreatorWithUsername_pargs() throw();
   const int64_t* req_id;
   const std::string* username;
   const std::map<std::string, std::string> * carrier;
@@ -683,56 +691,64 @@ class UserService_UploadCreatorWithUsername_pargs {
 
 };
 
-typedef struct _UserService_UploadCreatorWithUsername_result__isset {
-  _UserService_UploadCreatorWithUsername_result__isset() : se(false) {}
+typedef struct _UserService_ComposeCreatorWithUsername_result__isset {
+  _UserService_ComposeCreatorWithUsername_result__isset() : success(false), se(false) {}
+  bool success :1;
   bool se :1;
-} _UserService_UploadCreatorWithUsername_result__isset;
+} _UserService_ComposeCreatorWithUsername_result__isset;
 
-class UserService_UploadCreatorWithUsername_result {
+class UserService_ComposeCreatorWithUsername_result {
  public:
 
-  UserService_UploadCreatorWithUsername_result(const UserService_UploadCreatorWithUsername_result&);
-  UserService_UploadCreatorWithUsername_result& operator=(const UserService_UploadCreatorWithUsername_result&);
-  UserService_UploadCreatorWithUsername_result() {
+  UserService_ComposeCreatorWithUsername_result(const UserService_ComposeCreatorWithUsername_result&);
+  UserService_ComposeCreatorWithUsername_result& operator=(const UserService_ComposeCreatorWithUsername_result&);
+  UserService_ComposeCreatorWithUsername_result() {
   }
 
-  virtual ~UserService_UploadCreatorWithUsername_result() throw();
+  virtual ~UserService_ComposeCreatorWithUsername_result() throw();
+  Creator success;
   ServiceException se;
 
-  _UserService_UploadCreatorWithUsername_result__isset __isset;
+  _UserService_ComposeCreatorWithUsername_result__isset __isset;
+
+  void __set_success(const Creator& val);
 
   void __set_se(const ServiceException& val);
 
-  bool operator == (const UserService_UploadCreatorWithUsername_result & rhs) const
+  bool operator == (const UserService_ComposeCreatorWithUsername_result & rhs) const
   {
+    if (!(success == rhs.success))
+      return false;
     if (!(se == rhs.se))
       return false;
     return true;
   }
-  bool operator != (const UserService_UploadCreatorWithUsername_result &rhs) const {
+  bool operator != (const UserService_ComposeCreatorWithUsername_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const UserService_UploadCreatorWithUsername_result & ) const;
+  bool operator < (const UserService_ComposeCreatorWithUsername_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
-typedef struct _UserService_UploadCreatorWithUsername_presult__isset {
-  _UserService_UploadCreatorWithUsername_presult__isset() : se(false) {}
+typedef struct _UserService_ComposeCreatorWithUsername_presult__isset {
+  _UserService_ComposeCreatorWithUsername_presult__isset() : success(false), se(false) {}
+  bool success :1;
   bool se :1;
-} _UserService_UploadCreatorWithUsername_presult__isset;
+} _UserService_ComposeCreatorWithUsername_presult__isset;
 
-class UserService_UploadCreatorWithUsername_presult {
+class UserService_ComposeCreatorWithUsername_presult {
  public:
 
 
-  virtual ~UserService_UploadCreatorWithUsername_presult() throw();
+  virtual ~UserService_ComposeCreatorWithUsername_presult() throw();
+  Creator* success;
   ServiceException se;
 
-  _UserService_UploadCreatorWithUsername_presult__isset __isset;
+  _UserService_ComposeCreatorWithUsername_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -898,12 +914,12 @@ class UserServiceClient : virtual public UserServiceIf {
   void Login(std::string& _return, const int64_t req_id, const std::string& username, const std::string& password, const std::map<std::string, std::string> & carrier);
   void send_Login(const int64_t req_id, const std::string& username, const std::string& password, const std::map<std::string, std::string> & carrier);
   void recv_Login(std::string& _return);
-  void UploadCreatorWithUserId(const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier);
-  void send_UploadCreatorWithUserId(const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier);
-  void recv_UploadCreatorWithUserId();
-  void UploadCreatorWithUsername(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
-  void send_UploadCreatorWithUsername(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
-  void recv_UploadCreatorWithUsername();
+  void ComposeCreatorWithUserId(Creator& _return, const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier);
+  void send_ComposeCreatorWithUserId(const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier);
+  void recv_ComposeCreatorWithUserId(Creator& _return);
+  void ComposeCreatorWithUsername(Creator& _return, const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
+  void send_ComposeCreatorWithUsername(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
+  void recv_ComposeCreatorWithUsername(Creator& _return);
   int64_t GetUserId(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
   void send_GetUserId(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
   int64_t recv_GetUserId();
@@ -925,8 +941,8 @@ class UserServiceProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_RegisterUser(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_RegisterUserWithId(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_Login(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_UploadCreatorWithUserId(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_UploadCreatorWithUsername(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_ComposeCreatorWithUserId(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_ComposeCreatorWithUsername(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_GetUserId(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   UserServiceProcessor(::apache::thrift::stdcxx::shared_ptr<UserServiceIf> iface) :
@@ -934,8 +950,8 @@ class UserServiceProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["RegisterUser"] = &UserServiceProcessor::process_RegisterUser;
     processMap_["RegisterUserWithId"] = &UserServiceProcessor::process_RegisterUserWithId;
     processMap_["Login"] = &UserServiceProcessor::process_Login;
-    processMap_["UploadCreatorWithUserId"] = &UserServiceProcessor::process_UploadCreatorWithUserId;
-    processMap_["UploadCreatorWithUsername"] = &UserServiceProcessor::process_UploadCreatorWithUsername;
+    processMap_["ComposeCreatorWithUserId"] = &UserServiceProcessor::process_ComposeCreatorWithUserId;
+    processMap_["ComposeCreatorWithUsername"] = &UserServiceProcessor::process_ComposeCreatorWithUsername;
     processMap_["GetUserId"] = &UserServiceProcessor::process_GetUserId;
   }
 
@@ -993,22 +1009,24 @@ class UserServiceMultiface : virtual public UserServiceIf {
     return;
   }
 
-  void UploadCreatorWithUserId(const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier) {
+  void ComposeCreatorWithUserId(Creator& _return, const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadCreatorWithUserId(req_id, user_id, username, carrier);
+      ifaces_[i]->ComposeCreatorWithUserId(_return, req_id, user_id, username, carrier);
     }
-    ifaces_[i]->UploadCreatorWithUserId(req_id, user_id, username, carrier);
+    ifaces_[i]->ComposeCreatorWithUserId(_return, req_id, user_id, username, carrier);
+    return;
   }
 
-  void UploadCreatorWithUsername(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier) {
+  void ComposeCreatorWithUsername(Creator& _return, const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadCreatorWithUsername(req_id, username, carrier);
+      ifaces_[i]->ComposeCreatorWithUsername(_return, req_id, username, carrier);
     }
-    ifaces_[i]->UploadCreatorWithUsername(req_id, username, carrier);
+    ifaces_[i]->ComposeCreatorWithUsername(_return, req_id, username, carrier);
+    return;
   }
 
   int64_t GetUserId(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier) {
@@ -1059,12 +1077,12 @@ class UserServiceConcurrentClient : virtual public UserServiceIf {
   void Login(std::string& _return, const int64_t req_id, const std::string& username, const std::string& password, const std::map<std::string, std::string> & carrier);
   int32_t send_Login(const int64_t req_id, const std::string& username, const std::string& password, const std::map<std::string, std::string> & carrier);
   void recv_Login(std::string& _return, const int32_t seqid);
-  void UploadCreatorWithUserId(const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadCreatorWithUserId(const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier);
-  void recv_UploadCreatorWithUserId(const int32_t seqid);
-  void UploadCreatorWithUsername(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadCreatorWithUsername(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
-  void recv_UploadCreatorWithUsername(const int32_t seqid);
+  void ComposeCreatorWithUserId(Creator& _return, const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier);
+  int32_t send_ComposeCreatorWithUserId(const int64_t req_id, const int64_t user_id, const std::string& username, const std::map<std::string, std::string> & carrier);
+  void recv_ComposeCreatorWithUserId(Creator& _return, const int32_t seqid);
+  void ComposeCreatorWithUsername(Creator& _return, const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
+  int32_t send_ComposeCreatorWithUsername(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
+  void recv_ComposeCreatorWithUsername(Creator& _return, const int32_t seqid);
   int64_t GetUserId(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
   int32_t send_GetUserId(const int64_t req_id, const std::string& username, const std::map<std::string, std::string> & carrier);
   int64_t recv_GetUserId(const int32_t seqid);

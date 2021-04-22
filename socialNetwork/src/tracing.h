@@ -10,6 +10,7 @@
 #include <opentracing/propagation.h>
 #include <string>
 #include <map>
+#include "logger.h"
 
 namespace social_network {
 
@@ -53,11 +54,32 @@ void SetUpTracer(
     const std::string &config_file_path,
     const std::string &service) {
   auto configYAML = YAML::LoadFile(config_file_path);
+
+  // Enable local Jaeger agent, by prepending the service name to the default
+  // Jaeger agent's hostname
+  // configYAML["reporter"]["localAgentHostPort"] = service + "-" + 
+  //     configYAML["reporter"]["localAgentHostPort"].as<std::string>();
+
   auto config = jaegertracing::Config::parse(configYAML);
-  auto tracer = jaegertracing::Tracer::make(
-      service, config, jaegertracing::logging::consoleLogger());
-  opentracing::Tracer::InitGlobal(
+
+  bool r = false;
+  while (!r) {
+    try
+    {
+      auto tracer = jaegertracing::Tracer::make(
+        service, config, jaegertracing::logging::consoleLogger());
+      r = true;
+      opentracing::Tracer::InitGlobal(
       std::static_pointer_cast<opentracing::Tracer>(tracer));
+    }
+    catch(...)
+    {
+      LOG(error) << "Failed to connect to jaeger, retrying ...";
+      sleep(1);
+    }
+  }
+  
+  
 }
 
 

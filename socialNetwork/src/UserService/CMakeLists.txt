@@ -2,7 +2,6 @@ add_executable(
     UserService
     UserService.cpp
     ${THRIFT_GEN_CPP_DIR}/UserService.cpp
-    ${THRIFT_GEN_CPP_DIR}/ComposePostService.cpp
     ${THRIFT_GEN_CPP_DIR}/social_network_types.cpp
     ${THRIFT_GEN_CPP_DIR}/SocialGraphService.cpp
 )

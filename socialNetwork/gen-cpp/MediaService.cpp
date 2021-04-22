@@ -9,11 +9,11 @@
 namespace social_network {
 
 
-MediaService_UploadMedia_args::~MediaService_UploadMedia_args() throw() {
+MediaService_ComposeMedia_args::~MediaService_ComposeMedia_args() throw() {
 }
 
 
-uint32_t MediaService_UploadMedia_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t MediaService_ComposeMedia_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   ::apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -46,14 +46,14 @@ uint32_t MediaService_UploadMedia_args::read(::apache::thrift::protocol::TProtoc
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->media_types.clear();
-            uint32_t _size432;
-            ::apache::thrift::protocol::TType _etype435;
-            xfer += iprot->readListBegin(_etype435, _size432);
-            this->media_types.resize(_size432);
-            uint32_t _i436;
-            for (_i436 = 0; _i436 < _size432; ++_i436)
+            uint32_t _size421;
+            ::apache::thrift::protocol::TType _etype424;
+            xfer += iprot->readListBegin(_etype424, _size421);
+            this->media_types.resize(_size421);
+            uint32_t _i425;
+            for (_i425 = 0; _i425 < _size421; ++_i425)
             {
-              xfer += iprot->readString(this->media_types[_i436]);
+              xfer += iprot->readString(this->media_types[_i425]);
             }
             xfer += iprot->readListEnd();
           }
@@ -66,14 +66,14 @@ uint32_t MediaService_UploadMedia_args::read(::apache::thrift::protocol::TProtoc
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->media_ids.clear();
-            uint32_t _size437;
-            ::apache::thrift::protocol::TType _etype440;
-            xfer += iprot->readListBegin(_etype440, _size437);
-            this->media_ids.resize(_size437);
-            uint32_t _i441;
-            for (_i441 = 0; _i441 < _size437; ++_i441)
+            uint32_t _size426;
+            ::apache::thrift::protocol::TType _etype429;
+            xfer += iprot->readListBegin(_etype429, _size426);
+            this->media_ids.resize(_size426);
+            uint32_t _i430;
+            for (_i430 = 0; _i430 < _size426; ++_i430)
             {
-              xfer += iprot->readI64(this->media_ids[_i441]);
+              xfer += iprot->readI64(this->media_ids[_i430]);
             }
             xfer += iprot->readListEnd();
           }
@@ -86,17 +86,17 @@ uint32_t MediaService_UploadMedia_args::read(::apache::thrift::protocol::TProtoc
         if (ftype == ::apache::thrift::protocol::T_MAP) {
           {
             this->carrier.clear();
-            uint32_t _size442;
-            ::apache::thrift::protocol::TType _ktype443;
-            ::apache::thrift::protocol::TType _vtype444;
-            xfer += iprot->readMapBegin(_ktype443, _vtype444, _size442);
-            uint32_t _i446;
-            for (_i446 = 0; _i446 < _size442; ++_i446)
+            uint32_t _size431;
+            ::apache::thrift::protocol::TType _ktype432;
+            ::apache::thrift::protocol::TType _vtype433;
+            xfer += iprot->readMapBegin(_ktype432, _vtype433, _size431);
+            uint32_t _i435;
+            for (_i435 = 0; _i435 < _size431; ++_i435)
             {
-              std::string _key447;
-              xfer += iprot->readString(_key447);
-              std::string& _val448 = this->carrier[_key447];
-              xfer += iprot->readString(_val448);
+              std::string _key436;
+              xfer += iprot->readString(_key436);
+              std::string& _val437 = this->carrier[_key436];
+              xfer += iprot->readString(_val437);
             }
             xfer += iprot->readMapEnd();
           }
@@ -117,10 +117,10 @@ uint32_t MediaService_UploadMedia_args::read(::apache::thrift::protocol::TProtoc
   return xfer;
 }
 
-uint32_t MediaService_UploadMedia_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t MediaService_ComposeMedia_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
   ::apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("MediaService_UploadMedia_args");
+  xfer += oprot->writeStructBegin("MediaService_ComposeMedia_args");
 
   xfer += oprot->writeFieldBegin("req_id", ::apache::thrift::protocol::T_I64, 1);
   xfer += oprot->writeI64(this->req_id);
@@ -129,10 +129,10 @@ uint32_t MediaService_UploadMedia_args::write(::apache::thrift::protocol::TProto
   xfer += oprot->writeFieldBegin("media_types", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->media_types.size()));
-    std::vector<std::string> ::const_iterator _iter449;
-    for (_iter449 = this->media_types.begin(); _iter449 != this->media_types.end(); ++_iter449)
+    std::vector<std::string> ::const_iterator _iter438;
+    for (_iter438 = this->media_types.begin(); _iter438 != this->media_types.end(); ++_iter438)
     {
-      xfer += oprot->writeString((*_iter449));
+      xfer += oprot->writeString((*_iter438));
     }
     xfer += oprot->writeListEnd();
   }
@@ -141,10 +141,10 @@ uint32_t MediaService_UploadMedia_args::write(::apache::thrift::protocol::TProto
   xfer += oprot->writeFieldBegin("media_ids", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_I64, static_cast<uint32_t>(this->media_ids.size()));
-    std::vector<int64_t> ::const_iterator _iter450;
-    for (_iter450 = this->media_ids.begin(); _iter450 != this->media_ids.end(); ++_iter450)
+    std::vector<int64_t> ::const_iterator _iter439;
+    for (_iter439 = this->media_ids.begin(); _iter439 != this->media_ids.end(); ++_iter439)
     {
-      xfer += oprot->writeI64((*_iter450));
+      xfer += oprot->writeI64((*_iter439));
     }
     xfer += oprot->writeListEnd();
   }
@@ -153,11 +153,11 @@ uint32_t MediaService_UploadMedia_args::write(::apache::thrift::protocol::TProto
   xfer += oprot->writeFieldBegin("carrier", ::apache::thrift::protocol::T_MAP, 4);
   {
     xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->carrier.size()));
-    std::map<std::string, std::string> ::const_iterator _iter451;
-    for (_iter451 = this->carrier.begin(); _iter451 != this->carrier.end(); ++_iter451)
+    std::map<std::string, std::string> ::const_iterator _iter440;
+    for (_iter440 = this->carrier.begin(); _iter440 != this->carrier.end(); ++_iter440)
     {
-      xfer += oprot->writeString(_iter451->first);
-      xfer += oprot->writeString(_iter451->second);
+      xfer += oprot->writeString(_iter440->first);
+      xfer += oprot->writeString(_iter440->second);
     }
     xfer += oprot->writeMapEnd();
   }
@@ -169,14 +169,14 @@ uint32_t MediaService_UploadMedia_args::write(::apache::thrift::protocol::TProto
 }
 
 
-MediaService_UploadMedia_pargs::~MediaService_UploadMedia_pargs() throw() {
+MediaService_ComposeMedia_pargs::~MediaService_ComposeMedia_pargs() throw() {
 }
 
 
-uint32_t MediaService_UploadMedia_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t MediaService_ComposeMedia_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
   ::apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("MediaService_UploadMedia_pargs");
+  xfer += oprot->writeStructBegin("MediaService_ComposeMedia_pargs");
 
   xfer += oprot->writeFieldBegin("req_id", ::apache::thrift::protocol::T_I64, 1);
   xfer += oprot->writeI64((*(this->req_id)));
@@ -185,10 +185,10 @@ uint32_t MediaService_UploadMedia_pargs::write(::apache::thrift::protocol::TProt
   xfer += oprot->writeFieldBegin("media_types", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>((*(this->media_types)).size()));
-    std::vector<std::string> ::const_iterator _iter452;
-    for (_iter452 = (*(this->media_types)).begin(); _iter452 != (*(this->media_types)).end(); ++_iter452)
+    std::vector<std::string> ::const_iterator _iter441;
+    for (_iter441 = (*(this->media_types)).begin(); _iter441 != (*(this->media_types)).end(); ++_iter441)
     {
-      xfer += oprot->writeString((*_iter452));
+      xfer += oprot->writeString((*_iter441));
     }
     xfer += oprot->writeListEnd();
   }
@@ -197,10 +197,10 @@ uint32_t MediaService_UploadMedia_pargs::write(::apache::thrift::protocol::TProt
   xfer += oprot->writeFieldBegin("media_ids", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_I64, static_cast<uint32_t>((*(this->media_ids)).size()));
-    std::vector<int64_t> ::const_iterator _iter453;
-    for (_iter453 = (*(this->media_ids)).begin(); _iter453 != (*(this->media_ids)).end(); ++_iter453)
+    std::vector<int64_t> ::const_iterator _iter442;
+    for (_iter442 = (*(this->media_ids)).begin(); _iter442 != (*(this->media_ids)).end(); ++_iter442)
     {
-      xfer += oprot->writeI64((*_iter453));
+      xfer += oprot->writeI64((*_iter442));
     }
     xfer += oprot->writeListEnd();
   }
@@ -209,11 +209,11 @@ uint32_t MediaService_UploadMedia_pargs::write(::apache::thrift::protocol::TProt
   xfer += oprot->writeFieldBegin("carrier", ::apache::thrift::protocol::T_MAP, 4);
   {
     xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_STRING, static_cast<uint32_t>((*(this->carrier)).size()));
-    std::map<std::string, std::string> ::const_iterator _iter454;
-    for (_iter454 = (*(this->carrier)).begin(); _iter454 != (*(this->carrier)).end(); ++_iter454)
+    std::map<std::string, std::string> ::const_iterator _iter443;
+    for (_iter443 = (*(this->carrier)).begin(); _iter443 != (*(this->carrier)).end(); ++_iter443)
     {
-      xfer += oprot->writeString(_iter454->first);
-      xfer += oprot->writeString(_iter454->second);
+      xfer += oprot->writeString(_iter443->first);
+      xfer += oprot->writeString(_iter443->second);
     }
     xfer += oprot->writeMapEnd();
   }
@@ -225,11 +225,11 @@ uint32_t MediaService_UploadMedia_pargs::write(::apache::thrift::protocol::TProt
 }
 
 
-MediaService_UploadMedia_result::~MediaService_UploadMedia_result() throw() {
+MediaService_ComposeMedia_result::~MediaService_ComposeMedia_result() throw() {
 }
 
 
-uint32_t MediaService_UploadMedia_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t MediaService_ComposeMedia_result::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   ::apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -250,6 +250,26 @@ uint32_t MediaService_UploadMedia_result::read(::apache::thrift::protocol::TProt
     }
     switch (fid)
     {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->success.clear();
+            uint32_t _size444;
+            ::apache::thrift::protocol::TType _etype447;
+            xfer += iprot->readListBegin(_etype447, _size444);
+            this->success.resize(_size444);
+            uint32_t _i448;
+            for (_i448 = 0; _i448 < _size444; ++_i448)
+            {
+              xfer += this->success[_i448].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += this->se.read(iprot);
@@ -270,13 +290,25 @@ uint32_t MediaService_UploadMedia_result::read(::apache::thrift::protocol::TProt
   return xfer;
 }
 
-uint32_t MediaService_UploadMedia_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t MediaService_ComposeMedia_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("MediaService_UploadMedia_result");
+  xfer += oprot->writeStructBegin("MediaService_ComposeMedia_result");
 
-  if (this->__isset.se) {
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
+    {
+      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
+      std::vector<Media> ::const_iterator _iter449;
+      for (_iter449 = this->success.begin(); _iter449 != this->success.end(); ++_iter449)
+      {
+        xfer += (*_iter449).write(oprot);
+      }
+      xfer += oprot->writeListEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.se) {
     xfer += oprot->writeFieldBegin("se", ::apache::thrift::protocol::T_STRUCT, 1);
     xfer += this->se.write(oprot);
     xfer += oprot->writeFieldEnd();
@@ -287,11 +319,11 @@ uint32_t MediaService_UploadMedia_result::write(::apache::thrift::protocol::TPro
 }
 
 
-MediaService_UploadMedia_presult::~MediaService_UploadMedia_presult() throw() {
+MediaService_ComposeMedia_presult::~MediaService_ComposeMedia_presult() throw() {
 }
 
 
-uint32_t MediaService_UploadMedia_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t MediaService_ComposeMedia_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   ::apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -312,6 +344,26 @@ uint32_t MediaService_UploadMedia_presult::read(::apache::thrift::protocol::TPro
     }
     switch (fid)
     {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            (*(this->success)).clear();
+            uint32_t _size450;
+            ::apache::thrift::protocol::TType _etype453;
+            xfer += iprot->readListBegin(_etype453, _size450);
+            (*(this->success)).resize(_size450);
+            uint32_t _i454;
+            for (_i454 = 0; _i454 < _size450; ++_i454)
+            {
+              xfer += (*(this->success))[_i454].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += this->se.read(iprot);
@@ -332,18 +384,18 @@ uint32_t MediaService_UploadMedia_presult::read(::apache::thrift::protocol::TPro
   return xfer;
 }
 
-void MediaServiceClient::UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier)
+void MediaServiceClient::ComposeMedia(std::vector<Media> & _return, const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier)
 {
-  send_UploadMedia(req_id, media_types, media_ids, carrier);
-  recv_UploadMedia();
+  send_ComposeMedia(req_id, media_types, media_ids, carrier);
+  recv_ComposeMedia(_return);
 }
 
-void MediaServiceClient::send_UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier)
+void MediaServiceClient::send_ComposeMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier)
 {
   int32_t cseqid = 0;
-  oprot_->writeMessageBegin("UploadMedia", ::apache::thrift::protocol::T_CALL, cseqid);
+  oprot_->writeMessageBegin("ComposeMedia", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  MediaService_UploadMedia_pargs args;
+  MediaService_ComposeMedia_pargs args;
   args.req_id = &req_id;
   args.media_types = &media_types;
   args.media_ids = &media_ids;
@@ -355,7 +407,7 @@ void MediaServiceClient::send_UploadMedia(const int64_t req_id, const std::vecto
   oprot_->getTransport()->flush();
 }
 
-void MediaServiceClient::recv_UploadMedia()
+void MediaServiceClient::recv_ComposeMedia(std::vector<Media> & _return)
 {
 
   int32_t rseqid = 0;
@@ -375,20 +427,25 @@ void MediaServiceClient::recv_UploadMedia()
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
   }
-  if (fname.compare("UploadMedia") != 0) {
+  if (fname.compare("ComposeMedia") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
   }
-  MediaService_UploadMedia_presult result;
+  MediaService_ComposeMedia_presult result;
+  result.success = &_return;
   result.read(iprot_);
   iprot_->readMessageEnd();
   iprot_->getTransport()->readEnd();
 
+  if (result.__isset.success) {
+    // _return pointer has now been filled
+    return;
+  }
   if (result.__isset.se) {
     throw result.se;
   }
-  return;
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "ComposeMedia failed: unknown result");
 }
 
 bool MediaServiceProcessor::dispatchCall(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, const std::string& fname, int32_t seqid, void* callContext) {
@@ -410,40 +467,41 @@ bool MediaServiceProcessor::dispatchCall(::apache::thrift::protocol::TProtocol* 
   return true;
 }
 
-void MediaServiceProcessor::process_UploadMedia(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void MediaServiceProcessor::process_ComposeMedia(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("MediaService.UploadMedia", callContext);
+    ctx = this->eventHandler_->getContext("MediaService.ComposeMedia", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "MediaService.UploadMedia");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "MediaService.ComposeMedia");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "MediaService.UploadMedia");
+    this->eventHandler_->preRead(ctx, "MediaService.ComposeMedia");
   }
 
-  MediaService_UploadMedia_args args;
+  MediaService_ComposeMedia_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "MediaService.UploadMedia", bytes);
+    this->eventHandler_->postRead(ctx, "MediaService.ComposeMedia", bytes);
   }
 
-  MediaService_UploadMedia_result result;
+  MediaService_ComposeMedia_result result;
   try {
-    iface_->UploadMedia(args.req_id, args.media_types, args.media_ids, args.carrier);
+    iface_->ComposeMedia(result.success, args.req_id, args.media_types, args.media_ids, args.carrier);
+    result.__isset.success = true;
   } catch (ServiceException &se) {
     result.se = se;
     result.__isset.se = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "MediaService.UploadMedia");
+      this->eventHandler_->handlerError(ctx, "MediaService.ComposeMedia");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("UploadMedia", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("ComposeMedia", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -452,17 +510,17 @@ void MediaServiceProcessor::process_UploadMedia(int32_t seqid, ::apache::thrift:
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "MediaService.UploadMedia");
+    this->eventHandler_->preWrite(ctx, "MediaService.ComposeMedia");
   }
 
-  oprot->writeMessageBegin("UploadMedia", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("ComposeMedia", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "MediaService.UploadMedia", bytes);
+    this->eventHandler_->postWrite(ctx, "MediaService.ComposeMedia", bytes);
   }
 }
 
@@ -473,19 +531,19 @@ void MediaServiceProcessor::process_UploadMedia(int32_t seqid, ::apache::thrift:
   return processor;
 }
 
-void MediaServiceConcurrentClient::UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier)
+void MediaServiceConcurrentClient::ComposeMedia(std::vector<Media> & _return, const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier)
 {
-  int32_t seqid = send_UploadMedia(req_id, media_types, media_ids, carrier);
-  recv_UploadMedia(seqid);
+  int32_t seqid = send_ComposeMedia(req_id, media_types, media_ids, carrier);
+  recv_ComposeMedia(_return, seqid);
 }
 
-int32_t MediaServiceConcurrentClient::send_UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier)
+int32_t MediaServiceConcurrentClient::send_ComposeMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
-  oprot_->writeMessageBegin("UploadMedia", ::apache::thrift::protocol::T_CALL, cseqid);
+  oprot_->writeMessageBegin("ComposeMedia", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  MediaService_UploadMedia_pargs args;
+  MediaService_ComposeMedia_pargs args;
   args.req_id = &req_id;
   args.media_types = &media_types;
   args.media_ids = &media_ids;
@@ -500,7 +558,7 @@ int32_t MediaServiceConcurrentClient::send_UploadMedia(const int64_t req_id, con
   return cseqid;
 }
 
-void MediaServiceConcurrentClient::recv_UploadMedia(const int32_t seqid)
+void MediaServiceConcurrentClient::recv_ComposeMedia(std::vector<Media> & _return, const int32_t seqid)
 {
 
   int32_t rseqid = 0;
@@ -529,7 +587,7 @@ void MediaServiceConcurrentClient::recv_UploadMedia(const int32_t seqid)
         iprot_->readMessageEnd();
         iprot_->getTransport()->readEnd();
       }
-      if (fname.compare("UploadMedia") != 0) {
+      if (fname.compare("ComposeMedia") != 0) {
         iprot_->skip(::apache::thrift::protocol::T_STRUCT);
         iprot_->readMessageEnd();
         iprot_->getTransport()->readEnd();
@@ -538,17 +596,23 @@ void MediaServiceConcurrentClient::recv_UploadMedia(const int32_t seqid)
         using ::apache::thrift::protocol::TProtocolException;
         throw TProtocolException(TProtocolException::INVALID_DATA);
       }
-      MediaService_UploadMedia_presult result;
+      MediaService_ComposeMedia_presult result;
+      result.success = &_return;
       result.read(iprot_);
       iprot_->readMessageEnd();
       iprot_->getTransport()->readEnd();
 
+      if (result.__isset.success) {
+        // _return pointer has now been filled
+        sentry.commit();
+        return;
+      }
       if (result.__isset.se) {
         sentry.commit();
         throw result.se;
       }
-      sentry.commit();
-      return;
+      // in a bad state, don't commit
+      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "ComposeMedia failed: unknown result");
     }
     // seqid != rseqid
     this->sync_.updatePending(fname, mtype, rseqid);

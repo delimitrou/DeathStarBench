@@ -835,6 +835,178 @@ void Creator::printTo(std::ostream& out) const {
 }
 
 
+TextServiceReturn::~TextServiceReturn() throw() {
+}
+
+
+void TextServiceReturn::__set_text(const std::string& val) {
+  this->text = val;
+}
+
+void TextServiceReturn::__set_user_mentions(const std::vector<UserMention> & val) {
+  this->user_mentions = val;
+}
+
+void TextServiceReturn::__set_urls(const std::vector<Url> & val) {
+  this->urls = val;
+}
+std::ostream& operator<<(std::ostream& out, const TextServiceReturn& obj)
+{
+  obj.printTo(out);
+  return out;
+}
+
+
+uint32_t TextServiceReturn::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  ::apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->text);
+          this->__isset.text = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->user_mentions.clear();
+            uint32_t _size13;
+            ::apache::thrift::protocol::TType _etype16;
+            xfer += iprot->readListBegin(_etype16, _size13);
+            this->user_mentions.resize(_size13);
+            uint32_t _i17;
+            for (_i17 = 0; _i17 < _size13; ++_i17)
+            {
+              xfer += this->user_mentions[_i17].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.user_mentions = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->urls.clear();
+            uint32_t _size18;
+            ::apache::thrift::protocol::TType _etype21;
+            xfer += iprot->readListBegin(_etype21, _size18);
+            this->urls.resize(_size18);
+            uint32_t _i22;
+            for (_i22 = 0; _i22 < _size18; ++_i22)
+            {
+              xfer += this->urls[_i22].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.urls = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t TextServiceReturn::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  ::apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("TextServiceReturn");
+
+  xfer += oprot->writeFieldBegin("text", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->text);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("user_mentions", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->user_mentions.size()));
+    std::vector<UserMention> ::const_iterator _iter23;
+    for (_iter23 = this->user_mentions.begin(); _iter23 != this->user_mentions.end(); ++_iter23)
+    {
+      xfer += (*_iter23).write(oprot);
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("urls", ::apache::thrift::protocol::T_LIST, 3);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->urls.size()));
+    std::vector<Url> ::const_iterator _iter24;
+    for (_iter24 = this->urls.begin(); _iter24 != this->urls.end(); ++_iter24)
+    {
+      xfer += (*_iter24).write(oprot);
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+void swap(TextServiceReturn &a, TextServiceReturn &b) {
+  using ::std::swap;
+  swap(a.text, b.text);
+  swap(a.user_mentions, b.user_mentions);
+  swap(a.urls, b.urls);
+  swap(a.__isset, b.__isset);
+}
+
+TextServiceReturn::TextServiceReturn(const TextServiceReturn& other25) {
+  text = other25.text;
+  user_mentions = other25.user_mentions;
+  urls = other25.urls;
+  __isset = other25.__isset;
+}
+TextServiceReturn& TextServiceReturn::operator=(const TextServiceReturn& other26) {
+  text = other26.text;
+  user_mentions = other26.user_mentions;
+  urls = other26.urls;
+  __isset = other26.__isset;
+  return *this;
+}
+void TextServiceReturn::printTo(std::ostream& out) const {
+  using ::apache::thrift::to_string;
+  out << "TextServiceReturn(";
+  out << "text=" << to_string(text);
+  out << ", " << "user_mentions=" << to_string(user_mentions);
+  out << ", " << "urls=" << to_string(urls);
+  out << ")";
+}
+
+
 Post::~Post() throw() {
 }
 
@@ -938,14 +1110,14 @@ uint32_t Post::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->user_mentions.clear();
-            uint32_t _size13;
-            ::apache::thrift::protocol::TType _etype16;
-            xfer += iprot->readListBegin(_etype16, _size13);
-            this->user_mentions.resize(_size13);
-            uint32_t _i17;
-            for (_i17 = 0; _i17 < _size13; ++_i17)
+            uint32_t _size27;
+            ::apache::thrift::protocol::TType _etype30;
+            xfer += iprot->readListBegin(_etype30, _size27);
+            this->user_mentions.resize(_size27);
+            uint32_t _i31;
+            for (_i31 = 0; _i31 < _size27; ++_i31)
             {
-              xfer += this->user_mentions[_i17].read(iprot);
+              xfer += this->user_mentions[_i31].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -958,14 +1130,14 @@ uint32_t Post::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->media.clear();
-            uint32_t _size18;
-            ::apache::thrift::protocol::TType _etype21;
-            xfer += iprot->readListBegin(_etype21, _size18);
-            this->media.resize(_size18);
-            uint32_t _i22;
-            for (_i22 = 0; _i22 < _size18; ++_i22)
+            uint32_t _size32;
+            ::apache::thrift::protocol::TType _etype35;
+            xfer += iprot->readListBegin(_etype35, _size32);
+            this->media.resize(_size32);
+            uint32_t _i36;
+            for (_i36 = 0; _i36 < _size32; ++_i36)
             {
-              xfer += this->media[_i22].read(iprot);
+              xfer += this->media[_i36].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -978,14 +1150,14 @@ uint32_t Post::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->urls.clear();
-            uint32_t _size23;
-            ::apache::thrift::protocol::TType _etype26;
-            xfer += iprot->readListBegin(_etype26, _size23);
-            this->urls.resize(_size23);
-            uint32_t _i27;
-            for (_i27 = 0; _i27 < _size23; ++_i27)
+            uint32_t _size37;
+            ::apache::thrift::protocol::TType _etype40;
+            xfer += iprot->readListBegin(_etype40, _size37);
+            this->urls.resize(_size37);
+            uint32_t _i41;
+            for (_i41 = 0; _i41 < _size37; ++_i41)
             {
-              xfer += this->urls[_i27].read(iprot);
+              xfer += this->urls[_i41].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -1004,9 +1176,9 @@ uint32_t Post::read(::apache::thrift::protocol::TProtocol* iprot) {
         break;
       case 9:
         if (ftype == ::apache::thrift::protocol::T_I32) {
-          int32_t ecast28;
-          xfer += iprot->readI32(ecast28);
-          this->post_type = (PostType::type)ecast28;
+          int32_t ecast42;
+          xfer += iprot->readI32(ecast42);
+          this->post_type = (PostType::type)ecast42;
           this->__isset.post_type = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -1048,10 +1220,10 @@ uint32_t Post::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeFieldBegin("user_mentions", ::apache::thrift::protocol::T_LIST, 5);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->user_mentions.size()));
-    std::vector<UserMention> ::const_iterator _iter29;
-    for (_iter29 = this->user_mentions.begin(); _iter29 != this->user_mentions.end(); ++_iter29)
+    std::vector<UserMention> ::const_iterator _iter43;
+    for (_iter43 = this->user_mentions.begin(); _iter43 != this->user_mentions.end(); ++_iter43)
     {
-      xfer += (*_iter29).write(oprot);
+      xfer += (*_iter43).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -1060,10 +1232,10 @@ uint32_t Post::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeFieldBegin("media", ::apache::thrift::protocol::T_LIST, 6);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->media.size()));
-    std::vector<Media> ::const_iterator _iter30;
-    for (_iter30 = this->media.begin(); _iter30 != this->media.end(); ++_iter30)
+    std::vector<Media> ::const_iterator _iter44;
+    for (_iter44 = this->media.begin(); _iter44 != this->media.end(); ++_iter44)
     {
-      xfer += (*_iter30).write(oprot);
+      xfer += (*_iter44).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -1072,10 +1244,10 @@ uint32_t Post::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeFieldBegin("urls", ::apache::thrift::protocol::T_LIST, 7);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->urls.size()));
-    std::vector<Url> ::const_iterator _iter31;
-    for (_iter31 = this->urls.begin(); _iter31 != this->urls.end(); ++_iter31)
+    std::vector<Url> ::const_iterator _iter45;
+    for (_iter45 = this->urls.begin(); _iter45 != this->urls.end(); ++_iter45)
     {
-      xfer += (*_iter31).write(oprot);
+      xfer += (*_iter45).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -1108,29 +1280,29 @@ void swap(Post &a, Post &b) {
   swap(a.__isset, b.__isset);
 }
 
-Post::Post(const Post& other32) {
-  post_id = other32.post_id;
-  creator = other32.creator;
-  req_id = other32.req_id;
-  text = other32.text;
-  user_mentions = other32.user_mentions;
-  media = other32.media;
-  urls = other32.urls;
-  timestamp = other32.timestamp;
-  post_type = other32.post_type;
-  __isset = other32.__isset;
+Post::Post(const Post& other46) {
+  post_id = other46.post_id;
+  creator = other46.creator;
+  req_id = other46.req_id;
+  text = other46.text;
+  user_mentions = other46.user_mentions;
+  media = other46.media;
+  urls = other46.urls;
+  timestamp = other46.timestamp;
+  post_type = other46.post_type;
+  __isset = other46.__isset;
 }
-Post& Post::operator=(const Post& other33) {
-  post_id = other33.post_id;
-  creator = other33.creator;
-  req_id = other33.req_id;
-  text = other33.text;
-  user_mentions = other33.user_mentions;
-  media = other33.media;
-  urls = other33.urls;
-  timestamp = other33.timestamp;
-  post_type = other33.post_type;
-  __isset = other33.__isset;
+Post& Post::operator=(const Post& other47) {
+  post_id = other47.post_id;
+  creator = other47.creator;
+  req_id = other47.req_id;
+  text = other47.text;
+  user_mentions = other47.user_mentions;
+  media = other47.media;
+  urls = other47.urls;
+  timestamp = other47.timestamp;
+  post_type = other47.post_type;
+  __isset = other47.__isset;
   return *this;
 }
 void Post::printTo(std::ostream& out) const {

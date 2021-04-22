@@ -1,15 +1,15 @@
 #ifndef SOCIAL_NETWORK_MICROSERVICES_POSTSTORAGEHANDLER_H
 #define SOCIAL_NETWORK_MICROSERVICES_POSTSTORAGEHANDLER_H
 
-#include <iostream>
-#include <string>
-#include <future>
-
-#include <mongoc.h>
+#include <bson/bson.h>
 #include <libmemcached/memcached.h>
 #include <libmemcached/util.h>
-#include <bson/bson.h>
+#include <mongoc.h>
+
+#include <future>
+#include <iostream>
 #include <nlohmann/json.hpp>
+#include <string>
 
 #include "../../gen-cpp/PostStorageService.h"
 #include "../logger.h"
@@ -24,14 +24,14 @@ class PostStorageHandler : public PostStorageServiceIf {
   ~PostStorageHandler() override = default;
 
   void StorePost(int64_t req_id, const Post &post,
-      const std::map<std::string, std::string> &carrier) override;
-
-  void ReadPost(Post &_return, int64_t req_id, int64_t post_id,
                  const std::map<std::string, std::string> &carrier) override;
 
+  void ReadPost(Post &_return, int64_t req_id, int64_t post_id,
+                const std::map<std::string, std::string> &carrier) override;
+
   void ReadPosts(std::vector<Post> &_return, int64_t req_id,
-      const std::vector<int64_t> &post_ids,
-      const std::map<std::string, std::string> &carrier) override;
+                 const std::vector<int64_t> &post_ids,
+                 const std::map<std::string, std::string> &carrier) override;
 
  private:
   memcached_pool_st *_memcached_client_pool;
@@ -48,19 +48,17 @@ PostStorageHandler::PostStorageHandler(
 void PostStorageHandler::StorePost(
     int64_t req_id, const social_network::Post &post,
     const std::map<std::string, std::string> &carrier) {
-
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "StorePost",
-      { opentracing::ChildOf(parent_span->get()) });
+      "store_post_server", {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
-  mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
-      _mongodb_client_pool);
+  mongoc_client_t *mongodb_client =
+      mongoc_client_pool_pop(_mongodb_client_pool);
   if (!mongodb_client) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_MONGODB_ERROR;
@@ -68,8 +66,8 @@ void PostStorageHandler::StorePost(
     throw se;
   }
 
-  auto collection = mongoc_client_get_collection(
-      mongodb_client, "post", "post");
+  auto collection =
+      mongoc_client_get_collection(mongodb_client, "post", "post");
   if (!collection) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_MONGODB_ERROR;
@@ -97,7 +95,7 @@ void PostStorageHandler::StorePost(
 
   bson_t url_list;
   BSON_APPEND_ARRAY_BEGIN(new_doc, "urls", &url_list);
-  for (auto &url : post.urls)  {
+  for (auto &url : post.urls) {
     bson_uint32_to_string(idx, &key, buf, sizeof buf);
     bson_t url_doc;
     BSON_APPEND_DOCUMENT_BEGIN(&url_list, key, &url_doc);
@@ -111,18 +109,17 @@ void PostStorageHandler::StorePost(
   bson_t user_mention_list;
   idx = 0;
   BSON_APPEND_ARRAY_BEGIN(new_doc, "user_mentions", &user_mention_list);
-  for (auto &user_mention : post.user_mentions)  {
+  for (auto &user_mention : post.user_mentions) {
     bson_uint32_to_string(idx, &key, buf, sizeof buf);
     bson_t user_mention_doc;
     BSON_APPEND_DOCUMENT_BEGIN(&user_mention_list, key, &user_mention_doc);
     BSON_APPEND_INT64(&user_mention_doc, "user_id", user_mention.user_id);
     BSON_APPEND_UTF8(&user_mention_doc, "username",
-        user_mention.username.c_str());
+                     user_mention.username.c_str());
     bson_append_document_end(&user_mention_list, &user_mention_doc);
     idx++;
   }
   bson_append_array_end(new_doc, &user_mention_list);
-
 
   bson_t media_list;
   idx = 0;
@@ -140,14 +137,14 @@ void PostStorageHandler::StorePost(
 
   bson_error_t error;
   auto insert_span = opentracing::Tracer::Global()->StartSpan(
-      "MongoInsertPost", { opentracing::ChildOf(&span->context()) });
-  bool inserted = mongoc_collection_insert_one (
-      collection, new_doc, nullptr, nullptr, &error);
+      "post_storage_mongo_insert_client",
+      {opentracing::ChildOf(&span->context())});
+  bool inserted = mongoc_collection_insert_one(collection, new_doc, nullptr,
+                                               nullptr, &error);
   insert_span->Finish();
 
   if (!inserted) {
-    LOG(error) << "Error: Failed to insert post to MongoDB: "
-               << error.message;
+    LOG(error) << "Error: Failed to insert post to MongoDB: " << error.message;
     ServiceException se;
     se.errorCode = ErrorCode::SE_MONGODB_ERROR;
     se.message = error.message;
@@ -164,28 +161,23 @@ void PostStorageHandler::StorePost(
   span->Finish();
 }
 
-
 void PostStorageHandler::ReadPost(
-    Post &_return,
-    int64_t req_id,
-    int64_t post_id,
+    Post &_return, int64_t req_id, int64_t post_id,
     const std::map<std::string, std::string> &carrier) {
-
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "ReadPost",
-      { opentracing::ChildOf(parent_span->get()) });
+      "read_post_server", {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
   std::string post_id_str = std::to_string(post_id);
 
   memcached_return_t memcached_rc;
-  memcached_st *memcached_client = memcached_pool_pop(
-      _memcached_client_pool, true, &memcached_rc);
+  memcached_st *memcached_client =
+      memcached_pool_pop(_memcached_client_pool, true, &memcached_rc);
   if (!memcached_client) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
@@ -196,14 +188,10 @@ void PostStorageHandler::ReadPost(
   size_t post_mmc_size;
   uint32_t memcached_flags;
   auto get_span = opentracing::Tracer::Global()->StartSpan(
-      "MmcGetPost", { opentracing::ChildOf(&span->context()) });
-  char *post_mmc = memcached_get(
-      memcached_client,
-      post_id_str.c_str(),
-      post_id_str.length(),
-      &post_mmc_size,
-      &memcached_flags,
-      &memcached_rc);
+      "post_storage_mmc_get_client", {opentracing::ChildOf(&span->context())});
+  char *post_mmc =
+      memcached_get(memcached_client, post_id_str.c_str(), post_id_str.length(),
+                    &post_mmc_size, &memcached_flags, &memcached_rc);
   if (!post_mmc && memcached_rc != MEMCACHED_NOTFOUND) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
@@ -216,7 +204,8 @@ void PostStorageHandler::ReadPost(
 
   if (post_mmc) {
     LOG(debug) << "Get post " << post_id << " cache hit from Memcached";
-    json post_json = json::parse(std::string(post_mmc, post_mmc + post_mmc_size));
+    json post_json =
+        json::parse(std::string(post_mmc, post_mmc + post_mmc_size));
     _return.req_id = post_json["req_id"];
     _return.timestamp = post_json["timestamp"];
     _return.post_id = post_json["post_id"];
@@ -245,8 +234,8 @@ void PostStorageHandler::ReadPost(
     free(post_mmc);
   } else {
     // If not cached in memcached
-    mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
-        _mongodb_client_pool);
+    mongoc_client_t *mongodb_client =
+        mongoc_client_pool_pop(_mongodb_client_pool);
     if (!mongodb_client) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_MONGODB_ERROR;
@@ -254,8 +243,8 @@ void PostStorageHandler::ReadPost(
       throw se;
     }
 
-    auto collection = mongoc_client_get_collection(
-        mongodb_client, "post", "post");
+    auto collection =
+        mongoc_client_get_collection(mongodb_client, "post", "post");
     if (!collection) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_MONGODB_ERROR;
@@ -267,15 +256,16 @@ void PostStorageHandler::ReadPost(
     bson_t *query = bson_new();
     BSON_APPEND_INT64(query, "post_id", post_id);
     auto find_span = opentracing::Tracer::Global()->StartSpan(
-        "MongoFindPost", { opentracing::ChildOf(&span->context()) });
-    mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(
-        collection, query, nullptr, nullptr);
+        "post_storage_mongo_find_client",
+        {opentracing::ChildOf(&span->context())});
+    mongoc_cursor_t *cursor =
+        mongoc_collection_find_with_opts(collection, query, nullptr, nullptr);
     const bson_t *doc;
     bool found = mongoc_cursor_next(cursor, &doc);
     find_span->Finish();
     if (!found) {
       bson_error_t error;
-      if (mongoc_cursor_error (cursor, &error)) {
+      if (mongoc_cursor_error(cursor, &error)) {
         LOG(warning) << error.message;
         bson_destroy(query);
         mongoc_cursor_destroy(cursor);
@@ -293,8 +283,8 @@ void PostStorageHandler::ReadPost(
         mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
         ServiceException se;
         se.errorCode = ErrorCode::SE_THRIFT_HANDLER_ERROR;
-        se.message = "Post_id: " + std::to_string(post_id) +
-            " doesn't exist in MongoDB";
+        se.message =
+            "Post_id: " + std::to_string(post_id) + " doesn't exist in MongoDB";
         throw se;
       }
     } else {
@@ -331,10 +321,9 @@ void PostStorageHandler::ReadPost(
       mongoc_collection_destroy(collection);
       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
 
-
       // upload post to memcached
-      memcached_client = memcached_pool_pop(
-          _memcached_client_pool, true, &memcached_rc);
+      memcached_client =
+          memcached_pool_pop(_memcached_client_pool, true, &memcached_rc);
       if (!memcached_client) {
         ServiceException se;
         se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
@@ -342,15 +331,12 @@ void PostStorageHandler::ReadPost(
         throw se;
       }
       auto set_span = opentracing::Tracer::Global()->StartSpan(
-          "MmcSetPost", { opentracing::ChildOf(&span->context()) });
+          "post_storage_mmc_set_client",
+          {opentracing::ChildOf(&span->context())});
 
       memcached_rc = memcached_set(
-          memcached_client,
-          post_id_str.c_str(),
-          post_id_str.length(),
-          post_json_char,
-          std::strlen(post_json_char),
-          static_cast<time_t>(0),
+          memcached_client, post_id_str.c_str(), post_id_str.length(),
+          post_json_char, std::strlen(post_json_char), static_cast<time_t>(0),
           static_cast<uint32_t>(0));
       if (memcached_rc != MEMCACHED_SUCCESS) {
         LOG(warning) << "Failed to set post to Memcached: "
@@ -363,22 +349,19 @@ void PostStorageHandler::ReadPost(
   }
 
   span->Finish();
-
 }
 void PostStorageHandler::ReadPosts(
-    std::vector<Post> &_return,
-    int64_t req_id,
+    std::vector<Post> &_return, int64_t req_id,
     const std::vector<int64_t> &post_ids,
     const std::map<std::string, std::string> &carrier) {
-
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "ReadPosts",
-      { opentracing::ChildOf(parent_span->get()) });
+      "post_storage_read_posts_server",
+      {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
   if (post_ids.empty()) {
@@ -394,8 +377,8 @@ void PostStorageHandler::ReadPosts(
   }
   std::map<int64_t, Post> return_map;
   memcached_return_t memcached_rc;
-  auto memcached_client = memcached_pool_pop(
-      _memcached_client_pool, true, &memcached_rc);
+  auto memcached_client =
+      memcached_pool_pop(_memcached_client_pool, true, &memcached_rc);
   if (!memcached_client) {
     ServiceException se;
     se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
@@ -403,19 +386,20 @@ void PostStorageHandler::ReadPosts(
     throw se;
   }
 
-  char** keys;
+  char **keys;
   size_t *key_sizes;
-  keys = new char* [post_ids.size()];
-  key_sizes = new size_t [post_ids.size()];
+  keys = new char *[post_ids.size()];
+  key_sizes = new size_t[post_ids.size()];
   int idx = 0;
   for (auto &post_id : post_ids) {
     std::string key_str = std::to_string(post_id);
-    keys[idx] = new char [key_str.length() + 1];
+    keys[idx] = new char[key_str.length() + 1];
     strcpy(keys[idx], key_str.c_str());
     key_sizes[idx] = key_str.length();
     idx++;
   }
-  memcached_rc = memcached_mget(memcached_client, keys, key_sizes, post_ids.size());
+  memcached_rc =
+      memcached_mget(memcached_client, keys, key_sizes, post_ids.size());
   if (memcached_rc != MEMCACHED_SUCCESS) {
     LOG(error) << "Cannot get post_ids of request " << req_id << ": "
                << memcached_strerror(memcached_client, memcached_rc);
@@ -432,11 +416,12 @@ void PostStorageHandler::ReadPosts(
   size_t return_value_length;
   uint32_t flags;
   auto get_span = opentracing::Tracer::Global()->StartSpan(
-      "MemcachedMget", { opentracing::ChildOf(&span->context()) });
+      "post_storage_mmc_mget_client", {opentracing::ChildOf(&span->context())});
 
   while (true) {
-    return_value = memcached_fetch(memcached_client, return_key, &return_key_length,
-                                   &return_value_length, &flags, &memcached_rc);
+    return_value =
+        memcached_fetch(memcached_client, return_key, &return_key_length,
+                        &return_value_length, &flags, &memcached_rc);
     if (return_value == nullptr) {
       LOG(debug) << "Memcached mget finished";
       break;
@@ -448,12 +433,12 @@ void PostStorageHandler::ReadPosts(
       LOG(error) << "Cannot get posts of request " << req_id;
       ServiceException se;
       se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
-      se.message =  "Cannot get posts of request " + std::to_string(req_id);
+      se.message = "Cannot get posts of request " + std::to_string(req_id);
       throw se;
     }
     Post new_post;
-    json post_json = json::parse(std::string(
-        return_value, return_value + return_value_length));
+    json post_json = json::parse(
+        std::string(return_value, return_value + return_value_length));
     new_post.req_id = post_json["req_id"];
     new_post.timestamp = post_json["timestamp"];
     new_post.post_id = post_json["post_id"];
@@ -497,16 +482,16 @@ void PostStorageHandler::ReadPosts(
 
   // Find the rest in MongoDB
   if (!post_ids_not_cached.empty()) {
-    mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
-        _mongodb_client_pool);
+    mongoc_client_t *mongodb_client =
+        mongoc_client_pool_pop(_mongodb_client_pool);
     if (!mongodb_client) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_MONGODB_ERROR;
       se.message = "Failed to pop a client from MongoDB pool";
       throw se;
     }
-    auto collection = mongoc_client_get_collection(
-        mongodb_client, "post", "post");
+    auto collection =
+        mongoc_client_get_collection(mongodb_client, "post", "post");
     if (!collection) {
       ServiceException se;
       se.errorCode = ErrorCode::SE_MONGODB_ERROR;
@@ -530,12 +515,12 @@ void PostStorageHandler::ReadPosts(
     }
     bson_append_array_end(&query_child, &query_post_id_list);
     bson_append_document_end(query, &query_child);
-    mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(
-        collection, query, nullptr, nullptr);
+    mongoc_cursor_t *cursor =
+        mongoc_collection_find_with_opts(collection, query, nullptr, nullptr);
     const bson_t *doc;
 
     auto find_span = opentracing::Tracer::Global()->StartSpan(
-        "MongoFindPosts", {opentracing::ChildOf(&span->context())});
+        "mongo_find_client", {opentracing::ChildOf(&span->context())});
     while (true) {
       bool found = mongoc_cursor_next(cursor, &doc);
       if (!found) {
@@ -594,8 +579,8 @@ void PostStorageHandler::ReadPosts(
     // upload posts to memcached
     set_futures.emplace_back(std::async(std::launch::async, [&]() {
       memcached_return_t _rc;
-      auto _memcached_client = memcached_pool_pop(
-          _memcached_client_pool, true, &_rc);
+      auto _memcached_client =
+          memcached_pool_pop(_memcached_client_pool, true, &_rc);
       if (!_memcached_client) {
         LOG(error) << "Failed to pop a client from memcached pool";
         ServiceException se;
@@ -604,26 +589,23 @@ void PostStorageHandler::ReadPosts(
         throw se;
       }
       auto set_span = opentracing::Tracer::Global()->StartSpan(
-          "MmcSetPost", {opentracing::ChildOf(&span->context())});
-      for (auto & it : post_json_map) {
+          "mmc_set_client", {opentracing::ChildOf(&span->context())});
+      for (auto &it : post_json_map) {
         std::string id_str = std::to_string(it.first);
-        _rc = memcached_set(
-            _memcached_client,
-            id_str.c_str(),
-            id_str.length(),
-            it.second.c_str(),
-            it.second.length(),
-            static_cast<time_t>(0),
-            static_cast<uint32_t>(0));
+        _rc = memcached_set(_memcached_client, id_str.c_str(), id_str.length(),
+                            it.second.c_str(), it.second.length(),
+                            static_cast<time_t>(0), static_cast<uint32_t>(0));
       }
       memcached_pool_push(_memcached_client_pool, _memcached_client);
       set_span->Finish();
-      }));
+    }));
   }
 
   if (return_map.size() != post_ids.size()) {
     try {
-      for (auto &it : set_futures) { it.get(); }
+      for (auto &it : set_futures) {
+        it.get();
+      }
     } catch (...) {
       LOG(warning) << "Failed to set posts to memcached";
     }
@@ -639,13 +621,14 @@ void PostStorageHandler::ReadPosts(
   }
 
   try {
-    for (auto &it : set_futures) { it.get(); }
+    for (auto &it : set_futures) {
+      it.get();
+    }
   } catch (...) {
     LOG(warning) << "Failed to set posts to memcached";
   }
-
 }
 
-} // namespace social_network
+}  // namespace social_network
 
-#endif //SOCIAL_NETWORK_MICROSERVICES_POSTSTORAGEHANDLER_H
+#endif  // SOCIAL_NETWORK_MICROSERVICES_POSTSTORAGEHANDLER_H

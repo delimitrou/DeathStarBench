@@ -21,7 +21,7 @@ namespace social_network {
 class MediaServiceIf {
  public:
   virtual ~MediaServiceIf() {}
-  virtual void UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier) = 0;
+  virtual void ComposeMedia(std::vector<Media> & _return, const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier) = 0;
 };
 
 class MediaServiceIfFactory {
@@ -51,34 +51,34 @@ class MediaServiceIfSingletonFactory : virtual public MediaServiceIfFactory {
 class MediaServiceNull : virtual public MediaServiceIf {
  public:
   virtual ~MediaServiceNull() {}
-  void UploadMedia(const int64_t /* req_id */, const std::vector<std::string> & /* media_types */, const std::vector<int64_t> & /* media_ids */, const std::map<std::string, std::string> & /* carrier */) {
+  void ComposeMedia(std::vector<Media> & /* _return */, const int64_t /* req_id */, const std::vector<std::string> & /* media_types */, const std::vector<int64_t> & /* media_ids */, const std::map<std::string, std::string> & /* carrier */) {
     return;
   }
 };
 
-typedef struct _MediaService_UploadMedia_args__isset {
-  _MediaService_UploadMedia_args__isset() : req_id(false), media_types(false), media_ids(false), carrier(false) {}
+typedef struct _MediaService_ComposeMedia_args__isset {
+  _MediaService_ComposeMedia_args__isset() : req_id(false), media_types(false), media_ids(false), carrier(false) {}
   bool req_id :1;
   bool media_types :1;
   bool media_ids :1;
   bool carrier :1;
-} _MediaService_UploadMedia_args__isset;
+} _MediaService_ComposeMedia_args__isset;
 
-class MediaService_UploadMedia_args {
+class MediaService_ComposeMedia_args {
  public:
 
-  MediaService_UploadMedia_args(const MediaService_UploadMedia_args&);
-  MediaService_UploadMedia_args& operator=(const MediaService_UploadMedia_args&);
-  MediaService_UploadMedia_args() : req_id(0) {
+  MediaService_ComposeMedia_args(const MediaService_ComposeMedia_args&);
+  MediaService_ComposeMedia_args& operator=(const MediaService_ComposeMedia_args&);
+  MediaService_ComposeMedia_args() : req_id(0) {
   }
 
-  virtual ~MediaService_UploadMedia_args() throw();
+  virtual ~MediaService_ComposeMedia_args() throw();
   int64_t req_id;
   std::vector<std::string>  media_types;
   std::vector<int64_t>  media_ids;
   std::map<std::string, std::string>  carrier;
 
-  _MediaService_UploadMedia_args__isset __isset;
+  _MediaService_ComposeMedia_args__isset __isset;
 
   void __set_req_id(const int64_t val);
 
@@ -88,7 +88,7 @@ class MediaService_UploadMedia_args {
 
   void __set_carrier(const std::map<std::string, std::string> & val);
 
-  bool operator == (const MediaService_UploadMedia_args & rhs) const
+  bool operator == (const MediaService_ComposeMedia_args & rhs) const
   {
     if (!(req_id == rhs.req_id))
       return false;
@@ -100,11 +100,11 @@ class MediaService_UploadMedia_args {
       return false;
     return true;
   }
-  bool operator != (const MediaService_UploadMedia_args &rhs) const {
+  bool operator != (const MediaService_ComposeMedia_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const MediaService_UploadMedia_args & ) const;
+  bool operator < (const MediaService_ComposeMedia_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -112,11 +112,11 @@ class MediaService_UploadMedia_args {
 };
 
 
-class MediaService_UploadMedia_pargs {
+class MediaService_ComposeMedia_pargs {
  public:
 
 
-  virtual ~MediaService_UploadMedia_pargs() throw();
+  virtual ~MediaService_ComposeMedia_pargs() throw();
   const int64_t* req_id;
   const std::vector<std::string> * media_types;
   const std::vector<int64_t> * media_ids;
@@ -126,56 +126,64 @@ class MediaService_UploadMedia_pargs {
 
 };
 
-typedef struct _MediaService_UploadMedia_result__isset {
-  _MediaService_UploadMedia_result__isset() : se(false) {}
+typedef struct _MediaService_ComposeMedia_result__isset {
+  _MediaService_ComposeMedia_result__isset() : success(false), se(false) {}
+  bool success :1;
   bool se :1;
-} _MediaService_UploadMedia_result__isset;
+} _MediaService_ComposeMedia_result__isset;
 
-class MediaService_UploadMedia_result {
+class MediaService_ComposeMedia_result {
  public:
 
-  MediaService_UploadMedia_result(const MediaService_UploadMedia_result&);
-  MediaService_UploadMedia_result& operator=(const MediaService_UploadMedia_result&);
-  MediaService_UploadMedia_result() {
+  MediaService_ComposeMedia_result(const MediaService_ComposeMedia_result&);
+  MediaService_ComposeMedia_result& operator=(const MediaService_ComposeMedia_result&);
+  MediaService_ComposeMedia_result() {
   }
 
-  virtual ~MediaService_UploadMedia_result() throw();
+  virtual ~MediaService_ComposeMedia_result() throw();
+  std::vector<Media>  success;
   ServiceException se;
 
-  _MediaService_UploadMedia_result__isset __isset;
+  _MediaService_ComposeMedia_result__isset __isset;
+
+  void __set_success(const std::vector<Media> & val);
 
   void __set_se(const ServiceException& val);
 
-  bool operator == (const MediaService_UploadMedia_result & rhs) const
+  bool operator == (const MediaService_ComposeMedia_result & rhs) const
   {
+    if (!(success == rhs.success))
+      return false;
     if (!(se == rhs.se))
       return false;
     return true;
   }
-  bool operator != (const MediaService_UploadMedia_result &rhs) const {
+  bool operator != (const MediaService_ComposeMedia_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const MediaService_UploadMedia_result & ) const;
+  bool operator < (const MediaService_ComposeMedia_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
-typedef struct _MediaService_UploadMedia_presult__isset {
-  _MediaService_UploadMedia_presult__isset() : se(false) {}
+typedef struct _MediaService_ComposeMedia_presult__isset {
+  _MediaService_ComposeMedia_presult__isset() : success(false), se(false) {}
+  bool success :1;
   bool se :1;
-} _MediaService_UploadMedia_presult__isset;
+} _MediaService_ComposeMedia_presult__isset;
 
-class MediaService_UploadMedia_presult {
+class MediaService_ComposeMedia_presult {
  public:
 
 
-  virtual ~MediaService_UploadMedia_presult() throw();
+  virtual ~MediaService_ComposeMedia_presult() throw();
+  std::vector<Media> * success;
   ServiceException se;
 
-  _MediaService_UploadMedia_presult__isset __isset;
+  _MediaService_ComposeMedia_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -206,9 +214,9 @@ class MediaServiceClient : virtual public MediaServiceIf {
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier);
-  void send_UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier);
-  void recv_UploadMedia();
+  void ComposeMedia(std::vector<Media> & _return, const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier);
+  void send_ComposeMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier);
+  void recv_ComposeMedia(std::vector<Media> & _return);
  protected:
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -224,11 +232,11 @@ class MediaServiceProcessor : public ::apache::thrift::TDispatchProcessor {
   typedef  void (MediaServiceProcessor::*ProcessFunction)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*);
   typedef std::map<std::string, ProcessFunction> ProcessMap;
   ProcessMap processMap_;
-  void process_UploadMedia(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_ComposeMedia(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   MediaServiceProcessor(::apache::thrift::stdcxx::shared_ptr<MediaServiceIf> iface) :
     iface_(iface) {
-    processMap_["UploadMedia"] = &MediaServiceProcessor::process_UploadMedia;
+    processMap_["ComposeMedia"] = &MediaServiceProcessor::process_ComposeMedia;
   }
 
   virtual ~MediaServiceProcessor() {}
@@ -257,13 +265,14 @@ class MediaServiceMultiface : virtual public MediaServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier) {
+  void ComposeMedia(std::vector<Media> & _return, const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->UploadMedia(req_id, media_types, media_ids, carrier);
+      ifaces_[i]->ComposeMedia(_return, req_id, media_types, media_ids, carrier);
     }
-    ifaces_[i]->UploadMedia(req_id, media_types, media_ids, carrier);
+    ifaces_[i]->ComposeMedia(_return, req_id, media_types, media_ids, carrier);
+    return;
   }
 
 };
@@ -296,9 +305,9 @@ class MediaServiceConcurrentClient : virtual public MediaServiceIf {
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier);
-  int32_t send_UploadMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier);
-  void recv_UploadMedia(const int32_t seqid);
+  void ComposeMedia(std::vector<Media> & _return, const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier);
+  int32_t send_ComposeMedia(const int64_t req_id, const std::vector<std::string> & media_types, const std::vector<int64_t> & media_ids, const std::map<std::string, std::string> & carrier);
+  void recv_ComposeMedia(std::vector<Media> & _return, const int32_t seqid);
  protected:
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   apache::thrift::stdcxx::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;

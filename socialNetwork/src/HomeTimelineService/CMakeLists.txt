@@ -3,13 +3,15 @@ add_executable(
     HomeTimelineService.cpp
     ${THRIFT_GEN_CPP_DIR}/HomeTimelineService.cpp
     ${THRIFT_GEN_CPP_DIR}/PostStorageService.cpp
+    ${THRIFT_GEN_CPP_DIR}/SocialGraphService.cpp
     ${THRIFT_GEN_CPP_DIR}/social_network_types.cpp
 )
 
 target_include_directories(
     HomeTimelineService PRIVATE
     /usr/local/include/jaegertracing
-    /usr/local/include/cpp_redis
+    /usr/local/include/hiredis
+    /usr/local/include/sw
 )
 
 target_link_libraries(
@@ -21,8 +23,8 @@ target_link_libraries(
     Boost::log
     Boost::log_setup
     jaegertracing
-    /usr/local/lib/libcpp_redis.a
-    /usr/local/lib/libtacopie.a
+    /usr/local/lib/libhiredis.a
+    /usr/local/lib/libredis++.a
 )
 
 install(TARGETS HomeTimelineService DESTINATION ./)
