@@ -31,8 +31,9 @@ Supported actions:
 
 ### Running the containers
 ##### Docker-compose
-Start docker containers by running `docker-compose up -d`. All images will be 
-pulled from Docker Hub.
+- NOTLS: Start docker containers by running `docker-compose up -d`. All images will be pulled from Docker Hub.
+- TLS: Start docker containers by running `TLS=1 docker-compose up -d`. All the gRPC communications will be protected by TLS.
+
 ##### Openshift
 Read the Readme file in Openshift directory.
 

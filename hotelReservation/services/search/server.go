@@ -12,6 +12,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/dialer"
 	"github.com/harlow/go-micro-services/registry"
+	"github.com/harlow/go-micro-services/tls"
 	geo "github.com/harlow/go-micro-services/services/geo/proto"
 	rate "github.com/harlow/go-micro-services/services/rate/proto"
 	pb "github.com/harlow/go-micro-services/services/search/proto"
@@ -40,7 +41,7 @@ func (s *Server) Run() error {
 		return fmt.Errorf("server port must be set")
 	}
 
-	srv := grpc.NewServer(
+	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepalive.ServerParameters{
 			Timeout: 120 * time.Second,
 		}),
@@ -50,7 +51,13 @@ func (s *Server) Run() error {
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
 		),
-	)
+	}
+
+	if tlsopt := tls.GetServerOpt(); tlsopt != nil {
+		opts = append(opts, tlsopt)
+	}
+
+	srv := grpc.NewServer(opts...)
 	pb.RegisterSearchServer(srv, s)
 
 	// init grpc clients
