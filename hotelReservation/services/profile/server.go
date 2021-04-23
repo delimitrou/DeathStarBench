@@ -13,6 +13,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/registry"
+	"github.com/harlow/go-micro-services/tls"
 	pb "github.com/harlow/go-micro-services/services/profile/proto"
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
@@ -43,7 +44,7 @@ func (s *Server) Run() error {
 
 	// fmt.Printf("in run s.IpAddr = %s, port = %d\n", s.IpAddr, s.Port)
 
-	srv := grpc.NewServer(
+	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepalive.ServerParameters{
 			Timeout: 120 * time.Second,
 		}),
@@ -53,7 +54,13 @@ func (s *Server) Run() error {
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
 		),
-	)
+	}
+
+	if tlsopt := tls.GetServerOpt(); tlsopt != nil {
+		opts = append(opts, tlsopt)
+	}
+
+	srv := grpc.NewServer(opts...)
 
 	pb.RegisterProfileServer(srv, s)
 

@@ -85,8 +85,12 @@ void UniqueIdHandler::UploadUniqueId(
       { opentracing::ChildOf(parent_span->get()) });
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
+  _thread_lock->lock();
   int64_t timestamp = duration_cast<milliseconds>(
       system_clock::now().time_since_epoch()).count() - CUSTOM_EPOCH;
+  int counter = GetCounter(timestamp);
+  _thread_lock->unlock();
+
   std::stringstream sstream;
   sstream << std::hex << timestamp;
   std::string timestamp_hex(sstream.str());
@@ -96,10 +100,6 @@ void UniqueIdHandler::UploadUniqueId(
   } else if (timestamp_hex.size() < 10) {
     timestamp_hex = std::string(10 - timestamp_hex.size(), '0') + timestamp_hex;
   }
-
-  _thread_lock->lock();
-  int counter = GetCounter(timestamp);
-  _thread_lock->unlock();
 
   // Empty the sstream buffer.
   sstream.clear();
@@ -113,6 +113,7 @@ void UniqueIdHandler::UploadUniqueId(
   } else if (counter_hex.size() < 3) {
     counter_hex = std::string(3 - counter_hex.size(), '0') + counter_hex;
   }
+
   std::string review_id_str = _machine_id + timestamp_hex + counter_hex;
   int64_t review_id = stoul(review_id_str, nullptr, 16) & 0x7FFFFFFFFFFFFFFF;
   LOG(debug) << "The review_id of the request "

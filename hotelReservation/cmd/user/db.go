@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"strconv"
@@ -35,8 +36,10 @@ func initializeDatabase(url string) *mgo.Session {
 		if err != nil {
 			log.Fatal(err)
 		}
-		if count == 0{
-			err = c.Insert(&User{user_name, password})
+		if count == 0 {
+			sum := sha256.Sum256([]byte(password))
+			pass := fmt.Sprintf("%x", sum)
+			err = c.Insert(&User{user_name, pass})
 			if err != nil {
 				log.Fatal(err)
 			}
