@@ -78,7 +78,7 @@ services:
     hostname: media-frontend
     image: yg397/media-frontend:xenial
     ports:
-      - 18081:8080
+      - 8081:8080
     volumes:
       - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
       - ./media-frontend/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
@@ -134,7 +134,7 @@ services:
     hostname: nginx-web-server
     image: yg397/openresty-thrift:xenial
     ports:
-      - 18080:8080
+      - 8080:8080
     volumes:
       - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
       - ./nginx-web-server/pages:/usr/local/openresty/nginx/pages
