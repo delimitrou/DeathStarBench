@@ -30,23 +30,23 @@ function GenericObjectPool:returnConnection(client)
         if (client.iprot.trans.trans:isOpen())then
             client.iprot.trans.trans:setKeepAlive(self.maxIdleTime, self.maxTotal)
         else
-            ngx.log(ngx.ERR,"return rpc client fail ,socket close.")
+            ngx.log(ngx.ERR,"return rpc client fail, socket close.")
         end
     end
 end
---
---设置连接池的大小
---Maxtotal 连接池大小
---
+
+-- Connection pool size
 function GenericObjectPool:setMaxTotal(maxTotal)
     self.maxTotal = maxTotal
 end
 
-function GenericObjectPool:setMaxTotal(maxIdleTime)
+-- Keep alive timeout
+function GenericObjectPool:setmaxIdleTime(maxIdleTime)
     self.maxIdleTime = maxIdleTime
 end
 
-function GenericObjectPool:setMaxTotal(timeout)
+-- Keep RPC read/write timeout
+function GenericObjectPool:setTimeout(timeout)
     self.timeout = timeout
 end
 

@@ -53,6 +53,7 @@ function _M.Follow()
     client.iprot.trans:close()
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   else
+    ngx.say("Success!")
     GenericObjectPool:returnConnection(client)
   end
   span:finish()

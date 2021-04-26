@@ -59,7 +59,7 @@ def printResults(results):
     except KeyError:
       result_type_count[result] = 1
   for result_type, count in result_type_count.items():
-    if result_type.startswith("Success"):
+    if result_type == '' or result_type.startswith("Success"):
       print("Succeeded:", count)
     elif "500 Internal Server Error" in result_type:
       print("Failed:", count, "Error:", "Internal Server Error")
