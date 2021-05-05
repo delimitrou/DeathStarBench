@@ -27,6 +27,7 @@ services:
   compose-post-service:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -44,12 +45,14 @@ services:
   home-timeline-redis:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: home-timeline-redis
     image: redis
 
   home-timeline-service:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -67,6 +70,7 @@ services:
   media-frontend:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -86,6 +90,7 @@ services:
   media-memcached:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: media-memcached
     image: memcached
     command: 
@@ -97,6 +102,7 @@ services:
   media-mongodb:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: media-mongodb
     image: mongo
     command: "mongod --nojournal --quiet"
@@ -106,6 +112,7 @@ services:
     depends_on:
       - media-mongodb
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -123,6 +130,7 @@ services:
   nginx-web-server:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -134,7 +142,7 @@ services:
     hostname: nginx-web-server
     image: yg397/openresty-thrift:xenial
     ports:
-      - 8080:8080
+      - 18080:8080
     volumes:
       - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
       - ./nginx-web-server/pages:/usr/local/openresty/nginx/pages
@@ -145,6 +153,7 @@ services:
   post-storage-memcached:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: post-storage-memcached
     image: memcached
     command: 
@@ -156,6 +165,7 @@ services:
   post-storage-mongodb:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: post-storage-mongodb
     image: mongo
     command: "mongod --nojournal --quiet"
@@ -165,6 +175,7 @@ services:
     depends_on:
       - post-storage-mongodb
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -182,6 +193,7 @@ services:
   social-graph-mongodb:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: social-graph-mongodb
     image: mongo
     command: "mongod --nojournal --quiet"
@@ -190,12 +202,15 @@ services:
   social-graph-redis:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: social-graph-redis
     image: redis
 
   social-graph-service:
     depends_on:
       - jaeger-agent
+      - jaeger-query
+      - social-graph-mongodb
     deploy:
       replicas: 1
       restart_policy:
@@ -213,6 +228,7 @@ services:
   text-service:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -230,6 +246,7 @@ services:
   unique-id-service:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -247,6 +264,7 @@ services:
   url-shorten-memcached:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: url-shorten-memcached
     image: memcached
     command: 
@@ -258,6 +276,7 @@ services:
   url-shorten-mongodb:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: url-shorten-mongodb
     image: mongo
     command: "mongod --nojournal --quiet"
@@ -267,6 +286,7 @@ services:
     depends_on:
       - url-shorten-mongodb
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -284,6 +304,7 @@ services:
   user-memcached:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: user-memcached
     image: memcached
     command: 
@@ -295,6 +316,7 @@ services:
   user-mention-service:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -312,6 +334,7 @@ services:
   user-mongodb:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: user-mongodb
     image: mongo
     command: "mongod --nojournal --quiet"
@@ -321,6 +344,7 @@ services:
     depends_on:
       - user-mongodb
       - jaeger-agent
+      - jaeger-query
     deploy:
       replicas: 1
       restart_policy:
@@ -338,6 +362,7 @@ services:
   user-timeline-mongodb:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: user-timeline-mongodb
     image: mongo
     command: "mongod --nojournal --quiet"
@@ -346,6 +371,7 @@ services:
   user-timeline-redis:
     depends_on:
       - jaeger-agent
+      - jaeger-query
     hostname: user-timeline-redis
     image: redis
 
