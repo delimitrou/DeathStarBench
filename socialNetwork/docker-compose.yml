@@ -5,6 +5,9 @@ services:
     hostname: social-graph-service
     #    ports:
     #      - 10000:9090
+    depends_on:
+      - jaeger
+      - social-graph-mongodb
     restart: always
     entrypoint: SocialGraphService
 
@@ -22,24 +25,6 @@ services:
     #   - 6380:6379
     restart: always
 
-  # write-home-timeline-service:
-  #   image: yg397/social-network-microservices:latest
-  #   hostname: write-home-timeline-service
-  #   restart: always
-  #   entrypoint: WriteHomeTimelineService
-  #   depends_on:
-  #     - write-home-timeline-rabbitmq
-
-  # write-home-timeline-rabbitmq:
-  #   image: rabbitmq
-  #   hostname: write-home-timeline-rabbitmq
-  #   environment:
-  #     RABBITMQ_ERLANG_COOKIE: "WRITE-HOME-TIMELINE-RABBITMQ"
-  #     RABBITMQ_DEFAULT_VHOST: "/"
-  #   #    ports:
-  #   #      - 15672:15672
-  #   #      - 5672:5672
-  #   restart: always
 
   home-timeline-redis:
     image: redis
@@ -62,16 +47,11 @@ services:
     #    ports:
     #      - 10001:9090
     restart: always
+    depends_on:
+      - jaeger
     entrypoint: ComposePostService
     volumes:
       - ./config:/social-network-microservices/config
-
-  compose-post-redis:
-    image: redis
-    hostname: compose-post-redis
-    #    ports:
-    #      - 6382:6379
-    restart: always
 
   post-storage-service:
     image: yg397/social-network-microservices:latest
@@ -79,6 +59,9 @@ services:
     ports:
       - 10002:9090
     restart: always
+    depends_on:
+      - jaeger
+      - post-storage-mongodb
     entrypoint: PostStorageService
     volumes:
       - ./config:/social-network-microservices/config
@@ -103,6 +86,9 @@ services:
     #    ports:
     #      - 10003:9090
     restart: always
+    depends_on:
+      - jaeger
+      - user-timeline-mongodb
     entrypoint: UserTimelineService
     volumes:
       - ./config:/social-network-microservices/config
@@ -128,6 +114,9 @@ services:
     #      - 10004:9090
     restart: always
     entrypoint: UrlShortenService
+    depends_on:
+      - jaeger
+      - url-shorten-mongodb
     volumes:
       - ./config:/social-network-microservices/config
 
@@ -151,6 +140,9 @@ services:
     #    ports:
     #      - 10005:9090
     restart: always
+    depends_on:
+      - jaeger
+      - user-mongodb
     entrypoint: UserService
     volumes:
       - ./config:/social-network-microservices/config
@@ -174,6 +166,9 @@ services:
     hostname: media-service
     #    ports:
     #      - 10006:9090
+    depends_on:
+      - jaeger
+      - media-mongodb
     restart: always
     entrypoint: MediaService
     volumes:
@@ -199,6 +194,8 @@ services:
     #    ports:
     #      - 10007:9090
     restart: always
+    depends_on:
+      - jaeger
     entrypoint: TextService
     volumes:
       - ./config:/social-network-microservices/config
@@ -209,6 +206,8 @@ services:
     #    ports:
     #      - 10008:9090
     restart: always
+    depends_on:
+      - jaeger
     entrypoint: UniqueIdService
     volumes:
       - ./config:/social-network-microservices/config
@@ -218,6 +217,8 @@ services:
     hostname: user-mention-service
     #    ports:
     #      - 10009:9090
+    depends_on:
+      - jaeger
     restart: always
     entrypoint: UserMentionService
     volumes:
@@ -228,6 +229,8 @@ services:
     hostname: home-timeline-service
     #    ports:
     #      - 10010:9090
+    depends_on:
+      - jaeger
     restart: always
     entrypoint: HomeTimelineService
     volumes:
@@ -238,6 +241,8 @@ services:
     hostname: nginx-thrift
     ports:
       - 8080:8080
+    depends_on:
+      - jaeger
     restart: always
     volumes:
       - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
@@ -252,6 +257,8 @@ services:
     ports:
       - 8081:8080
     restart: always
+    depends_on:
+      - jaeger
     volumes:
       - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
       - ./media-frontend/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
