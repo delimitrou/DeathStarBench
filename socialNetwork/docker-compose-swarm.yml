@@ -142,7 +142,7 @@ services:
     hostname: nginx-web-server
     image: yg397/openresty-thrift:xenial
     ports:
-      - 18080:8080
+      - 8080:8080
     volumes:
       - ./nginx-web-server/lua-scripts:/usr/local/openresty/nginx/lua-scripts
       - ./nginx-web-server/pages:/usr/local/openresty/nginx/pages
