@@ -1025,7 +1025,7 @@ request = function()
   local user_index = math.random(1000)
   local username = "username_" .. tostring(user_index)
   local password = "password_" .. tostring(user_index)
-  local title = movie_titles[movie_index]
+  local title = urlEncode(movie_titles[movie_index])
   local rating = math.random(0, 10)
   local text = string.random(256)
 
@@ -1037,4 +1037,9 @@ request = function()
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
   return wrk.format(method, path, headers, body)
+end
+
+function urlEncode(s)
+     s = string.gsub(s, "([^%w%.%- ])", function(c) return string.format("%%%02X", string.byte(c)) end)
+    return string.gsub(s, " ", "+")
 end
