@@ -1,4 +1,3 @@
-
 function showTimeline(type) {
     const start = 0
     const stop = 100
@@ -9,7 +8,7 @@ function showTimeline(type) {
     if (start !== "" && stop !== "") {
         var params = "start=" + start + "&stop=" + stop;
         const Http = new XMLHttpRequest();
-        // const url = 'http://' + window.location.hostname + ':18080/api/user-timeline/read';
+        // const url = 'http://' + window.location.hostname + ':8080/api/user-timeline/read';
         const url = 'http://' + window.location.hostname + ':8080/api/' + type + '/read';
         Http.open("GET", url + "?" + params, true);
         Http.onreadystatechange = function () {
@@ -23,6 +22,7 @@ function showTimeline(type) {
                 var curUser = getFromUrl.searchParams.get("username");
                 if (localStorage.getItem("username") == null) {
                     localStorage.setItem("username", curUser)
+                    followUsername()
                 }
                 console.log(document.getElementById("show-post"));
                 if (type === "user-timeline") {
