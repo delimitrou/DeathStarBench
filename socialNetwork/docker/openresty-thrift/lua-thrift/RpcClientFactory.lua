@@ -7,8 +7,8 @@ local RpcClient = require "RpcClient"
 local RpcClientFactory = RpcClient:new({
 	__type = 'Client'
 })
-function RpcClientFactory:createClient(thriftClient, ip, port, timeout)
-    local protocol = self:init(ip, port, timeout)
+function RpcClientFactory:createClient(thriftClient, ip, port, timeout, ssl)
+    local protocol = self:init(ip, port, timeout, ssl)
     local client = thriftClient:new{
         iprot = protocol,
         oprot = protocol

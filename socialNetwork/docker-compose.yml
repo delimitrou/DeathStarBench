@@ -10,6 +10,9 @@ services:
       - social-graph-mongodb
     restart: always
     entrypoint: SocialGraphService
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   social-graph-mongodb:
     image: mongo
@@ -24,7 +27,6 @@ services:
     # ports:
     #   - 6380:6379
     restart: always
-
 
   home-timeline-redis:
     image: redis
@@ -44,6 +46,7 @@ services:
     entrypoint: ComposePostService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   post-storage-service:
     image: yg397/social-network-microservices:latest
@@ -57,6 +60,7 @@ services:
     entrypoint: PostStorageService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   post-storage-memcached:
     image: memcached
@@ -84,6 +88,7 @@ services:
     entrypoint: UserTimelineService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-timeline-redis:
     image: redis
@@ -111,6 +116,7 @@ services:
       - url-shorten-mongodb
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   url-shorten-memcached:
     image: memcached
@@ -138,6 +144,7 @@ services:
     entrypoint: UserService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-memcached:
     image: memcached
@@ -165,6 +172,7 @@ services:
     entrypoint: MediaService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   media-memcached:
     image: memcached
@@ -191,6 +199,7 @@ services:
     entrypoint: TextService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   unique-id-service:
     image: yg397/social-network-microservices:latest
@@ -203,6 +212,7 @@ services:
     entrypoint: UniqueIdService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-mention-service:
     image: yg397/social-network-microservices:latest
@@ -215,6 +225,7 @@ services:
     entrypoint: UserMentionService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   home-timeline-service:
     image: yg397/social-network-microservices:latest
@@ -227,6 +238,7 @@ services:
     entrypoint: HomeTimelineService
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   nginx-thrift:
     image: yg397/openresty-thrift:xenial
@@ -242,6 +254,7 @@ services:
       - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
       - ./gen-lua:/gen-lua
+      - ./docker/openresty-thrift/lua-thrift:/usr/local/openresty/lualib/thrift
       - ./keys:/keys
 
   media-frontend:

@@ -184,12 +184,12 @@ int main(int argc, char *argv[]) {
 
   ClientPool<RedisClient> redis_client_pool("redis", redis_addr, redis_port, 0,
                                             redis_conns, redis_timeout,
-                                            redis_keepalive);
+                                            redis_keepalive, config_json);
 
   ClientPool<ThriftClient<SocialGraphServiceClient>> social_graph_client_pool(
       "social-graph-service", social_graph_service_addr,
       social_graph_service_port, 0, social_graph_service_conns,
-      social_graph_service_timeout, social_graph_service_keepalive);
+      social_graph_service_timeout, social_graph_service_keepalive, config_json);
 
   _redis_client_pool = &redis_client_pool;
   _social_graph_client_pool = &social_graph_client_pool;

@@ -11,6 +11,7 @@
 #include "../tracing.h"
 #include "../utils.h"
 #include "../utils_redis.h"
+#include "../utils_thrift.h"
 #include "HomeTimelineHandler.h"
 
 using apache::thrift::protocol::TBinaryProtocolFactory;
@@ -49,20 +50,21 @@ int main(int argc, char *argv[]) {
 
   ClientPool<ThriftClient<PostStorageServiceClient>> post_storage_client_pool(
       "post-storage-client", post_storage_addr, post_storage_port, 0,
-      post_storage_conns, post_storage_timeout, post_storage_keepalive);
+      post_storage_conns, post_storage_timeout, post_storage_keepalive, config_json);
 
   ClientPool<ThriftClient<SocialGraphServiceClient>> social_graph_client_pool(
       "social-graph-client", social_graph_addr, social_graph_port, 0,
-      social_graph_conns, social_graph_timeout, social_graph_keepalive);
+      social_graph_conns, social_graph_timeout, social_graph_keepalive, config_json);
 
   Redis redis_client_pool =
       init_redis_client_pool(config_json, "home-timeline");
+  std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
 
   TThreadedServer server(std::make_shared<HomeTimelineServiceProcessor>(
                              std::make_shared<HomeTimelineHandler>(
                                  &redis_client_pool, &post_storage_client_pool,
                                  &social_graph_client_pool)),
-                         std::make_shared<TServerSocket>("0.0.0.0", port),
+                         server_socket,
                          std::make_shared<TFramedTransportFactory>(),
                          std::make_shared<TBinaryProtocolFactory>());
 

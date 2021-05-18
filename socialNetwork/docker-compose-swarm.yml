@@ -41,6 +41,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   home-timeline-redis:
     depends_on:
@@ -66,6 +67,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   media-frontend:
     depends_on:
@@ -126,6 +128,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   nginx-web-server:
     depends_on:
@@ -149,6 +152,7 @@ services:
       - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
       - ./gen-lua:/gen-lua
+      - ./docker/openresty-thrift/lua-thrift:/usr/local/openresty/lualib/thrift
       - ./keys:/keys
 
   post-storage-memcached:
@@ -190,6 +194,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   social-graph-mongodb:
     depends_on:
@@ -225,6 +230,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   text-service:
     depends_on:
@@ -243,6 +249,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   unique-id-service:
     depends_on:
@@ -261,6 +268,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   url-shorten-memcached:
     depends_on:
@@ -301,6 +309,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-memcached:
     depends_on:
@@ -331,6 +340,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-mongodb:
     depends_on:
@@ -359,6 +369,7 @@ services:
     image: yg397/social-network-microservices:latest
     volumes:
       - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-timeline-mongodb:
     depends_on:

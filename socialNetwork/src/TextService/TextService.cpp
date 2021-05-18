@@ -5,6 +5,7 @@
 #include <thrift/transport/TServerSocket.h>
 
 #include "../utils.h"
+#include "../utils_thrift.h"
 #include "TextHandler.h"
 
 using apache::thrift::protocol::TBinaryProtocolFactory;
@@ -40,16 +41,17 @@ int main(int argc, char *argv[]) {
 
     ClientPool<ThriftClient<UrlShortenServiceClient>> url_client_pool(
         "url-shorten-service", url_addr, url_port, 0, url_conns, url_timeout,
-        url_keepalive);
+        url_keepalive, config_json);
 
     ClientPool<ThriftClient<UserMentionServiceClient>> user_mention_pool(
         "user-mention-service", user_mention_addr, user_mention_port, 0,
-        user_mention_conns, user_mention_timeout, user_mention_keepalive);
+        user_mention_conns, user_mention_timeout, user_mention_keepalive, config_json);
 
+    std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
     TThreadedServer server(
         std::make_shared<TextServiceProcessor>(std::make_shared<TextHandler>(
             &url_client_pool, &user_mention_pool)),
-        std::make_shared<TServerSocket>("0.0.0.0", port),
+        server_socket,
         std::make_shared<TFramedTransportFactory>(),
         std::make_shared<TBinaryProtocolFactory>());
 

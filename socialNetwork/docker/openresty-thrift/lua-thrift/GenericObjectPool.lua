@@ -18,7 +18,8 @@ end
 --ngx nginx容器变量
 --
 function GenericObjectPool:connection(thriftClient,ip,port)
-    local client = RpcClientFactory:createClient(thriftClient,ip,port,self.timeout)
+    local ssl = ngx.shared.config:get("ssl")
+    local client = RpcClientFactory:createClient(thriftClient,ip,port,self.timeout,ssl)
     return client
 end
 --

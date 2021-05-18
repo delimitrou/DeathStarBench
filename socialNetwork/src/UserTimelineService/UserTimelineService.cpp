@@ -13,6 +13,7 @@
 #include "../utils.h"
 #include "../utils_mongodb.h"
 #include "../utils_redis.h"
+#include "../utils_thrift.h"
 #include "UserTimelineHandler.h"
 
 using apache::thrift::protocol::TBinaryProtocolFactory;
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]) {
 
   ClientPool<ThriftClient<PostStorageServiceClient>> post_storage_client_pool(
       "post-storage-client", post_storage_addr, post_storage_port, 0,
-      post_storage_conns, post_storage_timeout, post_storage_keepalive);
+      post_storage_conns, post_storage_timeout, post_storage_keepalive, config_json);
 
   mongoc_client_t *mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
   if (!mongodb_client) {
@@ -73,12 +74,13 @@ int main(int argc, char *argv[]) {
 
   Redis redis_client_pool =
       init_redis_client_pool(config_json, "user-timeline");
+  std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
 
   TThreadedServer server(std::make_shared<UserTimelineServiceProcessor>(
                              std::make_shared<UserTimelineHandler>(
                                  &redis_client_pool, mongodb_client_pool,
                                  &post_storage_client_pool)),
-                         std::make_shared<TServerSocket>("0.0.0.0", port),
+                         server_socket,
                          std::make_shared<TFramedTransportFactory>(),
                          std::make_shared<TBinaryProtocolFactory>());
 

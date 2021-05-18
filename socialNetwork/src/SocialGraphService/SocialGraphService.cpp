@@ -7,6 +7,7 @@
 #include "../utils.h"
 #include "../utils_mongodb.h"
 #include "../utils_redis.h"
+#include "../utils_thrift.h"
 #include "SocialGraphHandler.h"
 
 using json = nlohmann::json;
@@ -49,7 +50,7 @@ int main(int argc, char *argv[]) {
 
   ClientPool<ThriftClient<UserServiceClient>> user_client_pool(
       "social-graph", user_addr, user_port, 0, user_conns, user_timeout,
-      user_keepalive);
+      user_keepalive, config_json);
 
   mongoc_client_t *mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
   if (!mongodb_client) {
@@ -67,12 +68,13 @@ int main(int argc, char *argv[]) {
   mongoc_client_pool_push(mongodb_client_pool, mongodb_client);
 
   Redis redis_client_pool = init_redis_client_pool(config_json, "social-graph");
+  std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
 
   TThreadedServer server(
       std::make_shared<SocialGraphServiceProcessor>(
           std::make_shared<SocialGraphHandler>(
               mongodb_client_pool, &redis_client_pool, &user_client_pool)),
-      std::make_shared<TServerSocket>("0.0.0.0", port),
+      server_socket,
       std::make_shared<TFramedTransportFactory>(),
       std::make_shared<TBinaryProtocolFactory>());
 
