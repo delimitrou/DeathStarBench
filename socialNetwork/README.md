@@ -41,6 +41,13 @@ Before starting the containers, make sure you are on the master node of the dock
 docker stack deploy --compose-file=docker-compose-swarm.yml <service-name>
 ```
 
+### Enable TLS
+If you are using `docker-compose`, start docker containers by running `TLS=1 docker-compose up -d` to enable TLS.
+
+Since the `depends_on` option is ignored when deploying a stack in swarm mode with a version 3 Compose file, you 
+must turn on TLS manually by modifing `config/mongod.conf`, `config/redis.conf`, `config/service-config.json` and 
+`nginx-web-server/conf/nginx.conf` to enable TLS with `docker swarm`.
+
 ### Register users and construct social graphs
 Register users and construct social graph by running 
 `python3 scripts/init_social_graph.py`. This will initialize a social graph 
