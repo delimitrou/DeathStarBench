@@ -31,6 +31,10 @@ services:
     # ports:
     #   - 6380:6379
     restart: always
+    command: /social-network-microservices/config/redis.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   home-timeline-redis:
     image: redis
@@ -38,6 +42,10 @@ services:
     # ports:
     #   - 6381:6379
     restart: always
+    command: /social-network-microservices/config/redis.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   compose-post-service:
     image: yg397/social-network-microservices:latest
@@ -104,6 +112,10 @@ services:
     #    ports:
     #      - 6383:6379
     restart: always
+    command: /social-network-microservices/config/redis.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-timeline-mongodb:
     image: mongo

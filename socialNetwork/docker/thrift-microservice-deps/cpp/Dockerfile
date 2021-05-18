@@ -117,14 +117,14 @@ RUN apt-get update \
   && git clone https://github.com/redis/hiredis.git \
   && cd hiredis \
   && git checkout v${LIB_HIREDIS_VERSION} \
-  && make -j${NUM_CPUS} \
-  && make install \
+  && make -j${NUM_CPUS} USE_SSL=1 \
+  && make USE_SSL=1 install \
   # Install Redis plus plus
   && cd /tmp \
   && git clone https://github.com/sewenew/redis-plus-plus.git \
   && cd redis-plus-plus \
   && git checkout ${LIB_REDIS_PLUS_PLUS_VERSION} \
-  && cmake . \
+  && cmake -DREDIS_PLUS_PLUS_USE_TLS=ON . \
   && make -j${NUM_CPUS} \
   && make install \
   # Clean up
