@@ -104,7 +104,10 @@ def config_redis(tls):
         f.write(content)
         f.close()
 
-tls = os.environ.get('TLS') is not None
+tls = True
+tls_str = os.environ.get('TLS', '0').lower()
+if tls_str == '0' or tls_str == 'false':
+    tls = False
 
 config_nginx(tls)
 config_thrift(tls)
