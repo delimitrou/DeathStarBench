@@ -22,7 +22,7 @@ function _M.GetFollowee()
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
   local GenericObjectPool = require "GenericObjectPool"
-  local SocialGraphServiceClient = require "social_network_SocialGraphService"
+  local SocialGraphServiceClient = require "social_network_SocialGraphService".SocialGraphServiceClient
   local cjson = require "cjson"
   local jwt = require "resty.jwt"
   local liblualongnumber = require "liblualongnumber"

@@ -8,7 +8,7 @@ function _M.Login()
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
   local GenericObjectPool = require "GenericObjectPool"
-  local UserServiceClient = require "social_network_UserService"
+  local UserServiceClient = require "social_network_UserService".UserServiceClient
   local cjson = require "cjson"
 
   local req_id = tonumber(string.sub(ngx.var.request_id, 0, 15), 16)

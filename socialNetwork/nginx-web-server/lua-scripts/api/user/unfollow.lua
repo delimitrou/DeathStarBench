@@ -8,7 +8,7 @@ function _M.Unfollow()
   local bridge_tracer = require "opentracing_bridge_tracer"
   local ngx = ngx
   local GenericObjectPool = require "GenericObjectPool"
-  local SocialGraphServiceClient = require "social_network_SocialGraphService"
+  local SocialGraphServiceClient = require "social_network_SocialGraphService".SocialGraphServiceClient
 
   local req_id = tonumber(string.sub(ngx.var.request_id, 0, 15), 16)
   local tracer = bridge_tracer.new_from_global()
