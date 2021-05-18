@@ -5,7 +5,7 @@ function showFollowers() {
     }
     username = document.getElementById("username");
     const Http = new XMLHttpRequest();
-    const url = 'http://' + window.location.hostname + ':18080/api/user/get_follower';
+    const url = 'http://' + window.location.hostname + ':8080/api/user/get_follower';
     Http.open("GET", url, true);
     Http.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
