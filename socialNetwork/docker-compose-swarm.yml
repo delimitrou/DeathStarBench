@@ -107,8 +107,11 @@ services:
       - jaeger-query
     hostname: media-mongodb
     image: mongo
-    command: "mongod --nojournal --quiet"
+    command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 2"
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   media-service:
     depends_on:
@@ -173,8 +176,11 @@ services:
       - jaeger-query
     hostname: post-storage-mongodb
     image: mongo
-    command: "mongod --nojournal --quiet"
+    command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 75"
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   post-storage-service:
     depends_on:
@@ -202,8 +208,11 @@ services:
       - jaeger-query
     hostname: social-graph-mongodb
     image: mongo
-    command: "mongod --nojournal --quiet"
+    command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 16"
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   social-graph-redis:
     depends_on:
@@ -288,8 +297,11 @@ services:
       - jaeger-query
     hostname: url-shorten-mongodb
     image: mongo
-    command: "mongod --nojournal --quiet"
+    command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 36"
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   url-shorten-service:
     depends_on:
@@ -348,8 +360,11 @@ services:
       - jaeger-query
     hostname: user-mongodb
     image: mongo
-    command: "mongod --nojournal --quiet"
+    command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 8"
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-service:
     depends_on:
@@ -377,8 +392,11 @@ services:
       - jaeger-query
     hostname: user-timeline-mongodb
     image: mongo
-    command: "mongod --nojournal --quiet"
+    command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 75"
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-timeline-redis:
     depends_on:

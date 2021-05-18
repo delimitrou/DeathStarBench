@@ -20,6 +20,10 @@ services:
     # ports:
     #   - 27018:27017
     restart: always
+    command: --config /social-network-microservices/config/mongod.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   social-graph-redis:
     image: redis
@@ -75,6 +79,10 @@ services:
     #    ports:
     #      - 27019:27017
     restart: always
+    command: --config /social-network-microservices/config/mongod.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-timeline-service:
     image: yg397/social-network-microservices:latest
@@ -103,6 +111,10 @@ services:
     #    ports:
     #      - 27020:27017
     restart: always
+    command: --config /social-network-microservices/config/mongod.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   url-shorten-service:
     image: yg397/social-network-microservices:latest
@@ -131,6 +143,10 @@ services:
     #    ports:
     #      - 27021:27017
     restart: always
+    command: --config /social-network-microservices/config/mongod.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   user-service:
     image: yg397/social-network-microservices:latest
@@ -159,6 +175,10 @@ services:
     #    ports:
     #      - 27023:27017
     restart: always
+    command: --config /social-network-microservices/config/mongod.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   media-service:
     image: yg397/social-network-microservices:latest
@@ -187,6 +207,10 @@ services:
     #    ports:
     #      - 27024:27017
     restart: always
+    command: --config /social-network-microservices/config/mongod.conf
+    volumes:
+      - ./config:/social-network-microservices/config
+      - ./keys:/keys
 
   text-service:
     image: yg397/social-network-microservices:latest
