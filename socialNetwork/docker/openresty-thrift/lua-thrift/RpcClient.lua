@@ -3,6 +3,7 @@
 ----Date: 20151020
 ----
 local TSocket = require "TSocket"
+local TSocketSSL = require "TSocketSSL"
 local TFramedTransport = require "TFramedTransport"
 local TBinaryProtocol = require "TBinaryProtocol"
 local Object = require "Object"
@@ -12,11 +13,18 @@ local RpcClient = Object:new({
 })
 
 --初始化RPC连接
-function RpcClient:init(ip,port,timeout)
-	local socket = TSocket:new{
-		host = ip,
-		port = port,
-	}
+function RpcClient:init(ip,port,timeout,ssl)
+	if (ssl == true) then
+		socket = TSocketSSL:new{
+			host = ip,
+			port = port
+		 }
+	else
+		socket = TSocket:new{
+			host = ip,
+			port = port
+		}
+	end
 	socket:setTimeout(timeout)
 	local transport = TFramedTransport:new{
 		trans = socket

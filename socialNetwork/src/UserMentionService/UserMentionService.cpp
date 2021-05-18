@@ -7,6 +7,7 @@
 #include "../utils.h"
 #include "../utils_memcached.h"
 #include "../utils_mongodb.h"
+#include "../utils_thrift.h"
 #include "UserMentionHandler.h"
 #include "nlohmann/json.hpp"
 
@@ -55,10 +56,12 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
+  std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
+
   TThreadedServer server(std::make_shared<UserMentionServiceProcessor>(
                              std::make_shared<UserMentionHandler>(
                                  memcached_client_pool, mongodb_client_pool)),
-                         std::make_shared<TServerSocket>("0.0.0.0", port),
+                         server_socket,
                          std::make_shared<TFramedTransportFactory>(),
                          std::make_shared<TBinaryProtocolFactory>());
 

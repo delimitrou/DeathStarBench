@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-ARG LIB_MONGOC_VERSION=1.14.0
+ARG LIB_MONGOC_VERSION=1.15.0
 ARG LIB_THRIFT_VERSION=0.12.0
 ARG LIB_JSON_VERSION=3.6.1
 ARG LIB_JAEGER_VERSION=0.4.2
@@ -14,7 +14,7 @@ ARG LIB_HIREDIS_VERSION=1.0.0
 ARG LIB_REDIS_PLUS_PLUS_VERSION=1.2.3
 
 ARG NUM_CPUS=40
-ARG BUILD_DEPS="ca-certificates g++ cmake wget git libmemcached-dev automake bison flex libboost-all-dev libevent-dev libssl-dev libtool make pkg-config librabbitmq-dev"
+ARG BUILD_DEPS="ca-certificates g++ cmake wget git libmemcached-dev automake bison flex libboost-all-dev libevent-dev libssl-dev libtool make pkg-config librabbitmq-dev python3-dev python3-pip python3-setuptools python3-wheel"
 
 RUN apt-get update \
   && apt-get install -y ${BUILD_DEPS} --no-install-recommends \
@@ -117,16 +117,18 @@ RUN apt-get update \
   && git clone https://github.com/redis/hiredis.git \
   && cd hiredis \
   && git checkout v${LIB_HIREDIS_VERSION} \
-  && make -j${NUM_CPUS} \
-  && make install \
+  && make -j${NUM_CPUS} USE_SSL=1 \
+  && make USE_SSL=1 install \
   # Install Redis plus plus
   && cd /tmp \
   && git clone https://github.com/sewenew/redis-plus-plus.git \
   && cd redis-plus-plus \
   && git checkout ${LIB_REDIS_PLUS_PLUS_VERSION} \
-  && cmake . \
+  && cmake -DREDIS_PLUS_PLUS_USE_TLS=ON . \
   && make -j${NUM_CPUS} \
   && make install \
+  # Install pyyaml
+  && pip3 install PyYAML \
   # Clean up
   && cd /tmp \
   && rm -rf \

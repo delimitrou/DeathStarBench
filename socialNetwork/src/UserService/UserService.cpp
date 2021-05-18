@@ -7,6 +7,7 @@
 #include "../utils.h"
 #include "../utils_memcached.h"
 #include "../utils_mongodb.h"
+#include "../utils_thrift.h"
 #include "UserHandler.h"
 
 using apache::thrift::protocol::TBinaryProtocolFactory;
@@ -65,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   ClientPool<ThriftClient<SocialGraphServiceClient>> social_graph_client_pool(
       "social-graph", social_graph_addr, social_graph_port, 0,
-      social_graph_conns, social_graph_timeout, social_graph_keepalive);
+      social_graph_conns, social_graph_timeout, social_graph_keepalive, config_json);
 
   mongoc_client_t *mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
   if (!mongodb_client) {
@@ -81,12 +82,13 @@ int main(int argc, char *argv[]) {
     }
   }
   mongoc_client_pool_push(mongodb_client_pool, mongodb_client);
+  std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
 
   TThreadedServer server(
       std::make_shared<UserServiceProcessor>(std::make_shared<UserHandler>(
           &thread_lock, machine_id, secret, memcached_client_pool,
           mongodb_client_pool, &social_graph_client_pool)),
-      std::make_shared<TServerSocket>("0.0.0.0", port),
+      server_socket,
       std::make_shared<TFramedTransportFactory>(),
       std::make_shared<TBinaryProtocolFactory>());
   LOG(info) << "Starting the user-service server ...";

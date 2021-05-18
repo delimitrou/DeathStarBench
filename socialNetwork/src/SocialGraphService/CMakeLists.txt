@@ -23,10 +23,11 @@ target_link_libraries(
     nlohmann_json::nlohmann_json
     Boost::log
     Boost::log_setup
-    OpenSSL::SSL
     /usr/local/lib/libjaegertracing.so
     /usr/local/lib/libhiredis.a
+    /usr/local/lib/libhiredis_ssl.a
     /usr/local/lib/libredis++.a
+    OpenSSL::SSL
 )
 
 install(TARGETS SocialGraphService DESTINATION ./)
