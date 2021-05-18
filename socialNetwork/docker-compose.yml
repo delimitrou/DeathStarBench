@@ -242,6 +242,7 @@ services:
       - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
       - ./gen-lua:/gen-lua
+      - ./keys:/keys
 
   media-frontend:
     image: yg397/media-frontend:xenial
