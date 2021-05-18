@@ -33,14 +33,6 @@ services:
     #   - 6381:6379
     restart: always
 
-  home-timeline-redis:
-    depends_on:
-      - jaeger
-    hostname: home-timeline-redis
-    # ports:
-    #   - 6381:6379
-    image: redis
-
   compose-post-service:
     image: yg397/social-network-microservices:latest
     hostname: compose-post-service
