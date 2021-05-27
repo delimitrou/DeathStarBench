@@ -179,7 +179,7 @@
     "keepalive_ms": 10000
   },
   "ssl": {
-    "enabled": true,
+    "enabled": false,
     "caPath": "/keys/CA.pem",
     "ciphers": "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH",
     "serverKeyPath": "/keys/server.key",
