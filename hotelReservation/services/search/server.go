@@ -138,7 +138,8 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 		Lon: req.Lon,
 	})
 	if err != nil {
-		log.Fatalf("nearby error: %v", err)
+		fmt.Printf("nearby error: %v", err)
+		return nil, err
 	}
 
 	// for _, hid := range nearby.HotelIds {
@@ -152,7 +153,8 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 		OutDate:  req.OutDate,
 	})
 	if err != nil {
-		log.Fatalf("rates error: %v", err)
+		fmt.Printf("rates error: %v", err)
+		return nil, err
 	}
 
 	// TODO(hw): add simple ranking algo to order hotel ids:
