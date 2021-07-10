@@ -192,6 +192,11 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		OutDate:      outDate,
 		RoomNumber:   1,
 	})
+	if err != nil {
+		fmt.Println("searchHandler CheckAvailability failed")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// fmt.Printf("searchHandler gets reserveResp\n")
 	// fmt.Printf("searchHandler gets reserveResp.HotelId = %s\n", reservationResp.HotelId)
@@ -202,6 +207,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		Locale:   locale,
 	})
 	if err != nil {
+		fmt.Println("searchHandler GetProfiles failed")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
