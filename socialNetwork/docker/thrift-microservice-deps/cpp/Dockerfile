@@ -148,7 +148,7 @@ RUN apt-get update \
     cpp-jwt-${LIB_CPP_JWT_VERSION} \
     cpp_redis \
     AMQP-CPP \
-    SimpleAmqpClient \
+    SimpleAmqpClient
 
 ENV LD_LIBRARY_PATH /usr/local/lib:${LD_LIBRARY_PATH}
 RUN ldconfig
