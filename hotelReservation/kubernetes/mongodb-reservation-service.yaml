@@ -6,12 +6,12 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: mongodb-reserve
-  name: mongodb-reserve
+    io.kompose.service: mongodb-reservation
+  name: mongodb-reservation
 spec:
   ports:
-    - name: "27022"
-      port: 27022
+    - name: "mongodb-reservation"
+      port: 27017
       targetPort: 27017
   selector:
     io.kompose.service: mongodb-reservation

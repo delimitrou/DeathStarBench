@@ -10,8 +10,8 @@ metadata:
   name: memcached-rate
 spec:
   ports:
-    - name: "11212"
-      port: 11212
+    - name: "memcached-rate"
+      port: 11211
       targetPort: 11211
   selector:
     io.kompose.service: memcached-rate
