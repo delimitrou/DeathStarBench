@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/services/geo"
@@ -29,39 +27,20 @@ func main() {
 
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
-	serv_port, _ := strconv.Atoi(result["GeoPort"])
-	serv_ip := ""
-	geo_mongo_addr := ""
-	jaegeraddr := flag.String("jaegeraddr", "", "Jaeger address")
-	consuladdr := flag.String("consuladdr", "", "Consul address")
 
-	if result["Orchestrator"] == "k8s"{
-		geo_mongo_addr = "mongodb-geo:"+strings.Split(result["GeoMongoAddress"], ":")[1]
-		addrs, _ := net.InterfaceAddrs()
-		for _, a := range addrs {
-			if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-				if ipnet.IP.To4() != nil {
-					serv_ip = ipnet.IP.String()
-
-				}
-			}
-		}
-		*jaegeraddr = "jaeger:" + strings.Split(result["jaegerAddress"], ":")[1]
-		*consuladdr = "consul:" + strings.Split(result["consulAddress"], ":")[1]
-	} else {
-		geo_mongo_addr = result["GeoMongoAddress"]
-		serv_ip = result["GeoIP"]
-		*jaegeraddr = result["jaegerAddress"]
-		*consuladdr = result["consulAddress"]
-	}
-	flag.Parse()
-
-	mongo_session := initializeDatabase(geo_mongo_addr)
+	mongo_session := initializeDatabase(result["GeoMongoAddress"])
 	defer mongo_session.Close()
-
+	serv_port, _ := strconv.Atoi(result["GeoPort"])
+	serv_ip   := result["GeoIP"]
 
 	fmt.Printf("geo ip = %s, port = %d\n", serv_ip, serv_port)
 	
+	var (
+		// port       = flag.Int("port", 8083, "Server port")
+		jaegeraddr = flag.String("jaegeraddr", result["consulAddress"], "Jaeger address")
+		consuladdr = flag.String("consuladdr", result["consulAddress"], "Consul address")
+	)
+	flag.Parse()
 
 	tracer, err := tracing.Init("geo", *jaegeraddr)
 	if err != nil {
