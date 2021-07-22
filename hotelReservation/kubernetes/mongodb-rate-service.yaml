@@ -10,8 +10,8 @@ metadata:
   name: mongodb-rate
 spec:
   ports:
-    - name: "27020"
-      port: 27020
+    - name: "mongodb-rate"
+      port: 27017
       targetPort: 27017
   selector:
     io.kompose.service: mongodb-rate
