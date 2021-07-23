@@ -25,11 +25,10 @@ spec:
       labels:
         io.kompose.service: search
     spec:
-      nodeName: r07
       containers:
         - command:
             - search
-          image: salehsedghpour/hotel_reserv_search_single_node
+          image: 10.239.241.58:5000/hotel_reserv_search_single_node
           name: hotel-reserv-search
           ports:
             - containerPort: 8082

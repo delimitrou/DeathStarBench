@@ -25,11 +25,10 @@ spec:
       labels:
         io.kompose.service: rate
     spec:
-      nodeName: r08
       containers:
         - command:
             - rate
-          image: salehsedghpour/hotel_reserv_rate_single_node
+          image: 10.239.241.58:5000/hotel_reserv_rate_single_node
           name: hotel-reserv-rate
           ports:
             - containerPort: 8084

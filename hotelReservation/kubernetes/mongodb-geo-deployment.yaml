@@ -26,7 +26,6 @@ spec:
       labels:
         io.kompose.service: mongodb-geo
     spec:
-      nodeName: r10
       containers:
         - image: mongo
           name: hotel-reserv-geo-mongo
@@ -41,6 +40,5 @@ spec:
       restartPolicy: Always
       volumes:
         - name: geo
-          persistentVolumeClaim:
-            claimName: geo-pvc
+          emptyDir: {}
 status: {}

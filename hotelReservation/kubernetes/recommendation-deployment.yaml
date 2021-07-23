@@ -25,11 +25,10 @@ spec:
       labels:
         io.kompose.service: recommendation
     spec:
-      nodeName: r08
       containers:
         - command:
             - recommendation
-          image: salehsedghpour/hotel_reserv_recommendation_single_node
+          image: 10.239.241.58:5000/hotel_reserv_recommendation_single_node
           name: hotel-reserv-recommendation
           ports:
             - containerPort: 8085

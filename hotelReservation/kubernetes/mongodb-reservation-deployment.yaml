@@ -26,7 +26,6 @@ spec:
       labels:
         io.kompose.service: mongodb-reservation
     spec:
-      nodeName: r13
       containers:
         - image: mongo
           name: hotel-reserv-reservation-mongo
@@ -42,6 +41,5 @@ spec:
       restartPolicy: Always
       volumes:
         - name: reservation
-          persistentVolumeClaim:
-            claimName: reservation-pvc
+          emptyDir: {}
 status: {}

@@ -25,7 +25,6 @@ spec:
       labels:
         io.kompose.service: memcached-profile
     spec:
-      nodeName: r09
       containers:
         - env:
             - name: MEMCACHED_CACHE_SIZE

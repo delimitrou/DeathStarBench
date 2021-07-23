@@ -25,11 +25,10 @@ spec:
       labels:
         io.kompose.service: frontend
     spec:
-      nodeName: r07
       containers:
         - command:
             - frontend
-          image: salehsedghpour/hotel_reserv_frontend_single_node
+          image: 10.239.241.58:5000/hotel_reserv_frontend_single_node
           name: hotel-reserv-frontend
           ports:
             - containerPort: 5000

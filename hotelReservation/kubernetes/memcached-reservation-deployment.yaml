@@ -25,7 +25,6 @@ spec:
       labels:
         io.kompose.service: memcached-reserve
     spec:
-      nodeName: r10
       containers:
         - env:
             - name: MEMCACHED_CACHE_SIZE

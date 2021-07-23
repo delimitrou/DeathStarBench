@@ -26,7 +26,6 @@ spec:
       labels:
         io.kompose.service: mongodb-recommendation
     spec:
-      nodeName: r13
       containers:
         - image: mongo
           name: hotel-reserv-recommendation-mongo
@@ -42,6 +41,5 @@ spec:
       restartPolicy: Always
       volumes:
         - name: recommendation
-          persistentVolumeClaim:
-            claimName: recommendation-pvc
+          emptyDir: {}
 status: {}

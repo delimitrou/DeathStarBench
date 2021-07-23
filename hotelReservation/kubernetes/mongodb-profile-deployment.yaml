@@ -26,7 +26,6 @@ spec:
       labels:
         io.kompose.service: mongodb-profile
     spec:
-      nodeName: r10
       containers:
         - image: mongo
           name: hotel-reserv-profile-mongo
@@ -42,6 +41,5 @@ spec:
       restartPolicy: Always
       volumes:
         - name: profile
-          persistentVolumeClaim:
-            claimName: profile-pvc
+          emptyDir: {}
 status: {}
