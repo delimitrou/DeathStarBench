@@ -118,7 +118,7 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 			for _, rate_str := range rate_strs {
 				if len(rate_str) != 0 {
 					rate_p := new(pb.RatePlan)
-					json.Unmarshal(item.Value, rate_p)
+					json.Unmarshal([]byte(rate_str), rate_p)
 					ratePlans = append(ratePlans, rate_p)
 				}
 			}
