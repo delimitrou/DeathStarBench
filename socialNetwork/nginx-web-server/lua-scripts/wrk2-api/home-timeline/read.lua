@@ -49,7 +49,6 @@ function _M.ReadHomeTimeline()
   local social_network_HomeTimelineService = require "social_network_HomeTimelineService"
   local HomeTimelineServiceClient = social_network_HomeTimelineService.HomeTimelineServiceClient
   local cjson = require "cjson"
-  local jwt = require "resty.jwt"
   local liblualongnumber = require "liblualongnumber"
 
   local req_id = tonumber(string.sub(ngx.var.request_id, 0, 15), 16)

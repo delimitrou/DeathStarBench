@@ -55,6 +55,7 @@ function _M.ReadUserTimeline()
   local tracer = bridge_tracer.new_from_global()
   local parent_span_context = tracer:binary_extract(
       ngx.var.opentracing_binary_context)
+
   local span = tracer:start_span("ReadUserTimeline",
       {["references"] = {{"child_of", parent_span_context}}})
   local carrier = {}
@@ -85,6 +86,7 @@ function _M.ReadUserTimeline()
       ngx.log(ngx.ERR, "Get user-timeline failure: " .. ret)
     end
     client.iprot.trans:close()
+    span:finish()
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   else
     GenericObjectPool:returnConnection(client)
