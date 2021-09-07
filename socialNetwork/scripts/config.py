@@ -4,29 +4,6 @@ import json
 import os
 import yaml
 
-def config_nginx(tls):
-    if tls:
-        f = open('/usr/local/openresty/nginx/conf/nginx.conf')
-        content = f.read()
-
-        content = content.replace('config:set("ssl", false)', 'config:set("ssl", true)')
-
-        f.close()
-        f = open('/usr/local/openresty/nginx/conf/nginx.conf', 'w')
-        f.write(content)
-        f.close()
-    else:
-        f = open('/usr/local/openresty/nginx/conf/nginx.conf')
-        content = f.read()
-
-        content = content.replace('config:set("ssl", true)', 'config:set("ssl", false)')
-
-        f.close()
-
-        f = open('/usr/local/openresty/nginx/conf/nginx.conf', 'w')
-        f.write(content)
-        f.close()
-
 def config_thrift(tls):
     if tls:
         f = open('/social-network-microservices/config/service-config.json')
@@ -109,7 +86,6 @@ tls_str = os.environ.get('TLS', '0').lower()
 if tls_str == '0' or tls_str == 'false':
     tls = False
 
-config_nginx(tls)
 config_thrift(tls)
 config_mongod(tls)
 config_redis(tls)
