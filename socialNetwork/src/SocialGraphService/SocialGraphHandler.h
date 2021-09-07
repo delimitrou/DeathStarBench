@@ -31,6 +31,8 @@ class SocialGraphHandler : public SocialGraphServiceIf {
  public:
   SocialGraphHandler(mongoc_client_pool_t *, Redis *,
                      ClientPool<ThriftClient<UserServiceClient>> *);
+  SocialGraphHandler(mongoc_client_pool_t *, RedisCluster *,
+                     ClientPool<ThriftClient<UserServiceClient>> *);
   ~SocialGraphHandler() override = default;
   void GetFollowers(std::vector<int64_t> &, int64_t, int64_t,
                     const std::map<std::string, std::string> &) override;
@@ -51,6 +53,7 @@ class SocialGraphHandler : public SocialGraphServiceIf {
  private:
   mongoc_client_pool_t *_mongodb_client_pool;
   Redis *_redis_client_pool;
+  RedisCluster *_redis_cluster_client_pool;
   ClientPool<ThriftClient<UserServiceClient>> *_user_service_client_pool;
 };
 
@@ -59,6 +62,17 @@ SocialGraphHandler::SocialGraphHandler(
     ClientPool<ThriftClient<UserServiceClient>> *user_service_client_pool) {
   _mongodb_client_pool = mongodb_client_pool;
   _redis_client_pool = redis_client_pool;
+  _redis_cluster_client_pool = nullptr;
+  _user_service_client_pool = user_service_client_pool;
+}
+
+SocialGraphHandler::SocialGraphHandler(
+    mongoc_client_pool_t *mongodb_client_pool,
+    RedisCluster *redis_cluster_client_pool,
+    ClientPool<ThriftClient<UserServiceClient>> *user_service_client_pool) {
+  _mongodb_client_pool = mongodb_client_pool;
+  _redis_client_pool = nullptr;
+  _redis_cluster_client_pool = redis_cluster_client_pool;
   _user_service_client_pool = user_service_client_pool;
 }
 
@@ -198,16 +212,36 @@ void SocialGraphHandler::Follow(
         {opentracing::ChildOf(&span->context())});
 
     {
-      auto pipe = _redis_client_pool->pipeline(false);
-      pipe.zadd(std::to_string(user_id) + ":followees",
-                std::to_string(followee_id), timestamp, UpdateType::NOT_EXIST)
-          .zadd(std::to_string(followee_id) + ":followers",
-                std::to_string(user_id), timestamp, UpdateType::NOT_EXIST);
-      try {
-        auto replies = pipe.exec();
-      } catch (const Error &err) {
-        LOG(error) << err.what();
-        throw err;
+      if (_redis_client_pool) {
+        auto pipe = _redis_client_pool->pipeline(false);
+        pipe.zadd(std::to_string(user_id) + ":followees",
+                  std::to_string(followee_id), timestamp, UpdateType::NOT_EXIST)
+            .zadd(std::to_string(followee_id) + ":followers",
+                  std::to_string(user_id), timestamp, UpdateType::NOT_EXIST);
+        try {
+          auto replies = pipe.exec();
+        } catch (const Error &err) {
+          LOG(error) << err.what();
+          throw err;
+        }
+      } else {
+        // TODO: Redis++ currently does not support pipeline with multiple
+        //       hashtags in cluster mode.
+        //       Currently, we send one request for each follower, which may
+        //       incur some performance overhead. We are following the updates
+        //       of Redis++ clients:
+        //       https://github.com/sewenew/redis-plus-plus/issues/212
+        try {
+          _redis_cluster_client_pool->zadd(
+              std::to_string(user_id) + ":followees",
+              std::to_string(followee_id), timestamp, UpdateType::NOT_EXIST);
+          _redis_cluster_client_pool->zadd(
+              std::to_string(followee_id) + ":followers",
+              std::to_string(user_id), timestamp, UpdateType::NOT_EXIST);
+        } catch (const Error &err) {
+          LOG(error) << err.what();
+          throw err;
+        }
       }
     }
     redis_span->Finish();
@@ -352,17 +386,31 @@ void SocialGraphHandler::Unfollow(
         "social_graph_redis_update_client",
         {opentracing::ChildOf(&span->context())});
     {
-      auto pipe = _redis_client_pool->pipeline(false);
-      std::string followee_key = std::to_string(user_id) + ":followees";
-      std::string follower_key = std::to_string(followee_id) + ":followers";
-      pipe.zrem(followee_key, std::to_string(followee_id))
-          .zrem(follower_key, std::to_string(user_id));
+      if (_redis_client_pool) {
+        auto pipe = _redis_client_pool->pipeline(false);
+        std::string followee_key = std::to_string(user_id) + ":followees";
+        std::string follower_key = std::to_string(followee_id) + ":followers";
+        pipe.zrem(followee_key, std::to_string(followee_id))
+            .zrem(follower_key, std::to_string(user_id));
 
-      try {
-        auto replies = pipe.exec();
-      } catch (const Error &err) {
-        LOG(error) << err.what();
-        throw err;
+        try {
+          auto replies = pipe.exec();
+        } catch (const Error &err) {
+          LOG(error) << err.what();
+          throw err;
+        }
+      } else {
+        std::string followee_key = std::to_string(user_id) + ":followees";
+        std::string follower_key = std::to_string(followee_id) + ":followers";
+        try {
+          _redis_cluster_client_pool->zrem(followee_key,
+                                           std::to_string(followee_id));
+          _redis_cluster_client_pool->zrem(follower_key,
+                                           std::to_string(user_id));
+        } catch (const Error &err) {
+          LOG(error) << err.what();
+          throw err;
+        }
       }
     }
     redis_span->Finish();
@@ -398,7 +446,12 @@ void SocialGraphHandler::GetFollowers(
   std::vector<std::string> followers_str;
   std::string key = std::to_string(user_id) + ":followers";
   try {
-    _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followers_str));
+    if (_redis_client_pool) {
+      _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followers_str));
+    } else {
+      _redis_cluster_client_pool->zrange(key, 0, -1,
+                                         std::back_inserter(followers_str));
+    }
   } catch (const Error &err) {
     LOG(error) << err.what();
     throw err;
@@ -481,7 +534,12 @@ void SocialGraphHandler::GetFollowers(
           "social_graph_redis_insert_client",
           {opentracing::ChildOf(&span->context())});
       try {
-        _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
+        if (_redis_client_pool) {
+          _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
+        } else {
+          _redis_cluster_client_pool->zadd(key, redis_zset.begin(),
+                                           redis_zset.end());
+        }
       } catch (const Error &err) {
         LOG(error) << err.what();
         throw err;
@@ -518,7 +576,12 @@ void SocialGraphHandler::GetFollowees(
   std::vector<std::string> followees_str;
   std::string key = std::to_string(user_id) + ":followees";
   try {
-    _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followees_str));
+    if (_redis_client_pool) {
+      _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followees_str));
+    } else {
+      _redis_cluster_client_pool->zrange(key, 0, -1,
+                                         std::back_inserter(followees_str));
+    }
   } catch (const Error &err) {
     LOG(error) << err.what();
     throw err;
@@ -615,7 +678,12 @@ void SocialGraphHandler::GetFollowees(
           "social_graph_redis_insert_client",
           {opentracing::ChildOf(&span->context())});
       try {
-        _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
+        if (_redis_client_pool) {
+          _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
+        } else {
+          _redis_cluster_client_pool->zadd(key, redis_zset.begin(),
+                                           redis_zset.end());
+        }
       } catch (const Error &err) {
         LOG(error) << err.what();
         throw err;

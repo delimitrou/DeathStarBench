@@ -4,6 +4,8 @@
 #include <thrift/transport/TBufferTransports.h>
 #include <thrift/transport/TServerSocket.h>
 
+#include <boost/program_options.hpp>
+
 #include "../utils.h"
 #include "../utils_mongodb.h"
 #include "../utils_redis.h"
@@ -22,6 +24,30 @@ void sigintHandler(int sig) { exit(EXIT_SUCCESS); }
 int main(int argc, char *argv[]) {
   signal(SIGINT, sigintHandler);
   init_logger();
+
+  // Command line options
+  namespace po = boost::program_options;
+  po::options_description desc("Options");
+  desc.add_options()("help", "produce help message")(
+      "redis-cluster",
+      po::value<bool>()->default_value(false)->implicit_value(true),
+      "Enable redis cluster mode");
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  if (vm.count("help")) {
+    std::cout << desc << "\n";
+    return 0;
+  }
+
+  bool redis_cluster_flag = false;
+  if (vm.count("redis-cluster")) {
+    if (vm["redis-cluster"].as<bool>()) {
+      redis_cluster_flag = true;
+    }
+  }
 
   SetUpTracer("config/jaeger-config.yml", "social-graph-service");
 
@@ -67,17 +93,31 @@ int main(int argc, char *argv[]) {
   }
   mongoc_client_pool_push(mongodb_client_pool, mongodb_client);
 
-  Redis redis_client_pool = init_redis_client_pool(config_json, "social-graph");
-  std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
+  std::shared_ptr<TServerSocket> server_socket =
+      get_server_socket(config_json, "0.0.0.0", port);
 
-  TThreadedServer server(
-      std::make_shared<SocialGraphServiceProcessor>(
-          std::make_shared<SocialGraphHandler>(
-              mongodb_client_pool, &redis_client_pool, &user_client_pool)),
-      server_socket,
-      std::make_shared<TFramedTransportFactory>(),
-      std::make_shared<TBinaryProtocolFactory>());
-
-  LOG(info) << "Starting the social-graph-service server ...";
-  server.serve();
+  if (redis_cluster_flag) {
+    RedisCluster redis_cluster_client_pool =
+        init_redis_cluster_client_pool(config_json, "social-graph");
+    TThreadedServer server(
+        std::make_shared<SocialGraphServiceProcessor>(
+            std::make_shared<SocialGraphHandler>(mongodb_client_pool,
+                                                 &redis_cluster_client_pool,
+                                                 &user_client_pool)),
+        server_socket, std::make_shared<TFramedTransportFactory>(),
+        std::make_shared<TBinaryProtocolFactory>());
+    LOG(info) << "Starting the social-graph-service server with Resis cluster...";
+    server.serve();
+  } else {
+    Redis redis_client_pool =
+        init_redis_client_pool(config_json, "social-graph");
+    TThreadedServer server(
+        std::make_shared<SocialGraphServiceProcessor>(
+            std::make_shared<SocialGraphHandler>(
+                mongodb_client_pool, &redis_client_pool, &user_client_pool)),
+        server_socket, std::make_shared<TFramedTransportFactory>(),
+        std::make_shared<TBinaryProtocolFactory>());
+    LOG(info) << "Starting the social-graph-service server ...";
+    server.serve();
+  }
 }

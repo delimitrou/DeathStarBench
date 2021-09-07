@@ -4,7 +4,7 @@
 #include <thrift/transport/TBufferTransports.h>
 #include <thrift/transport/TServerSocket.h>
 
-#include <nlohmann/json.hpp>
+#include <boost/program_options.hpp>
 
 #include "../ClientPool.h"
 #include "../logger.h"
@@ -25,6 +25,31 @@ void sigintHandler(int sig) { exit(EXIT_SUCCESS); }
 int main(int argc, char *argv[]) {
   signal(SIGINT, sigintHandler);
   init_logger();
+
+  // Command line options
+  namespace po = boost::program_options;
+  po::options_description desc("Options");
+  desc.add_options()("help", "produce help message")(
+      "redis-cluster",
+      po::value<bool>()->default_value(false)->implicit_value(true),
+      "Enable redis cluster mode");
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  if (vm.count("help")) {
+    std::cout << desc << "\n";
+    return 0;
+  }
+
+  bool redis_cluster_flag = false;
+  if (vm.count("redis-cluster")) {
+    if (vm["redis-cluster"].as<bool>()) {
+      redis_cluster_flag = true;
+    }
+  }
+
   SetUpTracer("config/jaeger-config.yml", "home-timeline-service");
 
   json config_json;
@@ -50,24 +75,42 @@ int main(int argc, char *argv[]) {
 
   ClientPool<ThriftClient<PostStorageServiceClient>> post_storage_client_pool(
       "post-storage-client", post_storage_addr, post_storage_port, 0,
-      post_storage_conns, post_storage_timeout, post_storage_keepalive, config_json);
+      post_storage_conns, post_storage_timeout, post_storage_keepalive,
+      config_json);
 
   ClientPool<ThriftClient<SocialGraphServiceClient>> social_graph_client_pool(
       "social-graph-client", social_graph_addr, social_graph_port, 0,
-      social_graph_conns, social_graph_timeout, social_graph_keepalive, config_json);
+      social_graph_conns, social_graph_timeout, social_graph_keepalive,
+      config_json);
 
-  Redis redis_client_pool =
-      init_redis_client_pool(config_json, "home-timeline");
-  std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
+  std::shared_ptr<TServerSocket> server_socket =
+      get_server_socket(config_json, "0.0.0.0", port);
 
-  TThreadedServer server(std::make_shared<HomeTimelineServiceProcessor>(
-                             std::make_shared<HomeTimelineHandler>(
-                                 &redis_client_pool, &post_storage_client_pool,
-                                 &social_graph_client_pool)),
-                         server_socket,
-                         std::make_shared<TFramedTransportFactory>(),
-                         std::make_shared<TBinaryProtocolFactory>());
+  if (redis_cluster_flag) {
+    RedisCluster redis_cluster_client_pool =
+        init_redis_cluster_client_pool(config_json, "home-timeline");
+    TThreadedServer server(
+        std::make_shared<HomeTimelineServiceProcessor>(
+            std::make_shared<HomeTimelineHandler>(&redis_cluster_client_pool,
+                                                  &post_storage_client_pool,
+                                                  &social_graph_client_pool)),
+        server_socket, std::make_shared<TFramedTransportFactory>(),
+        std::make_shared<TBinaryProtocolFactory>());
 
-  LOG(info) << "Starting the home-timeline-service server...";
-  server.serve();
+    LOG(info) << "Starting the home-timeline-service server...";
+    server.serve();
+  } else {
+    Redis redis_client_pool =
+        init_redis_client_pool(config_json, "home-timeline");
+    TThreadedServer server(
+        std::make_shared<HomeTimelineServiceProcessor>(
+            std::make_shared<HomeTimelineHandler>(&redis_client_pool,
+                                                  &post_storage_client_pool,
+                                                  &social_graph_client_pool)),
+        server_socket, std::make_shared<TFramedTransportFactory>(),
+        std::make_shared<TBinaryProtocolFactory>());
+
+    LOG(info) << "Starting the home-timeline-service server...";
+    server.serve();
+  }
 }

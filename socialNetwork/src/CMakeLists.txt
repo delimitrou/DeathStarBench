@@ -9,7 +9,7 @@ find_package(OpenSSL REQUIRED)
 find_package(amqpcpp REQUIRED)
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.54.0 REQUIRED COMPONENTS log log_setup)
+find_package(Boost 1.54.0 REQUIRED COMPONENTS log log_setup program_options)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
   link_directories(${Boost_LIBRARY_DIRS})

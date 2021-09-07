@@ -19,9 +19,12 @@ using namespace sw::redis;
 namespace social_network {
 class HomeTimelineHandler : public HomeTimelineServiceIf {
  public:
-  explicit HomeTimelineHandler(
-      Redis *, ClientPool<ThriftClient<PostStorageServiceClient>> *,
-      ClientPool<ThriftClient<SocialGraphServiceClient>> *);
+  HomeTimelineHandler(Redis *,
+                      ClientPool<ThriftClient<PostStorageServiceClient>> *,
+                      ClientPool<ThriftClient<SocialGraphServiceClient>> *);
+  HomeTimelineHandler(RedisCluster *,
+                      ClientPool<ThriftClient<PostStorageServiceClient>> *,
+                      ClientPool<ThriftClient<SocialGraphServiceClient>> *);
   ~HomeTimelineHandler() override = default;
 
   void ReadHomeTimeline(std::vector<Post> &, int64_t, int64_t, int, int,
@@ -33,6 +36,7 @@ class HomeTimelineHandler : public HomeTimelineServiceIf {
 
  private:
   Redis *_redis_client_pool;
+  RedisCluster *_redis_cluster_client_pool;
   ClientPool<ThriftClient<PostStorageServiceClient>> *_post_client_pool;
   ClientPool<ThriftClient<SocialGraphServiceClient>> *_social_graph_client_pool;
 };
@@ -43,6 +47,18 @@ HomeTimelineHandler::HomeTimelineHandler(
     ClientPool<ThriftClient<SocialGraphServiceClient>>
         *social_graph_client_pool) {
   _redis_client_pool = redis_pool;
+  _redis_cluster_client_pool = nullptr;
+  _post_client_pool = post_client_pool;
+  _social_graph_client_pool = social_graph_client_pool;
+}
+
+HomeTimelineHandler::HomeTimelineHandler(
+    RedisCluster *redis_pool,
+    ClientPool<ThriftClient<PostStorageServiceClient>> *post_client_pool,
+    ClientPool<ThriftClient<SocialGraphServiceClient>>
+        *social_graph_client_pool) {
+  _redis_client_pool = nullptr;
+  _redis_cluster_client_pool = redis_pool;
   _post_client_pool = post_client_pool;
   _social_graph_client_pool = social_graph_client_pool;
 }
@@ -95,24 +111,44 @@ void HomeTimelineHandler::WriteHomeTimeline(
   std::string post_id_str = std::to_string(post_id);
 
   {
-    auto pipe = _redis_client_pool->pipeline(false);
-    for (auto &follower_id : followers_id_set) {
-      pipe.zadd(std::to_string(follower_id), post_id_str, timestamp,
-                UpdateType::NOT_EXIST);
-    }
-    try {
-      auto replies = pipe.exec();
-    } catch (const Error &err) {
-      LOG(error) << err.what();
-      throw err;
+    if (_redis_client_pool) {
+      auto pipe = _redis_client_pool->pipeline(false);
+      for (auto &follower_id : followers_id_set) {
+        pipe.zadd(std::to_string(follower_id), post_id_str, timestamp,
+                  UpdateType::NOT_EXIST);
+      }
+      try {
+        auto replies = pipe.exec();
+      } catch (const Error &err) {
+        LOG(error) << err.what();
+        throw err;
+      }
+    } else {
+      // TODO: Redis++ currently does not support pipeline with multiple
+      //       hashtags in cluster mode.
+      //       Currently, we send one request for each follower, which may
+      //       incur some performance overhead. We are following the updates
+      //       of Redis++ clients:
+      //       https://github.com/sewenew/redis-plus-plus/issues/212
+      try {
+        for (auto &follower_id : followers_id_set) {
+          _redis_cluster_client_pool->zadd(std::to_string(follower_id),
+                                           post_id_str, timestamp,
+                                           UpdateType::NOT_EXIST);
+        }
+
+      } catch (const Error &err) {
+        LOG(error) << err.what();
+        throw err;
+      }
     }
   }
   redis_span->Finish();
 }
 
 void HomeTimelineHandler::ReadHomeTimeline(
-    std::vector<Post> &_return, int64_t req_id, int64_t user_id, int start,
-    int stop, const std::map<std::string, std::string> &carrier) {
+    std::vector<Post> &_return, int64_t req_id, int64_t user_id, int start_idx,
+    int stop_idx, const std::map<std::string, std::string> &carrier) {
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
@@ -122,7 +158,7 @@ void HomeTimelineHandler::ReadHomeTimeline(
       "read_home_timeline_server", {opentracing::ChildOf(parent_span->get())});
   opentracing::Tracer::Global()->Inject(span->context(), writer);
 
-  if (stop <= start || start < 0) {
+  if (stop_idx <= start_idx || start_idx < 0) {
     return;
   }
 
@@ -132,8 +168,15 @@ void HomeTimelineHandler::ReadHomeTimeline(
 
   std::vector<std::string> post_ids_str;
   try {
-    _redis_client_pool->zrevrange(std::to_string(user_id), start, stop - 1,
-                                  std::back_inserter(post_ids_str));
+    if (_redis_client_pool) {
+      _redis_client_pool->zrevrange(std::to_string(user_id), start_idx,
+                                    stop_idx - 1,
+                                    std::back_inserter(post_ids_str));
+    } else {
+      _redis_cluster_client_pool->zrevrange(std::to_string(user_id), start_idx,
+                                            stop_idx - 1,
+                                            std::back_inserter(post_ids_str));
+    }
   } catch (const Error &err) {
     LOG(error) << err.what();
     throw err;

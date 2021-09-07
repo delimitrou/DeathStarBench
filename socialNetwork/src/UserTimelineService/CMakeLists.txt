@@ -23,6 +23,7 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     Boost::log
     Boost::log_setup
+    Boost::program_options
     jaegertracing
     /usr/local/lib/libhiredis.a
     /usr/local/lib/libhiredis_ssl.a

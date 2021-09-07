@@ -24,6 +24,8 @@ class UserTimelineHandler : public UserTimelineServiceIf {
  public:
   UserTimelineHandler(Redis *, mongoc_client_pool_t *,
                       ClientPool<ThriftClient<PostStorageServiceClient>> *);
+  UserTimelineHandler(RedisCluster *, mongoc_client_pool_t *,
+                      ClientPool<ThriftClient<PostStorageServiceClient>> *);
   ~UserTimelineHandler() override = default;
 
   void WriteUserTimeline(
@@ -35,6 +37,7 @@ class UserTimelineHandler : public UserTimelineServiceIf {
 
  private:
   Redis *_redis_client_pool;
+  RedisCluster *_redis_cluster_client_pool;
   mongoc_client_pool_t *_mongodb_client_pool;
   ClientPool<ThriftClient<PostStorageServiceClient>> *_post_client_pool;
 };
@@ -43,6 +46,16 @@ UserTimelineHandler::UserTimelineHandler(
     Redis *redis_pool, mongoc_client_pool_t *mongodb_pool,
     ClientPool<ThriftClient<PostStorageServiceClient>> *post_client_pool) {
   _redis_client_pool = redis_pool;
+  _redis_cluster_client_pool = nullptr;
+  _mongodb_client_pool = mongodb_pool;
+  _post_client_pool = post_client_pool;
+}
+
+UserTimelineHandler::UserTimelineHandler(
+    RedisCluster *redis_pool, mongoc_client_pool_t *mongodb_pool,
+    ClientPool<ThriftClient<PostStorageServiceClient>> *post_client_pool) {
+  _redis_cluster_client_pool = redis_pool;
+  _redis_client_pool = nullptr;
   _mongodb_client_pool = mongodb_pool;
   _post_client_pool = post_client_pool;
 }
@@ -124,8 +137,13 @@ void UserTimelineHandler::WriteUserTimeline(
       "write_user_timeline_redis_update_client",
       {opentracing::ChildOf(&span->context())});
   try {
-    _redis_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
-                             timestamp, UpdateType::NOT_EXIST);
+    if (_redis_client_pool) 
+      _redis_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
+                              timestamp, UpdateType::NOT_EXIST);
+    else 
+      _redis_cluster_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
+                              timestamp, UpdateType::NOT_EXIST);
+
   } catch (const Error &err) {
     LOG(error) << err.what();
     throw err;
@@ -156,7 +174,11 @@ void UserTimelineHandler::ReadUserTimeline(
 
   std::vector<std::string> post_ids_str;
   try {
-    _redis_client_pool->zrevrange(std::to_string(user_id), start, stop - 1,
+    if (_redis_client_pool)
+      _redis_client_pool->zrevrange(std::to_string(user_id), start, stop - 1,
+                                  std::back_inserter(post_ids_str));
+    else
+      _redis_cluster_client_pool->zrevrange(std::to_string(user_id), start, stop - 1,
                                   std::back_inserter(post_ids_str));
   } catch (const Error &err) {
     LOG(error) << err.what();
@@ -267,9 +289,15 @@ void UserTimelineHandler::ReadUserTimeline(
         "user_timeline_redis_update_client",
         {opentracing::ChildOf(&span->context())});
     try {
-      _redis_client_pool->zadd(std::to_string(user_id),
+      if (_redis_client_pool)
+        _redis_client_pool->zadd(std::to_string(user_id),
                                redis_update_map.begin(),
                                redis_update_map.end());
+      else
+        _redis_cluster_client_pool->zadd(std::to_string(user_id),
+                               redis_update_map.begin(),
+                               redis_update_map.end());
+
     } catch (const Error &err) {
       LOG(error) << err.what();
       throw err;
