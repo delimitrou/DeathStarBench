@@ -51,9 +51,7 @@ docker stack deploy --compose-file=docker-compose-swarm.yml <service-name>
 ### Register users and construct social graphs
 
 Register users and construct social graph by running 
-`python3 scripts/init_social_graph.py`. This will initialize a social graph 
-based on [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php),
-with 962 users and 18.8K social graph edges.
+`python3 scripts/init_social_graph.py --graph=<soc-fb-Reed98, ego-twitter, or soc-twitter-follows-mun>`. It will initialize a social graph from a small social network [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php), a medium social network [Ego Twitter](https://snap.stanford.edu/data/ego-Twitter.html), or a large social network [TWITTER-FOLLOWS-MUN](https://networkrepository.com/soc-twitter-follows-mun.php).
 
 ### Running HTTP workload generator
 
