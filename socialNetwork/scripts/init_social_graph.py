@@ -131,7 +131,7 @@ if __name__ == '__main__':
 
   parser = argparse.ArgumentParser('DeathStarBench social graph initializer.')
   parser.add_argument(
-      '--graph', help='Graph name. (`socfb-Reed98` or `soc-twitter-follows-mun`)', default='socfb-Reed98')
+      '--graph', help='Graph name. (`socfb-Reed98`, `ego-twitter`, or `soc-twitter-follows-mun`)', default='socfb-Reed98')
   parser.add_argument(
       '--ip', help='IP address of socialNetwork NGINX web server. ', default='127.0.0.1')
   parser.add_argument(
