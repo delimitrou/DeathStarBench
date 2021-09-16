@@ -96,7 +96,7 @@ local function read_home_timeline()
     local user_id = tostring(math.random(1, 962))
     local start = tostring(math.random(0, 100))
     local stop = tostring(start + 10)
-  
+
     local args = "user_id=" .. user_id .. "&start=" .. start .. "&stop=" .. stop
     local method = "GET"
     local headers = {}
@@ -110,13 +110,13 @@ request = function()
     local read_home_timeline_ratio = 0.60
     local read_user_timeline_ratio = 0.30
     local compose_post_ratio       = 0.10
-  
+
     local coin = math.random()
     if coin < read_home_timeline_ratio then
       return read_home_timeline()
     elseif coin < read_home_timeline_ratio + read_user_timeline_ratio then
       return read_user_timeline()
-    else 
+    else
       return compose_post()
     end
   end

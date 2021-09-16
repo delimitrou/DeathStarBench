@@ -51,7 +51,7 @@ request = function()
       counter = 0
     end
 --    return wrk.format(nil, path)
-    
+
 --    depth = tonumber(args[1]) or 1
     local r = {}
     for i=1, depth do

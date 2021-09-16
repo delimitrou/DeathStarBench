@@ -21,12 +21,12 @@ def main():
   media_types = ["png", "png", "png", "png"]
   media_ids = [1, 2, 3, 4]
   creator = "username_0"
-  
+
   text_socket = TSocket.TSocket("ath-8.ece.cornell.edu", 10007)
   text_transport = TTransport.TFramedTransport(text_socket)
   text_protocol = TBinaryProtocol.TBinaryProtocol(text_transport)
   text_client = TextService.Client(text_protocol)
-  text_transport.open() 
+  text_transport.open()
   text_client.UploadText(req_id, text, {})
   text_transport.close()
 
@@ -53,8 +53,8 @@ def main():
   post_id_transport.open()
   post_id_client.UploadUniqueId(req_id, post_tyoe, {})
   post_id_transport.close()
-  
-  
+
+
 
 if __name__ == '__main__':
   try:

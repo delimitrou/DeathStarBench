@@ -30,7 +30,7 @@ spec:
       app: user-mention-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: user-mention-service
       name: user-mention-service

@@ -15,7 +15,7 @@ spec:
       app: ubuntu-client
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: ubuntu-client
       name: ubuntu-client

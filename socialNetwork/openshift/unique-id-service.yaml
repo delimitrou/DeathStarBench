@@ -30,7 +30,7 @@ spec:
       app: unique-id-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: unique-id-service
       name: unique-id-service

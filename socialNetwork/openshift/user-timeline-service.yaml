@@ -30,7 +30,7 @@ spec:
       app: user-timeline-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: user-timeline-service
       name: user-timeline-service

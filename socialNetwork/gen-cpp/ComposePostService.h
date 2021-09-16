@@ -15,7 +15,7 @@ namespace social_network {
 
 #ifdef _MSC_VER
   #pragma warning( push )
-  #pragma warning (disable : 4250 ) //inheriting methods via dominance 
+  #pragma warning (disable : 4250 ) //inheriting methods via dominance
 #endif
 
 class ComposePostServiceIf {

@@ -30,7 +30,7 @@ spec:
       app: user-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: user-service
       name: user-service

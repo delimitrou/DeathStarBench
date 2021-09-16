@@ -30,7 +30,7 @@ Changelog
 
     * `centos-rpm` renamed to `centos`.  `centos-rpm` tag works but is deprecated.
 
-    * Archive `armhf-xenial`, `centos`, `jessie`, `trusty`, `wheezy` 
+    * Archive `armhf-xenial`, `centos`, `jessie`, `trusty`, `wheezy`
 
     * `alpine-fat` is now built on top of `alpine` rather than standalone
 

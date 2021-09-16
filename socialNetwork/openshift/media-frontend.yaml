@@ -32,7 +32,7 @@ spec:
       app: media-frontend
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: media-frontend
       name: media-frontend
@@ -40,7 +40,7 @@ spec:
       containers:
       - name: media-frontend
         image: yg397/media-frontend:xenial
-        ports: 
+        ports:
         - containerPort: 8080
         volumeMounts:
         - mountPath: /usr/local/openresty/nginx/lua-scripts

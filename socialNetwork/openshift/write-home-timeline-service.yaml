@@ -32,7 +32,7 @@ spec:
       app: write-home-timeline-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: write-home-timeline-service
       name: write-home-timeline-service

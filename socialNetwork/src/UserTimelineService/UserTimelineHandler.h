@@ -137,10 +137,10 @@ void UserTimelineHandler::WriteUserTimeline(
       "write_user_timeline_redis_update_client",
       {opentracing::ChildOf(&span->context())});
   try {
-    if (_redis_client_pool) 
+    if (_redis_client_pool)
       _redis_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
-    else 
+    else
       _redis_cluster_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
 

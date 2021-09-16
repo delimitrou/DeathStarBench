@@ -26,7 +26,7 @@ function _M.Follow()
   local client = GenericObjectPool:connection(
       SocialGraphServiceClient, "social-graph-service", 9090)
 
-  -- -- new start -- 
+  -- -- new start --
   -- if (_StrIsEmpty(ngx.var.cookie_login_token)) then
   --   ngx.status = ngx.HTTP_UNAUTHORIZED
   --   ngx.exit(ngx.HTTP_OK)
@@ -66,7 +66,7 @@ function _M.Follow()
     ngx.log(ngx.ERR, "Follow Failed: " .. err.message)
     ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   end
-  
+
   GenericObjectPool:returnConnection(client)
   span:finish()
   ngx.redirect("../../contact.html")

@@ -125,7 +125,7 @@ function ComposeText_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype39, _vtype40, _size38 = iprot:readMapBegin() 
+        local _ktype39, _vtype40, _size38 = iprot:readMapBegin()
         for _i=1,_size38 do
           local _key42 = iprot:readString()
           local _val43 = iprot:readString()

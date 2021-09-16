@@ -30,7 +30,7 @@ spec:
       app: user-memcached
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: user-memcached
       name: user-memcached

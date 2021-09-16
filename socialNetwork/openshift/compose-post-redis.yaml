@@ -30,7 +30,7 @@ spec:
       app: compose-post-redis
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: compose-post-redis
       name: compose-post-redis

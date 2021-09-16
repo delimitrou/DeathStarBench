@@ -131,7 +131,7 @@ function ComposeUserMentions_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype266, _vtype267, _size265 = iprot:readMapBegin() 
+        local _ktype266, _vtype267, _size265 = iprot:readMapBegin()
         for _i=1,_size265 do
           local _key269 = iprot:readString()
           local _val270 = iprot:readString()

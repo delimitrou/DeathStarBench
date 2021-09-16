@@ -32,7 +32,7 @@ spec:
       app: nginx-thrift
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: nginx-thrift
       name: nginx-thrift
@@ -40,7 +40,7 @@ spec:
       containers:
       - name: nginx-thrift
         image: yg397/openresty-thrift:xenial
-        ports: 
+        ports:
         - containerPort: 8080
         volumeMounts:
         - mountPath: /usr/local/openresty/nginx/lua-scripts

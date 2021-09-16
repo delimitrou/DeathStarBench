@@ -30,7 +30,7 @@ spec:
       app: social-graph-mongodb
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: social-graph-mongodb
       name: social-graph-mongodb

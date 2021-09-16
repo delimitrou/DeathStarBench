@@ -200,7 +200,7 @@ int main(int argc, char **argv) {
 
         hdr_add(latency_histogram, t->latency_histogram);
         hdr_add(real_latency_histogram, t->real_latency_histogram);
-        
+
         if (cfg.print_all_responses) {
             char filename[10] = {0};
             sprintf(filename, "%" PRIu64 ".txt", i);
@@ -272,7 +272,7 @@ void *thread_main(void *arg) {
     if (!cfg.dynamic) {
         script_request(thread->L, &request, &length);
     }
-    
+
     thread->ff = NULL;
     if ((cfg.print_realtime_latency) && (thread->tid == 0)) {
         char filename[50];
@@ -523,7 +523,7 @@ static uint64_t usec_to_next_send(connection *c) {
         ++c->estimate;
         c->thread_next += gen_next(c);
     }
-    if ((c->thread_next) > now) 
+    if ((c->thread_next) > now)
         return c->thread_next - now;
     else
         return 0;
@@ -572,10 +572,10 @@ static int response_complete(http_parser *parser) {
         uint64_t actual_latency_timing = now - c->actual_latency_start[c->complete & MAXO];
         hdr_record_value(thread->latency_histogram, actual_latency_timing);
         hdr_record_value(thread->real_latency_histogram, actual_latency_timing);
-    
+
         thread->monitored++;
         thread->accum_latency += actual_latency_timing;
-        if (thread->monitored == thread->target) {       
+        if (thread->monitored == thread->target) {
             if (cfg.print_realtime_latency && thread->tid == 0) {
                 fprintf(thread->ff, "%" PRId64 "\n", hdr_value_at_percentile(thread->real_latency_histogram, 99));
                 fflush(thread->ff);
@@ -584,7 +584,7 @@ static int response_complete(http_parser *parser) {
             thread->accum_latency = 0;
             hdr_reset(thread->real_latency_histogram);
         }
-        if (cfg.print_all_responses && ((thread->complete) < MAXL)) 
+        if (cfg.print_all_responses && ((thread->complete) < MAXL))
             raw_latency[thread->tid][thread->complete] = actual_latency_timing;
     }
 
@@ -759,13 +759,13 @@ static int parse_args(struct config *cfg, char **url, struct http_parser_url *pa
                 if (scan_metric(optarg, &cfg->connections)) return -1;
                 break;
             case 'D':
-                if (!strcmp(optarg, "fixed"))  
+                if (!strcmp(optarg, "fixed"))
                     cfg->dist = 0;
-                if (!strcmp(optarg, "exp")) 
+                if (!strcmp(optarg, "exp"))
                     cfg->dist = 1;
-                if (!strcmp(optarg, "norm")) 
+                if (!strcmp(optarg, "norm"))
                     cfg->dist = 2;
-                if (!strcmp(optarg, "zipf")) 
+                if (!strcmp(optarg, "zipf"))
                     cfg->dist = 3;
                 break;
             case 'd':

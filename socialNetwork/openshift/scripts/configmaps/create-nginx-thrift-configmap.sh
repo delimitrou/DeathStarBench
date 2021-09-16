@@ -25,4 +25,4 @@ oc create cm nginx-thrift        --from-file=nginx-thrift-config/nginx.conf -n $
 
 
 # nginx-thrift has a dependency on the ConfigMap nginx-thrift-jaeger, which
-# is created by the script `create-jaeger-configmap.sh` 
+# is created by the script `create-jaeger-configmap.sh`

@@ -125,7 +125,7 @@ function ComposeUniqueId_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype31, _vtype32, _size30 = iprot:readMapBegin() 
+        local _ktype31, _vtype32, _size30 = iprot:readMapBegin()
         for _i=1,_size30 do
           local _key34 = iprot:readString()
           local _val35 = iprot:readString()

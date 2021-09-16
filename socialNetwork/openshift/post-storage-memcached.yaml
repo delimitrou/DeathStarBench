@@ -30,7 +30,7 @@ spec:
       app: post-storage-memcached
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: post-storage-memcached
       name: post-storage-memcached

@@ -23,7 +23,7 @@ local parent_span = tracer:start_span("parent")
 
 -- create a child span
 local child_span = tracer:start_span(
-                    "ChildA", 
+                    "ChildA",
                     {["references"] = {{"child_of", parent_span:context()}}})
 
 child_span:set_tag("simple tag", 123)
@@ -37,7 +37,7 @@ local span_context = tracer:text_map_extract(carrier)
 assert(span_context ~= nil)
 
 local propagation_span = tracer:start_span(
-                      "PropagationSpan", 
+                      "PropagationSpan",
                       {["references"] = {{"follows_from", span_context}}})
 propagation_span:finish()
 
