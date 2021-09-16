@@ -37,7 +37,7 @@ func main() {
 	
 	var (
 		// port       = flag.Int("port", 8083, "Server port")
-		jaegeraddr = flag.String("jaegeraddr", result["consulAddress"], "Jaeger address")
+		jaegeraddr = flag.String("jaegeraddr", result["jaegerAddress"], "Jaeger address")
 		consuladdr = flag.String("consuladdr", result["consulAddress"], "Consul address")
 	)
 	flag.Parse()
