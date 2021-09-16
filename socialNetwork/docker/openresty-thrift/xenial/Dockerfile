@@ -14,7 +14,6 @@ ARG JAEGER_TRACING_VERSION="0.4.2"
 ARG NGINX_OPENTRACING_VERSION="0.8.0"
 ARG OPENTRACING_CPP_VERSION="1.5.1"
 ARG RESTY_J="1"
-ARG NUM_CPUS="40"
 ARG RESTY_CONFIG_OPTIONS="\
     --with-file-aio \
     --with-http_addition_module \
@@ -110,8 +109,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
              -DBUILD_STATIC_LIBS=OFF \
              -DBUILD_TESTING=OFF \
        .. \
-    && make -j${NUM_CPUS} \
-    && make -j${NUM_CPUS} install \
+    && make -j$(nproc) \
+    && make -j$(nproc) install \
     && cd /tmp \
     && rm -rf opentracing-cpp-${OPENTRACING_CPP_VERSION}.tar.gz \
               opentracing-cpp-${OPENTRACING_CPP_VERSION} \
@@ -190,8 +189,8 @@ RUN cd /usr/local/openresty/lualib/thrift/src \
     && cd cmake-build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
        .. \
-    && make -j${NUM_CPUS} \
-    && make -j${NUM_CPUS} install
+    && make -j$(nproc) \
+    && make -j$(nproc) install
 #    && cd /tmp
 #    && rm -rf lua-bridge-tracer
 
