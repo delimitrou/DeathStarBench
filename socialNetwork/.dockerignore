@@ -1,0 +1,6 @@
+*
+!/src/
+!/CMakeLists.txt
+!/cmake/
+!/gen-cpp/
+!/third_party/
