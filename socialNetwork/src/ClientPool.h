@@ -81,7 +81,7 @@ template<class TClient>
 TClient * ClientPool<TClient>::Pop() {
   TClient * client = nullptr;
   {
-    std::unique_lock<std::mutex> cv_lock(_mtx); 
+    std::unique_lock<std::mutex> cv_lock(_mtx);
     while (_pool.size() == 0 && _curr_pool_size == _max_pool_size) {
       // Create a new a client if current pool size is less than
       // the max pool size.
@@ -105,7 +105,7 @@ TClient * ClientPool<TClient>::Pop() {
     }
   cv_lock.unlock();
   } // cv_lock(_mtx)
-  
+
 
   if (client) {
     try {
@@ -114,7 +114,7 @@ TClient * ClientPool<TClient>::Pop() {
       LOG(error) << "Failed to connect " + _client_type;
       Remove(client);
       throw;
-    }    
+    }
   }
   return client;
 }

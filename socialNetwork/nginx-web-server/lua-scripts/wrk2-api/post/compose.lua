@@ -18,7 +18,7 @@ function _M.ComposePost()
   local req_id = tonumber(string.sub(ngx.var.request_id, 0, 15), 16)
   local tracer = bridge_tracer.new_from_global()
   local parent_span_context = tracer:binary_extract(ngx.var.opentracing_binary_context)
-  
+
 
   ngx.req.read_body()
   local post = ngx.req.get_post_args()

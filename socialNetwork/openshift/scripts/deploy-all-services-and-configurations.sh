@@ -7,7 +7,7 @@ oc create namespace ${NS}
 oc adm policy add-scc-to-user anyuid -z default -n ${NS}
 oc adm policy add-scc-to-user privileged -z default -n ${NS}
 
-./scripts/create-all-configmap.sh 
+./scripts/create-all-configmap.sh
 
 # The following script optionally creates local docker images suitable for local customization.
 # ./scripts/build-docker-img.sh

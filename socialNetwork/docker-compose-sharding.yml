@@ -43,7 +43,7 @@ services:
     depends_on:
       social-graph-redis:
         condition: service_started
-    volumes: 
+    volumes:
       - ./scripts:/scripts
     entrypoint: /bin/bash /scripts/setup_redis_cluster.sh -n social-graph-redis
 
@@ -63,7 +63,7 @@ services:
     depends_on:
       home-timeline-redis:
         condition: service_started
-    volumes: 
+    volumes:
       - ./scripts:/scripts
     entrypoint: /bin/bash /scripts/setup_redis_cluster.sh -n home-timeline-redis
 
@@ -142,7 +142,7 @@ services:
     depends_on:
       user-timeline-redis:
         condition: service_started
-    volumes: 
+    volumes:
       - ./scripts:/scripts
     entrypoint: /bin/bash /scripts/setup_redis_cluster.sh -n user-timeline-redis
 

@@ -89,7 +89,7 @@ function _M.ComposePost()
       client.iprot.trans:close()
       ngx.exit(ngx.status)
     end
-  
+
     GenericObjectPool:returnConnection(client)
     ngx.status = ngx.HTTP_OK
     ngx.say("Successfully upload post")

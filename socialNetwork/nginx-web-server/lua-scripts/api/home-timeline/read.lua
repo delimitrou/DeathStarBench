@@ -71,7 +71,7 @@ function _M.ReadHomeTimeline()
     -- ngx.redirect("../../index.html")
     -- ngx.exit(ngx.HTTP_OK)
     ngx.exit(ngx.HTTP_UNAUTHORIZED)
-    
+
   end
 
 
@@ -82,7 +82,7 @@ function _M.ReadHomeTimeline()
     -- ngx.say(login_obj.reason);
     -- ngx.exit(ngx.HTTP_OK)
     ngx.exit(ngx.HTTP_UNAUTHORIZED)
-    
+
   end
 
 
@@ -103,7 +103,7 @@ function _M.ReadHomeTimeline()
     -- ngx.say("Login token expired, please log in again")
     -- ngx.exit(ngx.HTTP_OK)
     ngx.exit(ngx.HTTP_UNAUTHORIZED)
-    
+
   else
     local client = GenericObjectPool:connection(
         HomeTimelineServiceClient, "home-timeline-service", 9090)

@@ -232,7 +232,7 @@ function StorePost_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype121, _vtype122, _size120 = iprot:readMapBegin() 
+        local _ktype121, _vtype122, _size120 = iprot:readMapBegin()
         for _i=1,_size120 do
           local _key124 = iprot:readString()
           local _val125 = iprot:readString()
@@ -339,7 +339,7 @@ function ReadPost_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype129, _vtype130, _size128 = iprot:readMapBegin() 
+        local _ktype129, _vtype130, _size128 = iprot:readMapBegin()
         for _i=1,_size128 do
           local _key132 = iprot:readString()
           local _val133 = iprot:readString()
@@ -465,7 +465,7 @@ function ReadPosts_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype142, _vtype143, _size141 = iprot:readMapBegin() 
+        local _ktype142, _vtype143, _size141 = iprot:readMapBegin()
         for _i=1,_size141 do
           local _key145 = iprot:readString()
           local _val146 = iprot:readString()

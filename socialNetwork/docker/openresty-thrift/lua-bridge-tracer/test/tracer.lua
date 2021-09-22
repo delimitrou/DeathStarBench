@@ -7,7 +7,7 @@ function new_mocktracer(json_file)
     error("MOCKTRACER environmental variable must be set")
   end
   return bridge_tracer:new(
-            mocktracer_path, 
+            mocktracer_path,
             '{ "output_file":"' .. json_file .. '" }')
 end
 
@@ -199,7 +199,7 @@ describe("in bridge_tracer", function()
       context = nil
 
       -- free functions should be called for the tracer, span, and context
-      -- 
+      --
       -- when run with address sanitizer, leaks should be detected if they
       -- aren't freed
       collectgarbage()

@@ -30,7 +30,7 @@ spec:
       app: post-storage-mongodb
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: post-storage-mongodb
       name: post-storage-mongodb

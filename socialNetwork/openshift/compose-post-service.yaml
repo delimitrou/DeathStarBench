@@ -32,7 +32,7 @@ spec:
       app: compose-post-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: compose-post-service
       name: compose-post-service

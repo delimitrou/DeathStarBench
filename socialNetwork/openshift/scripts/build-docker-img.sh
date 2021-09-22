@@ -47,7 +47,7 @@ TOKEN=$(oc whoami -t)
 USER=$(oc whoami)
 oc project $PROJECT
 oc registry login \
-  --insecure=true --skip-check -z default --token=$TOKEN $REGISTRY 
+  --insecure=true --skip-check -z default --token=$TOKEN $REGISTRY
 $EXEC login -u $USER -p $TOKEN $REGISTRY
 
 # ENTER IN THE SOCIAL-NETWORK ROOT FOLDER

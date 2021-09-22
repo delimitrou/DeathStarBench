@@ -30,7 +30,7 @@ spec:
       app: post-storage-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: post-storage-service
       name: post-storage-service
@@ -39,7 +39,7 @@ spec:
       - name: post-storage-service
         image: yg397/social-network-microservices
         command: ["PostStorageService"]
-        ports: 
+        ports:
         - containerPort: 9090
         volumeMounts:
           - mountPath: /social-network-microservices/config/jaeger-config.yml

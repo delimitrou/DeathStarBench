@@ -62,7 +62,7 @@ function ReadHomeTimeline_args:read(iprot)
     elseif fid == 5 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype151, _vtype152, _size150 = iprot:readMapBegin() 
+        local _ktype151, _vtype152, _size150 = iprot:readMapBegin()
         for _i=1,_size150 do
           local _key154 = iprot:readString()
           local _val155 = iprot:readString()
@@ -229,7 +229,7 @@ function WriteHomeTimeline_args:read(iprot)
     elseif fid == 6 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype170, _vtype171, _size169 = iprot:readMapBegin() 
+        local _ktype170, _vtype171, _size169 = iprot:readMapBegin()
         for _i=1,_size169 do
           local _key173 = iprot:readString()
           local _val174 = iprot:readString()

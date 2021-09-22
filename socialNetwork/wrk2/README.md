@@ -13,8 +13,8 @@
   Therefore, I fundamentally changed the load generator to be
   open-loop; requests are sent out according to the schedule no matter what. Any
   traffic on the server side will be directly refected in the real latency,
-  so we don't have to approximate that like wrk2. Latency reporting is the same as 
-  wrk. 
+  so we don't have to approximate that like wrk2. Latency reporting is the same as
+  wrk.
 
   Some other features added:
   1. add -P parameter to print end-to-end latency of every request to files. The
@@ -131,11 +131,11 @@
      99.990%   12.45ms
      99.999%   12.50ms
     100.000%   12.50ms
-  
+
     Detailed Percentile spectrum:
          Value   Percentile   TotalCount 1/(1-Percentile)
-         
-         0.921     0.000000            1         1.00 
+
+         0.921     0.000000            1         1.00
          4.053     0.100000         3951         1.11
          4.935     0.200000         7921         1.25
          5.627     0.300000        11858         1.43
@@ -369,10 +369,10 @@ A note about wrk2's latency measurement technique:
   the "uncorrected" percentile distributions measured during wrk2 runs.
   (The "uncorrected" distributions are labeled with "CO", for Coordinated
   Omission)
-  
+
   ![CO example]
-  
-  These differences can be seen in detail in the output provided when 
+
+  These differences can be seen in detail in the output provided when
   the --u_latency flag is used. For example, the output below demonstrates
   the difference in recorded latency distribution for two runs:
 
@@ -395,7 +395,7 @@ A note about wrk2's latency measurement technique:
 Example 1: [short, non-noisy run (~11msec worst observed latency)]:
 
     wrk -t2 -c100 -d30s -R2000 --u_latency http://127.0.0.1:80/index.html
- 
+
     Running 30s test @ http://127.0.0.1:80/index.html
       2 threads and 100 connections
       Thread calibration: mean lat.: 9319 usec, rate sampling interval: 21 msec
@@ -412,10 +412,10 @@ Example 1: [short, non-noisy run (~11msec worst observed latency)]:
      99.990%   11.29ms
      99.999%   11.32ms
     100.000%   11.32ms
-   
+
       Detailed Percentile spectrum:
            Value   Percentile   TotalCount 1/(1-Percentile)
- 
+
            0.677     0.000000            1         1.00
            3.783     0.100000         3952         1.11
            4.643     0.200000         7924         1.25
@@ -499,9 +499,9 @@ Example 1: [short, non-noisy run (~11msec worst observed latency)]:
     #[Max     =       11.312, Total count    =        39500]
     #[Buckets =           27, SubBuckets     =         2048]
     ----------------------------------------------------------
- 
+
       Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
-     50.000%    2.68ms 
+     50.000%    2.68ms
      75.000%    3.71ms
      90.000%    4.47ms
      99.000%    5.43ms
@@ -509,10 +509,10 @@ Example 1: [short, non-noisy run (~11msec worst observed latency)]:
      99.990%    6.99ms
      99.999%    7.01ms
     100.000%    7.01ms
- 
+
       Detailed Percentile spectrum:
            Value   Percentile   TotalCount 1/(1-Percentile)
- 
+
            0.264     0.000000            1         1.00
            1.111     0.100000         3954         1.11
            1.589     0.200000         7909         1.25
@@ -575,7 +575,7 @@ Example 1: [short, non-noisy run (~11msec worst observed latency)]:
            6.951     0.999707        39489      3413.33
            6.979     0.999756        39491      4096.00
            6.983     0.999780        39494      4551.11
-           6.983     0.999805        39494      5120.00  
+           6.983     0.999805        39494      5120.00
            6.983     0.999829        39494      5851.43
            6.987     0.999854        39496      6826.67
            6.987     0.999878        39496      8192.00
@@ -605,9 +605,9 @@ Example 1: [short, non-noisy run (~11msec worst observed latency)]:
 ************************************************************************
 
 Example 2: [1.4 second ^Z artifact introduced on the httpd server]:
- 
+
     wrk -t2 -c100 -d30s -R2000 --u_latency http://127.0.0.1:80/index.html
- 
+
     Running 30s test @ http://127.0.0.1:80/index.html
       2 threads and 100 connections
       Thread calibration: mean lat.: 108237 usec, rate sampling interval: 1021 msec
@@ -624,10 +624,10 @@ Example 2: [1.4 second ^Z artifact introduced on the httpd server]:
      99.990%    1.42s
      99.999%    1.42s
     100.000%    1.42s
- 
+
       Detailed Percentile spectrum:
            Value   Percentile   TotalCount 1/(1-Percentile)
- 
+
            1.317     0.000000            1         1.00
            5.011     0.100000         3954         1.11
            6.215     0.200000         7903         1.25
@@ -709,9 +709,9 @@ Example 2: [1.4 second ^Z artifact introduced on the httpd server]:
            4.423     0.850000        33599         6.67
            4.587     0.875000        34564         8.00
            4.735     0.887500        35057         8.89
-           4.871     0.900000        35560        10.00 
+           4.871     0.900000        35560        10.00
            4.975     0.912500        36051        11.43
-           5.063     0.925000        36543        13.33 
+           5.063     0.925000        36543        13.33
            5.143     0.937500        37039        16.00
            5.187     0.943750        37282        17.78
            5.239     0.950000        37533        20.00

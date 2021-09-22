@@ -57,7 +57,7 @@ void SetUpTracer(
 
   // Enable local Jaeger agent, by prepending the service name to the default
   // Jaeger agent's hostname
-  // configYAML["reporter"]["localAgentHostPort"] = service + "-" + 
+  // configYAML["reporter"]["localAgentHostPort"] = service + "-" +
   //     configYAML["reporter"]["localAgentHostPort"].as<std::string>();
 
   auto config = jaegertracing::Config::parse(configYAML);
@@ -78,8 +78,8 @@ void SetUpTracer(
       sleep(1);
     }
   }
-  
-  
+
+
 }
 
 

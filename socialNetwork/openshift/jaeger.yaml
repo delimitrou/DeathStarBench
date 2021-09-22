@@ -60,7 +60,7 @@ spec:
       app-name: jaeger
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app-name: jaeger
       name: jaeger

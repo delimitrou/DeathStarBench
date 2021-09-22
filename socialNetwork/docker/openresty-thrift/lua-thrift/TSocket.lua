@@ -89,7 +89,7 @@ function TSocket:open()
         .. ' (' .. err .. ')'
     })
   end
-end    
+end
 
 function TSocket:read(len)
   local buf = self.handle:receive(len)

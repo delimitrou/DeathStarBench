@@ -145,7 +145,7 @@ function ComposeMedia_args:read(iprot)
     elseif fid == 4 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype331, _vtype332, _size330 = iprot:readMapBegin() 
+        local _ktype331, _vtype332, _size330 = iprot:readMapBegin()
         for _i=1,_size330 do
           local _key334 = iprot:readString()
           local _val335 = iprot:readString()

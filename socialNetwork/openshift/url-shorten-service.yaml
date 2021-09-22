@@ -30,7 +30,7 @@ spec:
       app: url-shorten-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: url-shorten-service
       name: url-shorten-service

@@ -125,7 +125,7 @@ function UploadUserMentions_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype242, _vtype243, _size241 = iprot:readMapBegin() 
+        local _ktype242, _vtype243, _size241 = iprot:readMapBegin()
         for _i=1,_size241 do
           local _key245 = iprot:readString()
           local _val246 = iprot:readString()

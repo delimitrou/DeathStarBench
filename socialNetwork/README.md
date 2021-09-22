@@ -50,7 +50,7 @@ docker stack deploy --compose-file=docker-compose-swarm.yml <service-name>
 
 ### Register users and construct social graphs
 
-Register users and construct social graph by running 
+Register users and construct social graph by running
 `python3 scripts/init_social_graph.py --graph=<soc-fb-Reed98, ego-twitter, or soc-twitter-follows-mun>`. It will initialize a social graph from a small social network [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php), a medium social network [Ego Twitter](https://snap.stanford.edu/data/ego-Twitter.html), or a large social network [TWITTER-FOLLOWS-MUN](https://networkrepository.com/soc-twitter-follows-mun.php).
 
 ### Running HTTP workload generator
@@ -86,7 +86,7 @@ cd wrk2
 #### View Jaeger traces
 View Jaeger traces by accessing `http://localhost:16686`
 
-Example of a Jaeger trace for a compose post request: 
+Example of a Jaeger trace for a compose post request:
 
 ![jaeger_example](figures/socialNet_jaeger.png)
 
@@ -115,8 +115,8 @@ Click the contact button to follow/unfollow other users; follower/followee list 
 
 If you are using `docker-compose`, start docker containers by running `docker-compose -f docker-compose-tls.yml up -d` to enable TLS.
 
-Since the `depends_on` option is ignored when deploying a stack in swarm mode with a version 3 Compose file, you 
-must turn on TLS manually by modifing `config/mongod.conf`, `config/redis.conf`, `config/service-config.json` and 
+Since the `depends_on` option is ignored when deploying a stack in swarm mode with a version 3 Compose file, you
+must turn on TLS manually by modifing `config/mongod.conf`, `config/redis.conf`, `config/service-config.json` and
 `nginx-web-server/conf/nginx.conf` to enable TLS with `docker swarm`.
 
 ## Enable Redis Sharding
@@ -125,12 +125,12 @@ start docker containers by running `docker-compose -f docker-compose-sharding.ym
 
 ## Development Status
 
-This application is still actively being developed, so keep an eye on the repo to stay up-to-date with recent changes. 
+This application is still actively being developed, so keep an eye on the repo to stay up-to-date with recent changes.
 
 ### Planned updates
 
 * Upgraded recommender
-* Upgraded search engine 
+* Upgraded search engine
 * MongoDB and Memcached sharding
 
 ## Questions and contact
