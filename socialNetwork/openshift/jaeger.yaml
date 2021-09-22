@@ -18,7 +18,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jaeger
+  name: jaeger-agent
   labels:
     death-star-project: social-network
     app-name: jaeger
@@ -47,7 +47,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jaeger
+  name: jaeger-agent
   labels:
     death-star-project: social-network
     app-name: jaeger
@@ -63,12 +63,14 @@ spec:
       labels:
         death-star-project: social-network
         app-name: jaeger
-      name: jaeger
+      name: jaeger-agent
     spec:
       containers:
-      - name: jaeger
+      - name: jaeger-agent
         image: jaegertracing/all-in-one:latest
         env:
         - name: COLLECTOR_ZIPKIN_HTTP_PORT
           value: "9411"
+        - name: JAEGER_AGENT_PORT
+          value: "5775"
       restartPolicy: Always
