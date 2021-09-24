@@ -26,8 +26,6 @@ Supported actions:
         - In case of docker-compose => docker-compose build
         - In case of Openshift => run the build script according to the readme.
         - In case of kubernetes => run the build script according to the readme.
-    - If you intend to use kubernetes, make sure that the orchestrator has the k8s value in config.json
-    - If you intend to use other platforms, make sure that the orchestrator has the value other than k8s  and replace x.x.x.x in config.json with ip address of your servers
 
 ### Running the containers
 ##### Docker-compose

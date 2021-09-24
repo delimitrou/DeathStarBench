@@ -11,6 +11,7 @@ import (
 	// "os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/tls"
@@ -29,6 +30,7 @@ const name = "srv-profile"
 // Server implements the profile service
 type Server struct {
 	Tracer   opentracing.Tracer
+	uuid     string
 	Port     int
 	IpAddr	 string
 	MongoSession	*mgo.Session
@@ -41,6 +43,8 @@ func (s *Server) Run() error {
 	if s.Port == 0 {
 		return fmt.Errorf("server port must be set")
 	}
+
+	s.uuid = uuid.New().String()
 
 	// fmt.Printf("in run s.IpAddr = %s, port = %d\n", s.IpAddr, s.Port)
 
@@ -82,7 +86,7 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	err = s.Registry.Register(name, s.IpAddr, s.Port)
+	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
 	}
@@ -92,7 +96,7 @@ func (s *Server) Run() error {
 
 // Shutdown cleans up any processes
 func (s *Server) Shutdown() {
-	s.Registry.Deregister(name)
+	s.Registry.Deregister(s.uuid)
 }
 
 // GetProfiles returns hotel profiles for requested IDs

@@ -30,8 +30,6 @@ services:
     image: hotel_reserv_profile_single_node
     entrypoint: profile
     container_name: 'hotel_reserv_profile'
-    ports:
-      - "8081:8081"
     depends_on:
       - mongodb-profile
       - memcached-profile
@@ -44,8 +42,6 @@ services:
     image: hotel_reserv_search_single_node
     entrypoint: search
     container_name: 'hotel_reserv_search'
-    ports:
-      - "8082:8082"
     depends_on:
       - consul
     restart: always
@@ -62,8 +58,6 @@ services:
     image: hotel_reserv_geo_single_node
     entrypoint: geo
     container_name: 'hotel_reserv_geo'
-    ports:
-      - "8083:8083"
     depends_on:
       - mongodb-geo
       - consul
@@ -77,8 +71,6 @@ services:
     image: hotel_reserv_rate_single_node
     entrypoint: rate
     container_name: 'hotel_reserv_rate'
-    ports:
-      - "8084:8084"
     depends_on:
       - mongodb-rate
       - memcached-rate
@@ -93,8 +85,6 @@ services:
     image: hotel_reserv_recommend_single_node
     entrypoint: recommendation
     container_name: 'hotel_reserv_recommendation'
-    ports:
-      - "8085:8085"
     depends_on:
       - mongodb-recommendation
       - consul
@@ -108,8 +98,6 @@ services:
     image: hotel_reserv_user_single_node
     entrypoint: user
     container_name: 'hotel_reserv_user'
-    ports:
-      - "8086:8086"
     depends_on:
       - mongodb-user
       - consul
@@ -123,8 +111,6 @@ services:
     image: hotel_reserv_rsv_single_node
     entrypoint: reservation
     container_name: 'hotel_reserv_reservation'
-    ports:
-      - "8087:8087"
     depends_on:
       - mongodb-reservation
       - memcached-reserve
@@ -151,8 +137,6 @@ services:
     image: memcached
     # hostname: user-memcached
     container_name: 'hotel_reserv_rate_mmc'
-    ports:
-     - 11212:11211
     restart: always
     environment:
       - MEMCACHED_CACHE_SIZE=128
@@ -166,8 +150,6 @@ services:
     image: memcached
     # hostname: user-memcached
     container_name: 'hotel_reserv_profile_mmc'
-    ports:
-     - 11213:11211
     restart: always
     environment:
       - MEMCACHED_CACHE_SIZE=128
@@ -181,8 +163,6 @@ services:
     image: memcached
     # hostname: user-memcached
     container_name: 'hotel_reserv_reservation_mmc'
-    ports:
-     - 11214:11211
     restart: always
     environment:
       - MEMCACHED_CACHE_SIZE=128
@@ -196,8 +176,6 @@ services:
     image: mongo
     container_name: 'hotel_reserv_geo_mongo'
     # hostname: geo-db
-    ports:
-      - "27018:27017"
     restart: always
     cpuset: "11"
     volumes:
@@ -207,8 +185,6 @@ services:
     image: mongo
     container_name: 'hotel_reserv_profile_mongo'
     hostname: profile-db
-    ports:
-      - "27019:27017"
     restart: always
     cpuset: "12"
     volumes:
@@ -218,8 +194,6 @@ services:
     image: mongo
     container_name: 'hotel_reserv_rate_mongo'
     hostname: rate-db
-    ports:
-      - "27020:27017"
     restart: always
     cpuset: "13"
     volumes:
@@ -229,8 +203,6 @@ services:
     image: mongo
     hostname: recommendation-db
     container_name: 'hotel_reserv_recommendation_mongo'
-    ports:
-      - "27021:27017"
     restart: always
     cpuset: "14"
     volumes:
@@ -240,8 +212,6 @@ services:
     image: mongo
     container_name: 'hotel_reserv_reservation_mongo'
     hostname: reservation-db
-    ports:
-      - "27022:27017"
     restart: always
     cpuset: "15"
     volumes:
@@ -251,8 +221,6 @@ services:
     image: mongo
     container_name: 'hotel_reserv_user_mongo'
     hostname: user-db
-    ports:
-      - "27023:27017"
     restart: always
     cpuset: "16"
     volumes:
