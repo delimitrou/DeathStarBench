@@ -17,6 +17,7 @@ import  (
 var (
     dialopt grpc.DialOption
     serveropt grpc.ServerOption
+    httpsopt *tls.Config
     cipherSuites = map[string]uint16 {
         // TLS 1.0 - 1.2 cipher suites.
         "TLS_RSA_WITH_RC4_128_SHA": tls.TLS_RSA_WITH_RC4_128_SHA,
@@ -95,9 +96,14 @@ func init() {
             ServerName: "x.test.example.com",
             RootCAs: cp,
         }
+        httpsopt = &tls.Config {
+            PreferServerCipherSuites: true,
+            RootCAs: cp,
+        }
         if cipher != "" {
             log.Printf("TLS enabled cipher suite %s\n", cipher)
             config.CipherSuites = append(config.CipherSuites, cipherSuites[cipher])
+            httpsopt.CipherSuites = append(httpsopt.CipherSuites, cipherSuites[cipher])
         } else {
             log.Println("TLS enabled without specified cipher suite")
         }
@@ -126,4 +132,9 @@ func GetDialOpt() grpc.DialOption {
 
 func GetServerOpt() grpc.ServerOption {
     return serveropt
+}
+
+
+func GetHttpsOpt() *tls.Config {
+    return httpsopt
 }
