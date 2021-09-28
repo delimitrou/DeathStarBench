@@ -250,7 +250,7 @@ services:
     image: yg397/openresty-thrift:xenial
     hostname: nginx-thrift
     ports:
-      - 18080:8080
+      - 8080:8080
     depends_on:
       jaeger:
         condition: service_started
@@ -267,7 +267,7 @@ services:
     image: yg397/media-frontend:xenial
     hostname: media-frontend
     ports:
-      - 18081:8080
+      - 8081:8080
     restart: always
     depends_on:
       jaeger:
@@ -284,7 +284,7 @@ services:
       #      - 6831:6831/udp
       #      - 6832:6832/udp
       #      - 5778:5778
-      - 26686:16686
+      - 16686:16686
       #      - 14268:14268
       #      - 9411:9411
     restart: always
