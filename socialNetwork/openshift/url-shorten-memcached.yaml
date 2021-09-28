@@ -30,7 +30,7 @@ spec:
       app: url-shorten-memcached
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: url-shorten-memcached
       name: url-shorten-memcached

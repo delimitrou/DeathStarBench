@@ -55,7 +55,7 @@ function _M.Login()
     ngx.header.content_type = "text/plain"
     ngx.header["Set-Cookie"] = "login_token=" .. ret .. "; Path=/; Expires="
         .. ngx.cookie_time(ngx.time() + ngx.shared.config:get("cookie_ttl"))
-    
+
     ngx.redirect("../../main.html?username=" .. args.username)
     ngx.exit(ngx.HTTP_OK)
   end

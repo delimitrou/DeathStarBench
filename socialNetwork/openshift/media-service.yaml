@@ -30,7 +30,7 @@ spec:
       app: media-service
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: media-service
       name: media-service

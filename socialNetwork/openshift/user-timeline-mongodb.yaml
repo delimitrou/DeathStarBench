@@ -30,7 +30,7 @@ spec:
       app: user-timeline-mongodb
   template:
     metadata:
-      labels: 
+      labels:
         death-star-project: social-network
         app: user-timeline-mongodb
       name: user-timeline-mongodb

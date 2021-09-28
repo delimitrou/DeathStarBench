@@ -1,6 +1,6 @@
 # lua-bridge-tracer
 
-Provides an implementation of the [Lua OpenTracing API](https://github.com/opentracing/opentracing-lua) 
+Provides an implementation of the [Lua OpenTracing API](https://github.com/opentracing/opentracing-lua)
 on top of the [C++ OpenTracing API](https://github.com/opentracing/opentracing-cpp).
 
 Dependencies
@@ -29,7 +29,7 @@ library = --[[ path to OpenTracing plugin ]]
 config = --[[ vendor specific JSON configuration for the tracer ]]
 tracer = bridge_tracer:new(library, config)
 
--- `tracer` conforms to the Lua OpenTracing API. See 
+-- `tracer` conforms to the Lua OpenTracing API. See
 -- https://github.com/opentracing/opentracing-lua for API documentation.
 ```
 

@@ -13,7 +13,6 @@ ARG LIB_SIMPLEAMQPCLIENT_VERSION=2.4.0
 ARG LIB_HIREDIS_VERSION=1.0.0
 ARG LIB_REDIS_PLUS_PLUS_VERSION=1.2.3
 
-ARG NUM_CPUS=40
 ARG BUILD_DEPS="ca-certificates g++ cmake wget git libmemcached-dev automake bison flex libboost-all-dev libevent-dev libssl-dev libtool make pkg-config librabbitmq-dev python3-dev python3-pip python3-setuptools python3-wheel"
 
 RUN apt-get update \
@@ -26,7 +25,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTS=0 -DENABLE_EXAMPLES=0 .. \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   && cd /tmp \
   # Install lib-thrift
@@ -36,7 +35,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=0 .. \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   && cd /tmp \
   # Install /nlohmann/json
@@ -46,7 +45,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=0 .. \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   && cd /tmp \
   # Install yaml-cpp
@@ -56,7 +55,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-fPIC" -DYAML_CPP_BUILD_TESTS=0 .. \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   && cd /tmp \
   # Install opentracing-cpp
@@ -66,7 +65,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-fPIC" -DBUILD_TESTING=0 .. \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   && cd /tmp \
   # Install jaeger-client-cpp
@@ -76,7 +75,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-fPIC" -DHUNTER_ENABLED=0 -DBUILD_TESTING=0 -DJAEGERTRACING_WITH_YAML_CPP=1 -DJAEGERTRACING_BUILD_EXAMPLES=0 .. \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   && cd /tmp \
   # Install jwt
@@ -94,7 +93,7 @@ RUN apt-get update \
   && git submodule init && git submodule update \
   && mkdir cmake-build && cd cmake-build \
   && cmake .. -DCMAKE_BUILD_TYPE=Release \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   # Install AMQP-CPP
   && cd /tmp \
@@ -102,7 +101,7 @@ RUN apt-get update \
   && cd AMQP-CPP && git checkout v${LIB_AMQP_CPP_VERSION} \
   && mkdir cmake-build && cd cmake-build \
   && cmake .. -DCMAKE_BUILD_TYPE=Release -DAMQP-CPP_BUILD_SHARED=on -DAMQP-CPP_LINUX_TCP=on \
-  && make -j${NUM_CPUS} && make install \
+  && make -j$(nproc) && make install \
   # Install SimpleAmqpClient
   && cd /tmp \
   && git clone https://github.com/alanxz/SimpleAmqpClient.git \
@@ -110,14 +109,14 @@ RUN apt-get update \
   && git checkout v${LIB_SIMPLEAMQPCLIENT_VERSION} \
   && mkdir cmake-build && cd cmake-build \
   && cmake .. -DCMAKE_BUILD_TYPE=Release \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   # Install Hiredis
   && cd /tmp \
   && git clone https://github.com/redis/hiredis.git \
   && cd hiredis \
   && git checkout v${LIB_HIREDIS_VERSION} \
-  && make -j${NUM_CPUS} USE_SSL=1 \
+  && make -j$(nproc) USE_SSL=1 \
   && make USE_SSL=1 install \
   # Install Redis plus plus
   && cd /tmp \
@@ -125,7 +124,7 @@ RUN apt-get update \
   && cd redis-plus-plus \
   && git checkout ${LIB_REDIS_PLUS_PLUS_VERSION} \
   && cmake -DREDIS_PLUS_PLUS_USE_TLS=ON . \
-  && make -j${NUM_CPUS} \
+  && make -j$(nproc) \
   && make install \
   # Install pyyaml
   && pip3 install PyYAML \

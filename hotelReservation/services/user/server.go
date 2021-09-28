@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	// "encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/tls"
@@ -32,6 +33,7 @@ type Server struct {
 	Port     int
 	IpAddr	 string
 	MongoSession 	*mgo.Session
+	uuid     string
 }
 
 // Run starts the server
@@ -43,6 +45,8 @@ func (s *Server) Run() error {
 	if s.users == nil {
 		s.users = loadUsers(s.MongoSession)
 	}
+
+	s.uuid = uuid.New().String()
 
 	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepalive.ServerParameters{
@@ -82,7 +86,7 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	err = s.Registry.Register(name, s.IpAddr, s.Port)
+	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
 	}
@@ -92,7 +96,7 @@ func (s *Server) Run() error {
 
 // Shutdown cleans up any processes
 func (s *Server) Shutdown() {
-	s.Registry.Deregister(name)
+	s.Registry.Deregister(s.uuid)
 }
 
 // CheckUser returns whether the username and password are correct.

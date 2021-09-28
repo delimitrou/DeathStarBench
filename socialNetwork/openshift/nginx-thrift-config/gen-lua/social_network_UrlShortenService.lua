@@ -187,7 +187,7 @@ function UploadUrls_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype256, _vtype257, _size255 = iprot:readMapBegin() 
+        local _ktype256, _vtype257, _size255 = iprot:readMapBegin()
         for _i=1,_size255 do
           local _key259 = iprot:readString()
           local _val260 = iprot:readString()
@@ -326,7 +326,7 @@ function GetExtendedUrls_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype276, _vtype277, _size275 = iprot:readMapBegin() 
+        local _ktype276, _vtype277, _size275 = iprot:readMapBegin()
         for _i=1,_size275 do
           local _key279 = iprot:readString()
           local _val280 = iprot:readString()

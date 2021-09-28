@@ -35,7 +35,7 @@ After customization, If you are running "on-cluster" copy necessary files to `ub
 - If using an on-cluster client:
   - Use `nginx-thrift.social-network.svc.cluster.local` as cluster-ip and paste it at `<path-of-repo>/socialNetwork/scripts/init_social_graph.py:72`
 - Register users and construct social graph by running `cd <path-of-repo>/socialNetwork && python3 scripts/init_social_graph.py`.
-  This will initialize a social graph based on [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php), with 962 users and 18.8K social graph edges. 
+  This will initialize a social graph based on [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php), with 962 users and 18.8K social graph edges.
 
 ### Running HTTP workload generator
 
@@ -77,12 +77,12 @@ cd <path-of-repo>/socialNetwork/wrk2
 
 Use `oc -n social-network get svc jaeger-out` to get the NodePort of jaeger service.
 
- View Jaeger traces by accessing `http://<node-ip>:<NodePort>` 
+ View Jaeger traces by accessing `http://<node-ip>:<NodePort>`
 
 
 ### OpenShift SCC
 
-Original containers are expected to run as root, but OpenShift does not permit it as a default policy. 
+Original containers are expected to run as root, but OpenShift does not permit it as a default policy.
 As a workaround for simplicity, we can relax security policy by adding several SCCs to each project.
 
 ```

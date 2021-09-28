@@ -187,7 +187,7 @@ function ComposeUrls_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype286, _vtype287, _size285 = iprot:readMapBegin() 
+        local _ktype286, _vtype287, _size285 = iprot:readMapBegin()
         for _i=1,_size285 do
           local _key289 = iprot:readString()
           local _val290 = iprot:readString()
@@ -327,7 +327,7 @@ function GetExtendedUrls_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype306, _vtype307, _size305 = iprot:readMapBegin() 
+        local _ktype306, _vtype307, _size305 = iprot:readMapBegin()
         for _i=1,_size305 do
           local _key309 = iprot:readString()
           local _val310 = iprot:readString()

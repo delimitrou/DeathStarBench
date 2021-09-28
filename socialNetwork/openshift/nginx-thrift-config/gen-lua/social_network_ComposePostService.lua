@@ -370,7 +370,7 @@ function UploadText_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype75, _vtype76, _size74 = iprot:readMapBegin() 
+        local _ktype75, _vtype76, _size74 = iprot:readMapBegin()
         for _i=1,_size74 do
           local _key78 = iprot:readString()
           local _val79 = iprot:readString()
@@ -484,7 +484,7 @@ function UploadMedia_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype88, _vtype89, _size87 = iprot:readMapBegin() 
+        local _ktype88, _vtype89, _size87 = iprot:readMapBegin()
         for _i=1,_size87 do
           local _key91 = iprot:readString()
           local _val92 = iprot:readString()
@@ -602,7 +602,7 @@ function UploadUniqueId_args:read(iprot)
     elseif fid == 4 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype97, _vtype98, _size96 = iprot:readMapBegin() 
+        local _ktype97, _vtype98, _size96 = iprot:readMapBegin()
         for _i=1,_size96 do
           local _key100 = iprot:readString()
           local _val101 = iprot:readString()
@@ -715,7 +715,7 @@ function UploadCreator_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype105, _vtype106, _size104 = iprot:readMapBegin() 
+        local _ktype105, _vtype106, _size104 = iprot:readMapBegin()
         for _i=1,_size104 do
           local _key108 = iprot:readString()
           local _val109 = iprot:readString()
@@ -829,7 +829,7 @@ function UploadUrls_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype118, _vtype119, _size117 = iprot:readMapBegin() 
+        local _ktype118, _vtype119, _size117 = iprot:readMapBegin()
         for _i=1,_size117 do
           local _key121 = iprot:readString()
           local _val122 = iprot:readString()
@@ -947,7 +947,7 @@ function UploadUserMentions_args:read(iprot)
     elseif fid == 3 then
       if ftype == TType.MAP then
         self.carrier = {}
-        local _ktype132, _vtype133, _size131 = iprot:readMapBegin() 
+        local _ktype132, _vtype133, _size131 = iprot:readMapBegin()
         for _i=1,_size131 do
           local _key135 = iprot:readString()
           local _val136 = iprot:readString()

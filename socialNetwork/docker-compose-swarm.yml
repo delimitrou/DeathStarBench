@@ -99,7 +99,7 @@ services:
       - jaeger-query
     hostname: media-memcached
     image: memcached
-    command: 
+    command:
       - "-m 16384"
       - "-t 8"
       - "-I 32m"
@@ -168,7 +168,7 @@ services:
       - jaeger-query
     hostname: post-storage-memcached
     image: memcached
-    command: 
+    command:
       - "-m 16384"
       - "-t 8"
       - "-I 32m"
@@ -293,7 +293,7 @@ services:
       - jaeger-query
     hostname: url-shorten-memcached
     image: memcached
-    command: 
+    command:
       - "-m 16384"
       - "-t 8"
       - "-I 32m"
@@ -337,7 +337,7 @@ services:
       - jaeger-query
     hostname: user-memcached
     image: memcached
-    command: 
+    command:
       - "-m 16384"
       - "-t 8"
       - "-I 32m"

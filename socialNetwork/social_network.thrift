@@ -141,7 +141,7 @@ service ComposePostService {
     2: string username,
     3: i64 user_id,
     4: string text,
-    5: list<i64> media_ids, 
+    5: list<i64> media_ids,
     6: list<string> media_types,
     7: PostType post_type,
     8: map<string, string> carrier

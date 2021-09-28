@@ -9,7 +9,7 @@ services:
     #    ports:
     #      - 10000:9090
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
       social-graph-mongodb:
         condition: service_started
@@ -43,7 +43,7 @@ services:
     depends_on:
       social-graph-redis:
         condition: service_started
-    volumes: 
+    volumes:
       - ./scripts:/scripts
     entrypoint: /bin/bash /scripts/setup_redis_cluster.sh -n social-graph-redis
 
@@ -63,7 +63,7 @@ services:
     depends_on:
       home-timeline-redis:
         condition: service_started
-    volumes: 
+    volumes:
       - ./scripts:/scripts
     entrypoint: /bin/bash /scripts/setup_redis_cluster.sh -n home-timeline-redis
 
@@ -74,7 +74,7 @@ services:
     #      - 10001:9090
     restart: always
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
     entrypoint: ComposePostService
     volumes:
@@ -87,7 +87,7 @@ services:
     #   - 10002:9090
     restart: always
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
       post-storage-mongodb:
         condition: service_started
@@ -116,7 +116,7 @@ services:
     #      - 10003:9090
     restart: always
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
       user-timeline-mongodb:
         condition: service_started
@@ -142,7 +142,7 @@ services:
     depends_on:
       user-timeline-redis:
         condition: service_started
-    volumes: 
+    volumes:
       - ./scripts:/scripts
     entrypoint: /bin/bash /scripts/setup_redis_cluster.sh -n user-timeline-redis
 
@@ -161,7 +161,7 @@ services:
     restart: always
     entrypoint: UrlShortenService
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
       url-shorten-mongodb:
         condition: service_started
@@ -189,7 +189,7 @@ services:
     #      - 10005:9090
     restart: always
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
       user-mongodb:
         condition: service_started
@@ -217,7 +217,7 @@ services:
     #    ports:
     #      - 10006:9090
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
       media-mongodb:
         condition: service_started
@@ -247,7 +247,7 @@ services:
     #      - 10007:9090
     restart: always
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
     entrypoint: TextService
     volumes:
@@ -260,7 +260,7 @@ services:
     #      - 10008:9090
     restart: always
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
     entrypoint: UniqueIdService
     volumes:
@@ -272,7 +272,7 @@ services:
     #    ports:
     #      - 10009:9090
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
     restart: always
     entrypoint: UserMentionService
@@ -285,7 +285,7 @@ services:
     #    ports:
     #      - 10010:9090
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
       home-timeline-redis-cluster-setup:
         condition: service_completed_successfully
@@ -300,7 +300,7 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
     restart: always
     volumes:
@@ -318,15 +318,14 @@ services:
       - 8081:8080
     restart: always
     depends_on:
-      jaeger:
+      jaeger-agent:
         condition: service_started
     volumes:
       - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
       - ./media-frontend/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
 
-  jaeger:
+  jaeger-agent:
     image: jaegertracing/all-in-one:latest
-    hostname: jaeger-agent
     ports:
       #      - 5775:5775/udp
       #      - 6831:6831/udp
