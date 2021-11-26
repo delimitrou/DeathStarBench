@@ -27,4 +27,3 @@ If you use this benchmark suite in your work, we ask that you please cite the pa
 ## Beta-testing
 
 If you are interested in joining the beta-testing group for DeathStarBench, send us an email at: <microservices-bench-L@list.cornell.edu>
- 
