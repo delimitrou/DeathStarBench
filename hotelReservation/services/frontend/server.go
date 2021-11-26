@@ -6,6 +6,7 @@ import (
 	"github.com/harlow/go-micro-services/services/recommendation/proto"
 	"github.com/harlow/go-micro-services/services/reservation/proto"
 	"github.com/harlow/go-micro-services/services/user/proto"
+        "log"
 	"net/http"
 	"strconv"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/services/profile/proto"
 	"github.com/harlow/go-micro-services/services/search/proto"
+	"github.com/harlow/go-micro-services/tls"
 	"github.com/harlow/go-micro-services/tracing"
 	"github.com/opentracing/opentracing-go"
 )
@@ -67,7 +69,19 @@ func (s *Server) Run() error {
 
 	// fmt.Printf("frontend starts serving\n")
 
-	return http.ListenAndServe(fmt.Sprintf(":%d", s.Port), mux)
+        tlsconfig := tls.GetHttpsOpt()
+        srv := &http.Server{
+            Addr: fmt.Sprintf(":%d", s.Port),
+            Handler: mux,
+        }
+        if tlsconfig != nil {
+            log.Printf("Serving https")
+            srv.TLSConfig = tlsconfig
+            return srv.ListenAndServeTLS("x509/server_cert.pem", "x509/server_key.pem")
+        } else {
+            log.Printf("Serving http")
+	    return srv.ListenAndServe()
+        }
 }
 
 func (s *Server) initSearchClient(name string) error {
