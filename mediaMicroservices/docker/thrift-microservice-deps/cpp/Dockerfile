@@ -9,7 +9,6 @@ ARG LIB_OPENTRACING_VERSION=1.5.1
 ARG LIB_CPP_JWT_VERSION=1.1.1
 ARG LIB_CPP_REDIS_VERSION=4.3.1
 
-ARG NUM_CPUS=40
 ARG BUILD_DEPS="ca-certificates g++ cmake wget git libmemcached-dev automake bison flex libboost-all-dev libevent-dev libssl-dev libtool make pkg-config"
 
 RUN apt-get update \
@@ -22,7 +21,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DENABLE_TESTS=0 -DENABLE_EXAMPLES=0 .. \
-  && make -j${NUM_CPUS} \
+  && make \
   && make install \
   && cd /tmp \
   # Install lib-thrift
@@ -32,7 +31,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DBUILD_TESTING=0 .. \
-  && make -j${NUM_CPUS} \
+  && make \
   && make install \
   && cd /tmp \
   # Install /nlohmann/json
@@ -42,7 +41,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DBUILD_TESTING=0 .. \
-  && make -j${NUM_CPUS} \
+  && make \
   && make install \
   && cd /tmp \
   # Install yaml-cpp
@@ -52,7 +51,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_CXX_FLAGS="-fPIC" -DYAML_CPP_BUILD_TESTS=0 .. \
-  && make -j${NUM_CPUS} \
+  && make \
   && make install \
   && cd /tmp \
   # Install opentracing-cpp
@@ -62,7 +61,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_CXX_FLAGS="-fPIC" -DBUILD_TESTING=0 .. \
-  && make -j${NUM_CPUS} \
+  && make \
   && make install \
   && cd /tmp \
   # Install jaeger-client-cpp
@@ -72,7 +71,7 @@ RUN apt-get update \
   && mkdir -p cmake-build \
   && cd cmake-build \
   && cmake -DCMAKE_CXX_FLAGS="-fPIC" -DHUNTER_ENABLED=0 -DBUILD_TESTING=0 -DJAEGERTRACING_WITH_YAML_CPP=1 -DJAEGERTRACING_BUILD_EXAMPLES=0 .. \
-  && make -j${NUM_CPUS} \
+  && make \
   && make install \
   && cd /tmp \
   && wget -O cpp-jwt-${LIB_CPP_JWT_VERSION}.tar.gz https://github.com/arun11299/cpp-jwt/archive/v${LIB_CPP_JWT_VERSION}.tar.gz \
@@ -89,7 +88,7 @@ RUN apt-get update \
   && git submodule init && git submodule update \
   && mkdir cmake-build && cd cmake-build \
   && cmake .. -DCMAKE_BUILD_TYPE=Release \
-  && make -j${NUM_CPUS} \
+  && make \
   && make install \
   && cd /tmp \
   && rm -rf \

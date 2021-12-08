@@ -21,7 +21,6 @@ services:
     depends_on:
       - consul
     restart: always
-    cpuset: "0"
 
   profile:
     environment:
@@ -35,7 +34,6 @@ services:
       - memcached-profile
       - consul
     restart: always
-    cpuset: "1"
 
   search:
     build: .
@@ -45,7 +43,6 @@ services:
     depends_on:
       - consul
     restart: always
-    cpuset: "2"
     environment:
       - TLS
       # - GRPC_GO_LOG_VERBOSITY_LEVEL=2
@@ -62,7 +59,6 @@ services:
       - mongodb-geo
       - consul
     restart: always
-    cpuset: "3"
 
   rate:
     environment:
@@ -76,7 +72,6 @@ services:
       - memcached-rate
       - consul
     restart: always
-    cpuset: "4"
 
   recommendation:
     environment:
@@ -89,7 +84,6 @@ services:
       - mongodb-recommendation
       - consul
     restart: always
-    cpuset: "5"
 
   user:
     environment:
@@ -102,7 +96,6 @@ services:
       - mongodb-user
       - consul
     restart: always
-    cpuset: "6"
 
   reservation:
     environment:
@@ -116,7 +109,6 @@ services:
       - memcached-reserve
       - consul
     restart: always
-    cpuset: "7"
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -131,7 +123,6 @@ services:
       - "6831:6831/udp"
       - "6832:6832/udp"
     restart: always
-    cpuset: "17"
 
   memcached-rate:
     image: memcached
@@ -144,7 +135,6 @@ services:
     logging:
       options:
         max-size: 50m
-    cpuset: "8"
 
   memcached-profile:
     image: memcached
@@ -157,7 +147,6 @@ services:
     logging:
       options:
         max-size: 50m
-    cpuset: "9"
 
   memcached-reserve:
     image: memcached
@@ -170,14 +159,12 @@ services:
     logging:
       options:
         max-size: 50m
-    cpuset: "10"
 
   mongodb-geo:
     image: mongo
     container_name: 'hotel_reserv_geo_mongo'
     # hostname: geo-db
     restart: always
-    cpuset: "11"
     volumes:
       - geo:/data/db  
 
@@ -186,7 +173,6 @@ services:
     container_name: 'hotel_reserv_profile_mongo'
     hostname: profile-db
     restart: always
-    cpuset: "12"
     volumes:
       - profile:/data/db    
 
@@ -195,7 +181,6 @@ services:
     container_name: 'hotel_reserv_rate_mongo'
     hostname: rate-db
     restart: always
-    cpuset: "13"
     volumes:
       - rate:/data/db   
 
@@ -204,7 +189,6 @@ services:
     hostname: recommendation-db
     container_name: 'hotel_reserv_recommendation_mongo'
     restart: always
-    cpuset: "14"
     volumes:
       - recommendation:/data/db
     
@@ -213,7 +197,6 @@ services:
     container_name: 'hotel_reserv_reservation_mongo'
     hostname: reservation-db
     restart: always
-    cpuset: "15"
     volumes:
       - reservation:/data/db 
 
@@ -222,7 +205,6 @@ services:
     container_name: 'hotel_reserv_user_mongo'
     hostname: user-db
     restart: always
-    cpuset: "16"
     volumes:
       - user:/data/db
     
