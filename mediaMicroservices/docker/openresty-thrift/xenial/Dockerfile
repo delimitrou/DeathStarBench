@@ -125,9 +125,15 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && rm -rf lua-resty-hmac \
 
   ### Add Jaeger plugin
-    && cd /usr/local/lib \
-    && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/releases/download/v${JAEGER_TRACING_VERSION}/libjaegertracing_plugin.linux_amd64.so -o libjaegertracing_plugin.so
-
+    && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/archive/refs/tags/v${JAEGER_TRACING_VERSION}.tar.gz -o v${JAEGER_TRACING_VERSION}.tar.gz \
+    && tar xf v${JAEGER_TRACING_VERSION}.tar.gz \
+    && cd jaeger-client-cpp-${JAEGER_TRACING_VERSION} \
+    && mkdir build && cd build \
+    && cmake CXXFLAGS="-Wno-error=deprecated-copy" -DCMAKE_INSTALL_PREFIX=/opt -DJAEGERTRACING_PLUGIN=ON -DHUNTER_CONFIGURATION_TYPES=Release -DHUNTER_BUILD_SHARED_LIBS=OFF .. \
+    && make && make install \
+    && cp libjaegertracing_plugin.so /usr/local/lib/ \
+    && cd ../.. && rm -rf v${JAEGER_TRACING_VERSION}.tar.gz \
+    && rm -rf jaeger-client-cpp-${JAEGER_TRACING_VERSION} && rm -rf /root/.hunter
 
 RUN cd /usr/local \
     && curl -fSL https://github.com/opentracing-contrib/nginx-opentracing/archive/v${NGINX_OPENTRACING_VERSION}.tar.gz -o nginx-opentracing-${NGINX_OPENTRACING_VERSION}.tar.gz \
