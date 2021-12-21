@@ -1,4 +1,8 @@
 local _M = {}
+local k8s_suffix = os.getenv("fqdn_suffix")
+if (k8s_suffix == nil) then
+  k8s_suffix = ""
+end
 
 local function _StringSplit(input_str, sep)
   if sep == nil then
@@ -56,7 +60,7 @@ function _M.UploadMedia()
 
   local conn = mongo()
   conn:set_timeout(1000)
-  local ok, err = conn:connect("media-mongodb", 27017)
+  local ok, err = conn:connect("media-mongodb" .. k8s_suffix, 27017)
   if not ok then
     ngx.log(ngx.ERR, "mongodb connect failed: "..err)
   end
