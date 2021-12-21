@@ -1,0 +1,25 @@
+name: nginx-thrift
+
+ports:
+  - port: 8080
+    targetPort: 8080
+
+container:
+  image: openresty-thrift-xenial
+  imageVersion: helm-chart2
+  dockerRegistry: 10.105.159.203:2501
+  name: nginx-thrift
+  ports: 
+  - containerPort: 8080
+  env:
+  - name: fqdn_suffix
+    value: ".{{ .Release.Namespace }}.svc.cluster.local"
+  
+configMaps:
+  - name: jaeger-config.json
+    mountPath: /usr/local/openresty/nginx/jaeger-config.json
+    value: jaeger-config
+
+  - name: nginx.conf
+    mountPath: /usr/local/openresty/nginx/conf/nginx.conf 
+    value: nginx

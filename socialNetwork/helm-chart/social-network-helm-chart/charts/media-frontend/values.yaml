@@ -1,0 +1,29 @@
+name: media-frontend
+
+ports:
+  - port: 8081
+    targetPort: 8080
+
+container:
+  image: media-frontend
+  dockerRegistry: 10.105.159.203:2501
+  imageVersion: bartek-test1-xenial
+  name: media-frontend
+  ports: 
+  - containerPort: 8081
+  env:
+  - name: fqdn_suffix
+    value: ".{{ .Release.Namespace }}.svc.cluster.local"
+      
+configMaps:
+  - name: nginx.conf
+    mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+    value: nginx
+
+  - name: jaeger-config.yml
+    mountPath: /social-network-microservices/config/jaeger-config.yml
+    value: jaeger-config
+
+  - name: service-config.json
+    mountPath: /social-network-microservices/config/service-config.json
+    value: service-config
