@@ -9,7 +9,7 @@ It's primary goal is to imitate a system of a social network. System simulates u
 Helm charts are packages containing Kubernetes yaml files. Its main goal is to automate the deployment of an application on a Kubernetes cluster. It allows for defining the behaviour of an application and an easy way of manipulating application's parameters. Packages are easily portable across platforms.
 
 ## Purpose of this project ##
-T default process of running Social Network Microservices is using docker-compose or docker swarm. It does not support deploying services on a Kubernetes cluster natively. Hence the main goal of this project is to automate this process using helm chart. 
+The default process of running Social Network Microservices is using docker-compose or docker swarm. It does not support deploying services on a Kubernetes cluster natively. Hence the main goal of this project is to automate this process using helm chart. 
 
 ## Structure of helm chart  ##
 Every microservice is packaged into its own isolated helm chart. All these packages are assembled under one main helm chart. Microservices share the same deployment, service and configmap files templates which are parameterized using values from `values.yaml` file in each microsevice package. Helm charts also share the same config files. The main helm chart contains global values which are shared among microservices but can be individually overridden.

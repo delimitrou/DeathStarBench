@@ -1,4 +1,8 @@
 local _M = {}
+local k8s_suffix = os.getenv("fqdn_suffix")
+if (k8s_suffix == nil) then
+  k8s_suffix = ""
+end
 
 local function _StrIsEmpty(s)
   return s == nil or s == ''
@@ -59,7 +63,7 @@ function _M.ComposePost()
   else
     local status, ret
     local client = GenericObjectPool:connection(
-      ComposePostServiceClient, "compose-post-service", 9090)
+      ComposePostServiceClient, "compose-post-service" .. k8s_suffix, 9090)
 
     local span = tracer:start_span("compose_post_client",
       { ["references"] = { { "child_of", parent_span_context } } })
