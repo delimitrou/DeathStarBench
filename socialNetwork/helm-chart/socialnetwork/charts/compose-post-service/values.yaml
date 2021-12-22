@@ -1,14 +1,13 @@
-name: home-timeline-service
+name: compose-post-service
 
 ports:
   - port: 9090
     targetPort: 9090
 
 container:
-  command: HomeTimelineService
+  command: ComposePostService
   image: yg397/social-network-microservices
-  imageVersion: latest
-  name: home-timeline-service
+  name: compose-post-service
   ports: 
   - containerPort: 9090
 

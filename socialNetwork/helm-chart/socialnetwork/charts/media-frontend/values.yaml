@@ -5,9 +5,8 @@ ports:
     targetPort: 8080
 
 container:
-  image: media-frontend
-  dockerRegistry: 10.105.159.203:2501
-  imageVersion: bartek-test1-xenial
+  image: yg397/media-frontend
+  imageVersion: xenial
   name: media-frontend
   ports: 
   - containerPort: 8081

@@ -5,9 +5,8 @@ ports:
     targetPort: 8080
 
 container:
-  image: openresty-thrift-xenial
-  imageVersion: helm-chart2
-  dockerRegistry: 10.105.159.203:2501
+  image: yg397/openresty-thrift:xenial
+  imageVersion: xenial
   name: nginx-thrift
   ports: 
   - containerPort: 8080
