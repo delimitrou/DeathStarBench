@@ -1,15 +1,10 @@
 # Social Network Microservices Helm Chart #
 
-## What is Social Network Microservices ##
-Social Network Microservices is one of the cloud microservices of the open-source benchmark DeathStarBench.
-It's primary goal is to imitate a system of a social network. System simulates user's actions such as creating accounts, posts or making friends. The architecture of this benchmark is based on microservices that communicate with eath other via Thrift RPCs.
-(https://github.com/delimitrou/DeathStarBench/tree/master/socialNetwork)
-
-## What is Helm Chart ##
+# What is Helm Chart ##
 Helm charts are packages containing Kubernetes yaml files. Its main goal is to automate the deployment of an application on a Kubernetes cluster. It allows for defining the behaviour of an application and an easy way of manipulating application's parameters. Packages are easily portable across platforms.
 
 ## Purpose of this project ##
-The default process of running Social Network Microservices is using docker-compose or docker swarm. It does not support deploying services on a Kubernetes cluster natively. Hence the main goal of this project is to automate this process using helm chart. 
+The main goal of this project is to automate the process of deploying Social Network Microservices on a Kubernetes cluster natively using helm chart. 
 
 ## Structure of helm chart  ##
 Every microservice is packaged into its own isolated helm chart. All these packages are assembled under one main helm chart. Microservices share the same deployment, service and configmap files templates which are parameterized using values from `values.yaml` file in each microsevice package. Helm charts also share the same config files. The main helm chart contains global values which are shared among microservices but can be individually overridden.
