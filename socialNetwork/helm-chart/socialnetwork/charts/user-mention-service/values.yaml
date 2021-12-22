@@ -7,7 +7,6 @@ ports:
 container:
   command: UserMentionService
   image: yg397/social-network-microservices
-  imageVersion: latest
   name: user-mention-service
   ports: 
   - containerPort: 9090

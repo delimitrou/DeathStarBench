@@ -7,7 +7,6 @@ ports:
 container:
   command: UserTimelineService
   image: yg397/social-network-microservices
-  imageVersion: latest
   name: user-timeline-service
   ports: 
   - containerPort: 9090
