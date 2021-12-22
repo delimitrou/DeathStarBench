@@ -1,4 +1,8 @@
 local _M = {}
+local k8s_suffix = os.getenv("fqdn_suffix")
+if (k8s_suffix == nil) then
+  k8s_suffix = ""
+end
 
 local function _StrIsEmpty(s)
   return s == nil or s == ''
@@ -101,7 +105,7 @@ function _M.ReadUserTimeline()
     ngx.exit(ngx.HTTP_UNAUTHORIZED)
   else
     local client = GenericObjectPool:connection(
-        UserTimelineServiceClient, "user-timeline-service", 9090)
+        UserTimelineServiceClient, "user-timeline-service" .. k8s_suffix, 9090)
     local status, ret = pcall(client.ReadUserTimeline, client, req_id,
         user_id, tonumber(args.start), tonumber(args.stop), carrier)
     GenericObjectPool:returnConnection(client)

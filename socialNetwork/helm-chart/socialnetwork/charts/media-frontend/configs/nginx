@@ -1,0 +1,1 @@
+{{ include "socialnetwork.templates.media-service.nginx.conf"  . }}

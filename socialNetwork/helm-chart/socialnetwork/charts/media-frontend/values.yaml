@@ -1,0 +1,28 @@
+name: media-frontend
+
+ports:
+  - port: 8081
+    targetPort: 8080
+
+container:
+  image: yg397/media-frontend
+  imageVersion: xenial
+  name: media-frontend
+  ports: 
+  - containerPort: 8081
+  env:
+  - name: fqdn_suffix
+    value: ".{{ .Release.Namespace }}.svc.cluster.local"
+      
+configMaps:
+  - name: nginx.conf
+    mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+    value: nginx
+
+  - name: jaeger-config.yml
+    mountPath: /social-network-microservices/config/jaeger-config.yml
+    value: jaeger-config
+
+  - name: service-config.json
+    mountPath: /social-network-microservices/config/service-config.json
+    value: service-config

@@ -1,0 +1,90 @@
+apiVersion: v2
+name: social-network
+description: Helm chart for SocialNetwork service in DeathStarBench
+type: application
+version: 0.1.0
+appVersion: "1.16.0" 
+
+dependencies:
+
+  - name: compose-post-service
+    version: 1.0.0
+    repository: file::/charts/compose-post-service
+  - name: home-timeline-redis
+    version: 1.0.0
+    repository: file::/charts/home-timeline-redis
+  - name: home-timeline-service
+    version: 1.0.0
+    repository: file::/charts/home-timeline-service
+  - name: jaeger
+    version: 1.0.0
+    repository: file::/charts/jaeger
+  - name: media-service
+    version: 1.0.0
+    repository: file::/charts/media-service
+  - name: media-mongodb
+    version: 1.0.0
+    repository: file::/charts/media-mongodb
+  - name: media-memcached
+    version: 1.0.0
+    repository: file::/charts/media-memcached
+  - name: media-frontend
+    version: 1.0.0
+    repository: file::/charts/media-frontend
+  - name: nginx-thrift
+    version: 1.0.0
+    repository: file::/charts/nginx-thrift
+  - name: post-storage-memcached
+    version: 1.0.0
+    repository: file::/charts/post-storage-memcached
+  - name: post-storage-mongodb
+    version: 1.0.0
+    repository: file::/charts/post-storage-mongodb
+  - name: post-storage-service
+    version: 1.0.0
+    repository: file::/charts/post-storage-service
+  - name: social-graph-mongodb
+    version: 1.0.0
+    repository: file::/charts/social-graph-mongodb
+  - name: social-graph-redis
+    version: 1.0.0
+    repository: file::/charts/social-graph-redis
+  - name: social-graph-service
+    version: 1.0.0
+    repository: file::/charts/social-graph-service
+  - name: text-service
+    version: 1.0.0
+    repository: file::/charts/text-service
+  - name: unique-id-service
+    version: 1.0.0
+    repository: file::/charts/unique-id-service
+  - name: url-shorten-memcached
+    version: 1.0.0
+    repository: file::/charts/url-shorten-memcached
+  - name: url-shorten-mongodb
+    version: 1.0.0
+    repository: file::/charts/url-shorten-mongodb
+  - name: url-shorten-service
+    version: 1.0.0
+    repository: file::/charts/url-shorten-service
+  - name: user-memcached
+    version: 1.0.0
+    repository: file::/charts/user-memcached
+  - name: user-mention-service
+    version: 1.0.0
+    repository: file::/charts/user-mention-service
+  - name: user-mongodb
+    version: 1.0.0
+    repository: file::/charts/user-mongodb
+  - name: user-service
+    version: 1.0.0
+    repository: file::/charts/user-service
+  - name: user-timeline-mongodb
+    version: 1.0.0
+    repository: file::/charts/user-timeline-mongodb
+  - name: user-timeline-redis
+    version: 1.0.0
+    repository: file::/charts/user-timeline-redis
+  - name: user-timeline-service
+    version: 1.0.0
+    repository: file::/charts/user-timeline-service
