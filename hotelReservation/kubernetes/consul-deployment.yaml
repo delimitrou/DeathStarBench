@@ -25,7 +25,6 @@ spec:
       labels:
         io.kompose.service: consul
     spec:
-      nodeName: r07
       containers:
         - image: consul:latest
           name: consul
@@ -36,6 +35,8 @@ spec:
             - containerPort: 53
               protocol: UDP
           resources:
+            requests:
+              cpu: 100m
             limits:
               cpu: 1000m
       restartPolicy: Always

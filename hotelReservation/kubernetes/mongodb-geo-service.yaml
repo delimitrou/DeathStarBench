@@ -11,7 +11,7 @@ metadata:
 spec:
   ports:
     - name: "mongodb-geo"
-      port: 27017
+      port: 27018
       targetPort: 27017
   selector:
     io.kompose.service: mongodb-geo

@@ -25,7 +25,6 @@ spec:
       labels:
         io.kompose.service: rate
     spec:
-      nodeName: r08
       containers:
         - command:
             - rate
@@ -34,6 +33,8 @@ spec:
           ports:
             - containerPort: 8084
           resources:
+            requests:
+              cpu: 100m
             limits:
               cpu: 1000m
       restartPolicy: Always

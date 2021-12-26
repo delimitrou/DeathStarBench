@@ -11,7 +11,7 @@ metadata:
 spec:
   ports:
     - name: "mongodb-recommendation"
-      port: 27017
+      port: 27021
       targetPort: 27017
   selector:
     io.kompose.service: mongodb-recommendation

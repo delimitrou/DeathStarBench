@@ -11,12 +11,4 @@ spec:
   storageClassName: user-storage
   hostPath:
     path: /data/volumes/user-pv   # Where all the hard drives are mounted
-    type: Directory
-  nodeAffinity:     # Use nodeAffinity to ensure it will only be mounted on the node with harddrives.
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - r13
+    type: DirectoryOrCreate
