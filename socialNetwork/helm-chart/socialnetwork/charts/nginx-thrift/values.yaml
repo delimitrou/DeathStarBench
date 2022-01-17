@@ -5,7 +5,7 @@ ports:
     targetPort: 8080
 
 container:
-  image: yg397/openresty-thrift:xenial
+  image: yg397/openresty-thrift
   imageVersion: xenial
   name: nginx-thrift
   ports: 
