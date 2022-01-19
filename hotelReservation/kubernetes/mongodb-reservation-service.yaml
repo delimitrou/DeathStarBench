@@ -7,11 +7,11 @@ metadata:
   creationTimestamp: null
   labels:
     io.kompose.service: mongodb-reservation
-  name: mongodb-reservation
+  name: mongodb-reserve
 spec:
   ports:
     - name: "mongodb-reservation"
-      port: 27017
+      port: 27022
       targetPort: 27017
   selector:
     io.kompose.service: mongodb-reservation
