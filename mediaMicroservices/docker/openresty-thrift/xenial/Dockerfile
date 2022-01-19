@@ -7,7 +7,7 @@ LABEL maintainer="Yu Gan <yg397@cornell.edu>"
 
 # Docker Build Arguments
 ARG RESTY_VERSION="1.15.8.1rc1"
-ARG RESTY_LUAROCKS_VERSION="2.4.4"
+ARG RESTY_LUAROCKS_VERSION="3.5.0"
 ARG RESTY_OPENSSL_VERSION="1.1.0j"
 ARG RESTY_PCRE_VERSION="8.42"
 ARG JAEGER_TRACING_VERSION="0.4.2"
@@ -109,8 +109,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
              -DBUILD_STATIC_LIBS=OFF \
              -DBUILD_TESTING=OFF \
        .. \
-    && make \
-    && make install \
+    && make -j$(nproc) \
+    && make -j$(nproc) install \
     && cd /tmp \
     && rm -rf opentracing-cpp-${OPENTRACING_CPP_VERSION}.tar.gz \
               opentracing-cpp-${OPENTRACING_CPP_VERSION} \
@@ -153,7 +153,7 @@ RUN cd /usr/local \
         pcre-${RESTY_PCRE_VERSION}.tar.gz pcre-${RESTY_PCRE_VERSION}
 
 RUN cd /tmp \
-    && curl -fSL https://github.com/luarocks/luarocks/archive/${RESTY_LUAROCKS_VERSION}.tar.gz -o luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
+    && curl -fSL  https://luarocks.github.io/luarocks/releases/luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz -o luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && tar xzf luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && cd luarocks-${RESTY_LUAROCKS_VERSION} \
     && ./configure \
@@ -195,8 +195,8 @@ RUN cd /usr/local/openresty/lualib/thrift/src \
     && cd cmake-build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
        .. \
-    && make \
-    && make install
+    && make -j$(nproc) \
+    && make -j$(nproc) install
 #    && cd /tmp
 #    && rm -rf lua-bridge-tracer
 
