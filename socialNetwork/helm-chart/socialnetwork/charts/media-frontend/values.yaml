@@ -24,17 +24,6 @@ initContainer:
   volumeMounts:
   - name: lua-scripts
     mountPath: /lua-scripts
-
-  env:
-  - name: HTTP_PROXY
-    value: "http://proxy-chain.intel.com:911"
-  - name: HTTPS_PROXY
-    value: "http://proxy-chain.intel.com:912/"
-  - name: http_proxy  
-    value: "http://proxy-chain.intel.com:911"
-  - name: https_proxy
-    value: "http://proxy-chain.intel.com:912/"
-
   command: "/bin/sh" 
   args: ["-c", "git clone https://github.com/delimitrou/DeathStarBench.git /DeathStarBench &&
             cp -r /DeathStarBench/socialNetwork/media-frontend/lua-scripts/* /lua-scripts/"]
