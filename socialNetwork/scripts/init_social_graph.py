@@ -73,25 +73,25 @@ def printResults(results):
       print('Failed:', count, 'Error:', result_type.strip())
 
 
-async def register(addr, nodes):
+async def register(addr, nodes, limit=200):
   tasks = []
-  conn = aiohttp.TCPConnector(limit=200)
+  conn = aiohttp.TCPConnector(limit=limit)
   async with aiohttp.ClientSession(connector=conn) as session:
     print('Registering Users...')
     for i in range(nodes):
       task = asyncio.ensure_future(upload_register(session, addr, str(i)))
       tasks.append(task)
-      if i % 200 == 0:
+      if i % limit == 0:
         _ = await asyncio.gather(*tasks)
         print(i)
     results = await asyncio.gather(*tasks)
     printResults(results)
 
 
-async def follow(addr, edges):
+async def follow(addr, edges, limit=200):
   idx = 0
   tasks = []
-  conn = aiohttp.TCPConnector(limit=200)
+  conn = aiohttp.TCPConnector(limit=limit)
   async with aiohttp.ClientSession(connector=conn) as session:
     print('Adding follows...')
     for edge in edges:
@@ -102,17 +102,17 @@ async def follow(addr, edges):
           upload_follow(session, addr, edge[1], edge[0]))
       tasks.append(task)
       idx += 1
-      if idx % 200 == 0:
+      if idx % limit == 0:
         _ = await asyncio.gather(*tasks)
         print(idx)
     results = await asyncio.gather(*tasks)
     printResults(results)
 
 
-async def compose(addr, nodes):
+async def compose(addr, nodes, limit=200):
   idx = 0
   tasks = []
-  conn = aiohttp.TCPConnector(limit=200)
+  conn = aiohttp.TCPConnector(limit=limit)
   async with aiohttp.ClientSession(connector=conn) as session:
     print('Composing posts...')
     for i in range(nodes):
@@ -120,7 +120,7 @@ async def compose(addr, nodes):
         task = asyncio.ensure_future(upload_compose(session, addr, i+1, nodes))
         tasks.append(task)
         idx += 1
-        if idx % 200 == 0:
+        if idx % limit == 0:
           _ = await asyncio.gather(*tasks)
           print(idx)
     results = await asyncio.gather(*tasks)
@@ -138,6 +138,7 @@ if __name__ == '__main__':
       '--port', help='IP port of socialNetwork NGINX web server.', default=8080)
   parser.add_argument('--compose', action='store_true',
                       help='intialize with up to 20 posts per user', default=False)
+  parser.add_argument('--limit', type=int, help='total number simultaneous connections', default=200)
   args = parser.parse_args()
 
   with open(os.path.join('datasets/social-graph', args.graph, f'{args.graph}.nodes'), 'r') as f:
@@ -148,11 +149,12 @@ if __name__ == '__main__':
   random.seed(1)   # deterministic random numbers
 
   addr = 'http://{}:{}'.format(args.ip, args.port)
+  limit = args.limit
   loop = asyncio.get_event_loop()
-  future = asyncio.ensure_future(register(addr, nodes))
+  future = asyncio.ensure_future(register(addr, nodes, limit))
   loop.run_until_complete(future)
-  future = asyncio.ensure_future(follow(addr, edges))
+  future = asyncio.ensure_future(follow(addr, edges, limit))
   loop.run_until_complete(future)
   if args.compose:
-    future = asyncio.ensure_future(compose(addr, nodes))
+    future = asyncio.ensure_future(compose(addr, nodes, limit))
     loop.run_until_complete(future)
