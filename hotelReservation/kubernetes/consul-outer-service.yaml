@@ -6,14 +6,16 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: mongodb-profile
-  name: mongodb-profile
+    io.kompose.service: consul
+  name: consul-outer-service
 spec:
+  type: NodePort
   ports:
-    - name: "mongodb-profile"
-      port: 27017
-      targetPort: 27017
+    - name: "8500"
+      port: 8500
+      targetPort: 8500
+      nodePort: 30002
   selector:
-    io.kompose.service: mongodb-profile
+    io.kompose.service: consul
 status:
   loadBalancer: {}

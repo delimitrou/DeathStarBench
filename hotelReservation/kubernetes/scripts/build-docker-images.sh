@@ -5,14 +5,13 @@ cd $(dirname $0)/..
 
 EXEC=docker
 
-USER="salehsedghpour"
+USER="aabuddabi"
 
 TAG="latest"
 
 # ENTER THE ROOT FOLDER
 cd ../
 ROOT_FOLDER=$(pwd)
-
 for i in frontend geo profile rate recommendation reserve search user
 do
   IMAGE=hotel_reserv_${i}_single_node
