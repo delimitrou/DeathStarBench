@@ -28,10 +28,7 @@ All mongo, nginx and redis pods will use the same respective config file from th
 In order to override a given value for a config file, a new config (with the new content) must be placed under the same filename in the given microservice template.
 
 ## Custom images ##
-Modified lua scripts must be put inside the following images:
-- openresty-thrift:xenial
-- media-frontend:xenial
-
+`nginx-thrift` and `media-frontend` services require mounted lua-scripts (and other files). For this reason, in both of these pods, there is an init container added that pulls the rquired files from the public DSB repository and mounts them in the right path before the container is started.
 
 ### Changes to config files ###
 In nginx config file, both in `nginx-thrift` and `media-frontend` pods, resolver is set to a value retrieved from global values under `resolverName`. It is set to `kube-dns.kube-system.svc.cluster.local`. <br />
