@@ -3,23 +3,28 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
-	"github.com/harlow/go-micro-services/registry"
-	"github.com/harlow/go-micro-services/services/rate"
-	"github.com/harlow/go-micro-services/tracing"
 	"io/ioutil"
-	"log"
 	"os"
 	"strconv"
 
-	"github.com/bradfitz/gomemcache/memcache"
+	"github.com/harlow/go-micro-services/registry"
+	"github.com/harlow/go-micro-services/services/rate"
+	"github.com/harlow/go-micro-services/tracing"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+
 	"time"
+
+	"github.com/bradfitz/gomemcache/memcache"
 )
 
 func main() {
+	log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Caller().Logger()
+
+	log.Info().Msg("Reading config...")
 	jsonFile, err := os.Open("config.json")
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Msgf("Got error while reading config: %v", err)
 	}
 
 	defer jsonFile.Close()
@@ -29,19 +34,25 @@ func main() {
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
 
+	log.Info().Msgf("Read database URL: %v", result["RateMongoAddress"])
+	log.Info().Msg("Initializing DB connection...")
 	mongo_session := initializeDatabase(result["RateMongoAddress"])
+	defer mongo_session.Close()
+	log.Info().Msg("Successfull")
 
-	fmt.Printf("rate memc addr port = %s\n", result["RateMemcAddress"])
+	log.Info().Msgf("Read profile memcashed address: %v", result["RateMemcAddress"])
+	log.Info().Msg("Initializing Memcashed client...")
 	memc_client := memcache.New(result["RateMemcAddress"])
 	memc_client.Timeout = time.Second * 2
 	memc_client.MaxIdleConns = 512
+	log.Info().Msg("Successfull")
 
-	defer mongo_session.Close()
 	serv_port, _ := strconv.Atoi(result["RatePort"])
-	serv_ip   := result["RateIP"]
+	serv_ip := result["RateIP"]
 
-	fmt.Printf("rate ip = %s, port = %d\n", serv_ip, serv_port)
-
+	log.Info().Msgf("Read target port: %v", serv_port)
+	log.Info().Msgf("Read consul address: %v", result["consulAddress"])
+	log.Info().Msgf("Read jaeger address: %v", result["jaegerAddress"])
 	var (
 		// port       = flag.Int("port", 8084, "The server port")
 		jaegeraddr = flag.String("jaegeraddr", result["jaegerAddress"], "Jaeger server addr")
@@ -49,24 +60,30 @@ func main() {
 	)
 	flag.Parse()
 
+	log.Info().Msgf("Initializing jaeger agent [service name: %v | host: %v]...", "rate", *jaegeraddr)
 	tracer, err := tracing.Init("rate", *jaegeraddr)
 	if err != nil {
-		panic(err)
+		log.Panic().Msgf("Got error while initializing jaeger agent: %v", err)
 	}
+	log.Info().Msg("Jaeger agent initialized")
 
+	log.Info().Msgf("Initializing consul agent [host: %v]...", *consuladdr)
 	registry, err := registry.NewClient(*consuladdr)
 	if err != nil {
-		panic(err)
+		log.Panic().Msgf("Got error while initializing consul agent: %v", err)
 	}
+	log.Info().Msg("Consul agent initialized")
 
 	srv := &rate.Server{
-		Tracer:   tracer,
+		Tracer: tracer,
 		// Port:     *port,
-		Registry: registry,
-		Port:     serv_port,
-		IpAddr:	  serv_ip,
+		Registry:     registry,
+		Port:         serv_port,
+		IpAddr:       serv_ip,
 		MongoSession: mongo_session,
-		MemcClient: memc_client,
+		MemcClient:   memc_client,
 	}
-	log.Fatal(srv.Run())
+
+	log.Info().Msg("Starting server...")
+	log.Fatal().Msg(srv.Run().Error())
 }

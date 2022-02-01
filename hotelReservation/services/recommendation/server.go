@@ -3,25 +3,27 @@ package recommendation
 import (
 	// "encoding/json"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/hailocab/go-geoindex"
 	"github.com/harlow/go-micro-services/registry"
-	"github.com/harlow/go-micro-services/tls"
 	pb "github.com/harlow/go-micro-services/services/recommendation/proto"
+	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
 	// "io/ioutil"
-	"log"
 	"math"
 	"net"
+
 	// "os"
 	"time"
-
 	// "strings"
 )
 
@@ -29,13 +31,13 @@ const name = "srv-recommendation"
 
 // Server implements the recommendation service
 type Server struct {
-	hotels map[string]Hotel
-	Tracer   opentracing.Tracer
-	Port     int
-	IpAddr	 string
-	MongoSession	*mgo.Session
-	Registry *registry.Client
-	uuid    string
+	hotels       map[string]Hotel
+	Tracer       opentracing.Tracer
+	Port         int
+	IpAddr       string
+	MongoSession *mgo.Session
+	Registry     *registry.Client
+	uuid         string
 }
 
 // Run starts the server
@@ -72,7 +74,7 @@ func (s *Server) Run() error {
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", s.Port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatal().Msgf("failed to listen: %v", err)
 	}
 
 	// // register the service
@@ -92,6 +94,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
 	}
+	log.Info().Msg("Successfully registered in consul")
 
 	return srv.Serve(lis)
 }
@@ -104,7 +107,7 @@ func (s *Server) Shutdown() {
 // GiveRecommendation returns recommendations within a given requirement.
 func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	res := new(pb.Result)
-	//fmt.Printf("GetRecommendations\n")
+	log.Trace().Msgf("GetRecommendations")
 	require := req.Require
 	if require == "dis" {
 		p1 := &geoindex.GeoPoint{
@@ -158,7 +161,7 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 			}
 		}
 	} else {
-		log.Println("Wrong parameter: ", require)
+		log.Warn().Msgf("Wrong require parameter: %v", require)
 	}
 
 	return res, nil
@@ -180,7 +183,7 @@ func loadRecommendations(session *mgo.Session) map[string]Hotel {
 	var hotels []Hotel
 	err := c.Find(bson.M{}).All(&hotels)
 	if err != nil {
-		log.Println("Failed get hotels data: ", err)
+		log.Error().Msgf("Failed get hotels data: ", err)
 	}
 
 	profiles := make(map[string]Hotel)

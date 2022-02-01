@@ -4,20 +4,24 @@ import (
 	"crypto/sha256"
 	// "encoding/json"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/registry"
-	"github.com/harlow/go-micro-services/tls"
 	pb "github.com/harlow/go-micro-services/services/user/proto"
+	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
 	// "io/ioutil"
-	"log"
 	"net"
+
+	"github.com/rs/zerolog/log"
+
 	// "os"
 	"time"
 )
@@ -28,12 +32,12 @@ const name = "srv-user"
 type Server struct {
 	users map[string]string
 
-	Tracer   opentracing.Tracer
-	Registry *registry.Client
-	Port     int
-	IpAddr	 string
-	MongoSession 	*mgo.Session
-	uuid     string
+	Tracer       opentracing.Tracer
+	Registry     *registry.Client
+	Port         int
+	IpAddr       string
+	MongoSession *mgo.Session
+	uuid         string
 }
 
 // Run starts the server
@@ -70,7 +74,7 @@ func (s *Server) Run() error {
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", s.Port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatal().Msgf("failed to listen: %v", err)
 	}
 
 	// // register the service
@@ -90,6 +94,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
 	}
+	log.Info().Msg("Successfully registered in consul")
 
 	return srv.Serve(lis)
 }
@@ -103,7 +108,7 @@ func (s *Server) Shutdown() {
 func (s *Server) CheckUser(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	res := new(pb.Result)
 
-	// fmt.Printf("CheckUser")
+	log.Trace().Msg("CheckUser")
 
 	sum := sha256.Sum256([]byte(req.Password))
 	pass := fmt.Sprintf("%x", sum)
@@ -123,12 +128,12 @@ func (s *Server) CheckUser(ctx context.Context, req *pb.Request) (*pb.Result, er
 	// }
 	res.Correct = false
 	if true_pass, found := s.users[req.Username]; found {
-	    res.Correct = pass == true_pass
+		res.Correct = pass == true_pass
 	}
-	
+
 	// res.Correct = user.Password == pass
 
-	// fmt.Printf("CheckUser %d\n", res.Correct)
+	log.Trace().Msgf("CheckUser %d", res.Correct)
 
 	return res, nil
 }
@@ -148,7 +153,7 @@ func loadUsers(session *mgo.Session) map[string]string {
 	var users []User
 	err := c.Find(bson.M{}).All(&users)
 	if err != nil {
-		log.Println("Failed get users data: ", err)
+		log.Error().Msgf("Failed get users data: ", err)
 	}
 
 	res := make(map[string]string)
@@ -156,7 +161,7 @@ func loadUsers(session *mgo.Session) map[string]string {
 		res[user.Username] = user.Password
 	}
 
-	fmt.Printf("Done load users\n")
+	log.Trace().Msg("Done load users")
 
 	return res
 }

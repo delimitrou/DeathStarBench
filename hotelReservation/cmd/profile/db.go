@@ -1,11 +1,11 @@
 package main
 
 import (
+	"strconv"
+
+	"github.com/rs/zerolog/log"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
-	"strconv"
-	"fmt"
 )
 
 type Hotel struct {
@@ -28,19 +28,20 @@ type Address struct {
 }
 
 func initializeDatabase(url string) *mgo.Session {
-	fmt.Printf("profile db ip addr = %s\n", url)
 	session, err := mgo.Dial(url)
 	if err != nil {
-		panic(err)
+		log.Panic().Msg(err.Error())
 	}
 	// defer session.Close()
+	log.Info().Msg("New session successfull...")
 
+	log.Info().Msg("Generating test data...")
 	c := session.DB("profile-db").C("hotels")
 	count, err := c.Find(&bson.M{"id": "1"}).Count()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
-	if count == 0{
+	if count == 0 {
 		err = c.Insert(&Hotel{
 			"1",
 			"Clift Hotel",
@@ -56,15 +57,15 @@ func initializeDatabase(url string) *mgo.Session {
 				37.7867,
 				-122.4112}})
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Msg(err.Error())
 		}
 	}
 
 	count, err = c.Find(&bson.M{"id": "2"}).Count()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
-	if count == 0{
+	if count == 0 {
 		err = c.Insert(&Hotel{
 			"2",
 			"W San Francisco",
@@ -80,15 +81,15 @@ func initializeDatabase(url string) *mgo.Session {
 				37.7854,
 				-122.4005}})
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Msg(err.Error())
 		}
 	}
 
 	count, err = c.Find(&bson.M{"id": "3"}).Count()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
-	if count == 0{
+	if count == 0 {
 		err = c.Insert(&Hotel{
 			"3",
 			"Hotel Zetta",
@@ -104,39 +105,39 @@ func initializeDatabase(url string) *mgo.Session {
 				37.7834,
 				-122.4071}})
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Msg(err.Error())
 		}
 	}
 
 	count, err = c.Find(&bson.M{"id": "4"}).Count()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
-	if count == 0{
+	if count == 0 {
 		err = c.Insert(&Hotel{
-				"4",
-				"Hotel Vitale",
-				"(415) 278-3700",
-				"This waterfront hotel with Bay Bridge views is 3 blocks from the Financial District and a 4-minute walk from the Ferry Building.",
-				&Address{
-					"8",
-					"Mission St",
-					"San Francisco",
-					"CA",
-					"United States",
-					"94105",
-					37.7936,
-					-122.3930}})
+			"4",
+			"Hotel Vitale",
+			"(415) 278-3700",
+			"This waterfront hotel with Bay Bridge views is 3 blocks from the Financial District and a 4-minute walk from the Ferry Building.",
+			&Address{
+				"8",
+				"Mission St",
+				"San Francisco",
+				"CA",
+				"United States",
+				"94105",
+				37.7936,
+				-122.3930}})
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Msg(err.Error())
 		}
 	}
 
 	count, err = c.Find(&bson.M{"id": "5"}).Count()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
-	if count == 0{
+	if count == 0 {
 		err = c.Insert(&Hotel{
 			"5",
 			"Phoenix Hotel",
@@ -152,15 +153,15 @@ func initializeDatabase(url string) *mgo.Session {
 				37.7831,
 				-122.4181}})
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Msg(err.Error())
 		}
 	}
 
 	count, err = c.Find(&bson.M{"id": "6"}).Count()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
-	if count == 0{
+	if count == 0 {
 		err = c.Insert(&Hotel{
 			"6",
 			"St. Regis San Francisco",
@@ -176,7 +177,7 @@ func initializeDatabase(url string) *mgo.Session {
 				37.7863,
 				-122.4015}})
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Msg(err.Error())
 		}
 	}
 
@@ -185,12 +186,12 @@ func initializeDatabase(url string) *mgo.Session {
 		hotel_id := strconv.Itoa(i)
 		count, err = c.Find(&bson.M{"id": hotel_id}).Count()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Msg(err.Error())
 		}
 		phone_num := "(415) 284-40" + hotel_id
-		lat := 37.7835 + float32(i)/500.0 * 3
-		lon := -122.41 + float32(i)/500.0 * 4
-		if count == 0{
+		lat := 37.7835 + float32(i)/500.0*3
+		lon := -122.41 + float32(i)/500.0*4
+		if count == 0 {
 			err = c.Insert(&Hotel{
 				hotel_id,
 				"St. Regis San Francisco",
@@ -206,15 +207,14 @@ func initializeDatabase(url string) *mgo.Session {
 					lat,
 					lon}})
 			if err != nil {
-				log.Fatal(err)
+				log.Fatal().Msg(err.Error())
 			}
 		}
 	}
 
-
 	err = c.EnsureIndexKey("id")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
 
 	return session

@@ -3,22 +3,27 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
+	"time"
+
+	"strconv"
 
 	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/services/recommendation"
 	"github.com/harlow/go-micro-services/tracing"
-	"strconv"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	// "github.com/bradfitz/gomemcache/memcache"
 )
 
 func main() {
+	log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Caller().Logger()
+
+	log.Info().Msg("Reading config...")
 	jsonFile, err := os.Open("config.json")
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Msgf("Got error while reading config: %v", err)
 	}
 
 	defer jsonFile.Close()
@@ -28,13 +33,18 @@ func main() {
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
 
+	log.Info().Msgf("Read database URL: %v", result["RecommendMongoAddress"])
+	log.Info().Msg("Initializing DB connection...")
 	mongo_session := initializeDatabase(result["RecommendMongoAddress"])
 	defer mongo_session.Close()
+	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["RecommendPort"])
-	serv_ip   := result["RecommendIP"]
+	serv_ip := result["RecommendIP"]
 
-	fmt.Printf("recommendation ip = %s, port = %d\n", serv_ip, serv_port)
+	log.Info().Msgf("Read target port: %v", serv_port)
+	log.Info().Msgf("Read consul address: %v", result["consulAddress"])
+	log.Info().Msgf("Read jaeger address: %v", result["jaegerAddress"])
 
 	var (
 		// port       = flag.Int("port", 8085, "The server port")
@@ -43,23 +53,29 @@ func main() {
 	)
 	flag.Parse()
 
+	log.Info().Msgf("Initializing jaeger agent [service name: %v | host: %v]...", "recommendation", *jaegeraddr)
 	tracer, err := tracing.Init("recommendation", *jaegeraddr)
 	if err != nil {
-		panic(err)
+		log.Panic().Msgf("Got error while initializing jaeger agent: %v", err)
 	}
+	log.Info().Msg("Jaeger agent initialized")
 
+	log.Info().Msgf("Initializing consul agent [host: %v]...", *consuladdr)
 	registry, err := registry.NewClient(*consuladdr)
 	if err != nil {
-		panic(err)
+		log.Panic().Msgf("Got error while initializing consul agent: %v", err)
 	}
+	log.Info().Msg("Consul agent initialized")
 
 	srv := &recommendation.Server{
-		Tracer:   tracer,
+		Tracer: tracer,
 		// Port:     *port,
-		Registry: registry,
-		Port:     serv_port,
-		IpAddr:	  serv_ip,
+		Registry:     registry,
+		Port:         serv_port,
+		IpAddr:       serv_ip,
 		MongoSession: mongo_session,
 	}
-	log.Fatal(srv.Run())
+
+	log.Info().Msg("Starting server...")
+	log.Fatal().Msg(srv.Run().Error())
 }
