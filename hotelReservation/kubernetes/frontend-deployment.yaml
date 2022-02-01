@@ -28,8 +28,7 @@ spec:
       containers:
         - command:
             - frontend
-          image: aabuddabi/hotel_reserv_frontend_single_node
-          imagePullPolicy: IfNotPresent
+          image: igorrudyk1/hotel_reserv_frontend_single_node:latest
           name: hotel-reserv-frontend
           ports:
             - containerPort: 5000
