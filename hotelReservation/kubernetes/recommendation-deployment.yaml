@@ -28,7 +28,8 @@ spec:
       containers:
         - command:
             - recommendation
-          image: salehsedghpour/hotel_reserv_recommendation_single_node
+          image: aabuddabi/hotel_reserv_recommendation_single_node
+          imagePullPolicy: IfNotPresent
           name: hotel-reserv-recommendation
           ports:
             - containerPort: 8085

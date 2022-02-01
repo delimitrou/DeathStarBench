@@ -28,7 +28,8 @@ spec:
       containers:
         - command:
             - user
-          image: salehsedghpour/hotel_reserv_user_single_node
+          image: aabuddabi/hotel_reserv_user_single_node
+          imagePullPolicy: IfNotPresent
           name: hotel-reserv-user
           ports:
             - containerPort: 8086
