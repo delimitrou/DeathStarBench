@@ -6,14 +6,14 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: mongodb-recommendation
-  name: mongodb-recommendation
+    io.kompose.service: mongodb-geo
+  name: mongodb-geo
 spec:
   ports:
-    - name: "mongodb-recommendation"
-      port: 27021
+    - name: "mongodb-geo"
+      port: 27017
       targetPort: 27017
   selector:
-    io.kompose.service: mongodb-recommendation
+    io.kompose.service: mongodb-geo
 status:
   loadBalancer: {}

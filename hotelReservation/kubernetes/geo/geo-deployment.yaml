@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: search
-  name: search
+    io.kompose.service: geo
+  name: geo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: search
+      io.kompose.service: geo
   strategy: {}
   template:
     metadata:
@@ -23,15 +23,15 @@ spec:
         sidecar.istio.io/statsInclusionRegexps: http.*
       creationTimestamp: null
       labels:
-        io.kompose.service: search
+        io.kompose.service: geo
     spec:
       containers:
         - command:
-            - search
-          image: salehsedghpour/hotel_reserv_search_single_node
-          name: hotel-reserv-search
+            - geo
+          image: supreethkurpad/hotelreservation
+          name: hotel-reserv-geo
           ports:
-            - containerPort: 8082
+            - containerPort: 8083
           resources:
             requests:
               cpu: 100m
