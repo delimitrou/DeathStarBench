@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
       - name: cast-info-mongodb
-        image: mongo
+        image: mongo:4.4.6
         volumeMounts:
           - name: my-data
             mountPath: "/data/db"

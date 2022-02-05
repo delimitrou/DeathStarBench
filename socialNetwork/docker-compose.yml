@@ -16,7 +16,7 @@ services:
       - ./config:/social-network-microservices/config
 
   social-graph-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: social-graph-mongodb
     # ports:
     #   - 27018:27017
@@ -72,7 +72,7 @@ services:
     restart: always
 
   post-storage-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: post-storage-mongodb
     #    ports:
     #      - 27019:27017
@@ -101,7 +101,7 @@ services:
     restart: always
 
   user-timeline-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: user-timeline-mongodb
     #    ports:
     #      - 27020:27017
@@ -130,7 +130,7 @@ services:
     restart: always
 
   url-shorten-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: url-shorten-mongodb
     #    ports:
     #      - 27021:27017
@@ -159,7 +159,7 @@ services:
     restart: always
 
   user-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: user-mongodb
     # ports:
     #   - 27023:27017
@@ -188,7 +188,7 @@ services:
     restart: always
 
   media-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: media-mongodb
     #    ports:
     #      - 27024:27017
