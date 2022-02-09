@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: geo
-  name: geo
+    io.kompose.service: recommendation
+  name: recommendation
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: geo
+      io.kompose.service: recommendation
   strategy: {}
   template:
     metadata:
@@ -23,15 +23,15 @@ spec:
         sidecar.istio.io/statsInclusionRegexps: http.*
       creationTimestamp: null
       labels:
-        io.kompose.service: geo
+        io.kompose.service: recommendation
     spec:
       containers:
         - command:
-            - geo
-          image: igorrudyk1/hotel_reserv_geo_single_node:latest
-          name: hotel-reserv-geo
+            - recommendation
+          image: igorrudyk1/hotelreservation:latest
+          name: hotel-reserv-recommendation
           ports:
-            - containerPort: 8083
+            - containerPort: 8085
           resources:
             requests:
               cpu: 100m

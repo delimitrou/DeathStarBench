@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: frontend
-  name: frontend
+    io.kompose.service: user
+  name: user
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: frontend
+      io.kompose.service: user
   strategy: {}
   template:
     metadata:
@@ -23,15 +23,15 @@ spec:
         sidecar.istio.io/statsInclusionRegexps: http.*
       creationTimestamp: null
       labels:
-        io.kompose.service: frontend
+        io.kompose.service: user
     spec:
       containers:
         - command:
-            - frontend
-          image: igorrudyk1/hotel_reserv_frontend_single_node:latest
-          name: hotel-reserv-frontend
+            - user
+          image: igorrudyk1/hotelreservation:latest
+          name: hotel-reserv-user
           ports:
-            - containerPort: 5000
+            - containerPort: 8086
           resources:
             requests:
               cpu: 100m

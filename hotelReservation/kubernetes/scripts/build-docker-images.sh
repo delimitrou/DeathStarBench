@@ -5,16 +5,17 @@ cd $(dirname $0)/..
 
 EXEC=docker
 
-USER="aabuddabi"
+USER="igorrudyk1"
 
 TAG="latest"
 
 # ENTER THE ROOT FOLDER
 cd ../
 ROOT_FOLDER=$(pwd)
-for i in frontend geo profile rate recommendation reserve search user
+
+for i in hotelreservation #frontend geo profile rate recommendation reserve search user #uncomment to build multiple images
 do
-  IMAGE=hotel_reserv_${i}_single_node
+  IMAGE=${i}
   echo Processing image ${IMAGE}
   cd $ROOT_FOLDER
   $EXEC build -t "$USER"/"$IMAGE":"$TAG" -f Dockerfile .

@@ -11,6 +11,9 @@ local charset = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
 
 local decset = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
 
+-- load env vars
+local max_user_index = tonumber(os.getenv("max_user_index")) or 962
+
 local function stringRandom(length)
   if length > 0 then
     return stringRandom(length - 1) .. charset[math.random(1, #charset)]
@@ -28,7 +31,7 @@ local function decRandom(length)
 end
 
 local function compose_post()
-  local user_index = math.random(1, 962)
+  local user_index = math.random(1, max_user_index)
   local username = "username_" .. tostring(user_index)
   local user_id = tostring(user_index)
   local text = stringRandom(256)
@@ -41,7 +44,7 @@ local function compose_post()
   for i = 0, num_user_mentions, 1 do
     local user_mention_id
     while (true) do
-      user_mention_id = math.random(1, 962)
+      user_mention_id = math.random(1, max_user_index)
       if user_index ~= user_mention_id then
         break
       end
@@ -80,7 +83,7 @@ local function compose_post()
 end
 
 local function read_user_timeline()
-  local user_id = tostring(math.random(1, 962))
+  local user_id = tostring(math.random(1, max_user_index))
   local start = tostring(math.random(0, 100))
   local stop = tostring(start + 10)
 
@@ -93,7 +96,7 @@ local function read_user_timeline()
 end
 
 local function read_home_timeline()
-    local user_id = tostring(math.random(1, 962))
+    local user_id = tostring(math.random(1, max_user_index))
     local start = tostring(math.random(0, 100))
     local stop = tostring(start + 10)
 

@@ -10,11 +10,11 @@
 ### Before you start
 
 - Ensure that the necessary local images have been made.
-  - `<path-of-repo>/hotelReservation/kubernetes/scripts/build-docker-images.sh`, currently all images exists in the `salehsedghpour/<image-name>`.
-  if you intend to change it, remember to change the username in the build script and also all deployments as well.
+  - `<path-of-repo>/hotelReservation/kubernetes/scripts/build-docker-images.sh`
+  if you intend to change it, remember to change the username and image name in the build script and also all deployments as well.
 ### Deploy services
 
-run `kubectl apply -f <path-of-repo>/hotelReservation/kubernetes/`
+run `kubectl apply -Rf <path-of-repo>/hotelReservation/kubernetes/`
 and wait for `kubectl get pods` to show all pods with status `Running`.
 
 
