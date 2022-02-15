@@ -24,7 +24,7 @@ spec:
         sidecar.istio.io/inject: "true"
     spec:
       containers:
-      - image: mongo
+      - image: mongo:4.4.6
         name: hotel-reserv-geo-mongo
         ports:
         - containerPort: 27017

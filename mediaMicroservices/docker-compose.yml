@@ -25,7 +25,7 @@ services:
     entrypoint: MovieIdService
 
   movie-id-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: movie-id-mongodb
 #    ports:
 #      - 27018:27017
@@ -70,7 +70,7 @@ services:
     entrypoint: UserService
 
   user-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: user-mongodb
 #    ports:
 #      - 27019:27017
@@ -107,7 +107,7 @@ services:
     entrypoint: ReviewStorageService
 
   review-storage-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: review-storage-mongodb
 #    ports:
 #      - 27020:27017
@@ -129,7 +129,7 @@ services:
     entrypoint: UserReviewService
 
   user-review-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: user-review-mongodb
 #    ports:
 #      - 27021:27017
@@ -151,7 +151,7 @@ services:
     entrypoint: MovieReviewService
 
   movie-review-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: movie-review-mongodb
     ports:
       - 27022:27017
@@ -185,7 +185,7 @@ services:
     entrypoint: CastInfoService
 
   cast-info-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: cast-info-mongodb
 #    ports:
 #      - 27024:27017
@@ -207,7 +207,7 @@ services:
     entrypoint: PlotService
 
   plot-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: plot-mongodb
 #    ports:
 #      - 27025:27017
@@ -229,7 +229,7 @@ services:
     entrypoint: MovieInfoService
 
   movie-info-mongodb:
-    image: mongo
+    image: mongo:4.4.6
     hostname: movie-info-mongodb
 #    ports:
 #      - 27026:27017

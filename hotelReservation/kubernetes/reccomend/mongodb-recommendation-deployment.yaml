@@ -27,7 +27,7 @@ spec:
         io.kompose.service: mongodb-recommendation
     spec:
       containers:
-        - image: mongo
+        - image: mongo:4.4.6
           name: hotel-reserv-recommendation-mongo
           ports:
             - containerPort: 27017

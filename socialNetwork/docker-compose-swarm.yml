@@ -110,7 +110,7 @@ services:
       - jaeger-agent
       - jaeger-query
     hostname: media-mongodb
-    image: mongo
+    image: mongo:4.4.6
     command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 2"
     volumes:
@@ -179,7 +179,7 @@ services:
       - jaeger-agent
       - jaeger-query
     hostname: post-storage-mongodb
-    image: mongo
+    image: mongo:4.4.6
     command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 75"
     volumes:
@@ -211,7 +211,7 @@ services:
       - jaeger-agent
       - jaeger-query
     hostname: social-graph-mongodb
-    image: mongo
+    image: mongo:4.4.6
     command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 16"
     volumes:
@@ -304,7 +304,7 @@ services:
       - jaeger-agent
       - jaeger-query
     hostname: url-shorten-mongodb
-    image: mongo
+    image: mongo:4.4.6
     command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 36"
     volumes:
@@ -367,7 +367,7 @@ services:
       - jaeger-agent
       - jaeger-query
     hostname: user-mongodb
-    image: mongo
+    image: mongo:4.4.6
     command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 8"
     volumes:
@@ -399,7 +399,7 @@ services:
       - jaeger-agent
       - jaeger-query
     hostname: user-timeline-mongodb
-    image: mongo
+    image: mongo:4.4.6
     command: "mongod --nojournal --quiet --config /social-network-microservices/config/mongod.conf"
     # command: "mongod --serviceExecutor adaptive --listenBacklog 1024 --syncdelay 3600 --wiredTigerCacheSizeGB 75"
     volumes:

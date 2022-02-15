@@ -178,7 +178,7 @@ services:
         condition: any
 
   mongodb-geo:
-    image: mongo
+    image: mongo:4.4.6
     hostname: geo-db
     volumes:
       - geo:/data/db
@@ -188,7 +188,7 @@ services:
         condition: any
 
   mongodb-profile:
-    image: mongo
+    image: mongo:4.4.6
     hostname: profile-db
     volumes:
       - profile:/data/db
@@ -198,7 +198,7 @@ services:
         condition: any
 
   mongodb-rate:
-    image: mongo
+    image: mongo:4.4.6
     hostname: rate-db
     volumes:
       - rate:/data/db
@@ -208,7 +208,7 @@ services:
         condition: any
 
   mongodb-recommendation:
-    image: mongo
+    image: mongo:4.4.6
     hostname: recommendation-db
     volumes:
       - recommendation:/data/db
@@ -218,7 +218,7 @@ services:
         condition: any
 
   mongodb-reservation:
-    image: mongo
+    image: mongo:4.4.6
     hostname: reservation-db
     volumes:
       - reservation:/data/db
@@ -228,7 +228,7 @@ services:
         condition: any
 
   mongodb-user:
-    image: mongo
+    image: mongo:4.4.6
     hostname: user-db
     volumes:
       - user:/data/db
