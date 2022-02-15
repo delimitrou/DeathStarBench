@@ -28,7 +28,7 @@ spec:
       containers:
         - command:
             - geo
-          image: supreethkurpad/hotelreservation
+          image: igorrudyk1/hotelreservation:latest
           name: hotel-reserv-geo
           ports:
             - containerPort: 8083

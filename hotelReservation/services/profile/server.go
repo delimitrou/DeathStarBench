@@ -3,19 +3,22 @@ package profile
 import (
 	"encoding/json"
 	"fmt"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
 	// "io/ioutil"
-	"log"
 	"net"
 	// "os"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/registry"
-	"github.com/harlow/go-micro-services/tls"
 	pb "github.com/harlow/go-micro-services/services/profile/proto"
+	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -29,13 +32,13 @@ const name = "srv-profile"
 
 // Server implements the profile service
 type Server struct {
-	Tracer   opentracing.Tracer
-	uuid     string
-	Port     int
-	IpAddr	 string
-	MongoSession	*mgo.Session
-	Registry *registry.Client
-	MemcClient *memcache.Client
+	Tracer       opentracing.Tracer
+	uuid         string
+	Port         int
+	IpAddr       string
+	MongoSession *mgo.Session
+	Registry     *registry.Client
+	MemcClient   *memcache.Client
 }
 
 // Run starts the server
@@ -46,7 +49,7 @@ func (s *Server) Run() error {
 
 	s.uuid = uuid.New().String()
 
-	// fmt.Printf("in run s.IpAddr = %s, port = %d\n", s.IpAddr, s.Port)
+	log.Trace().Msgf("in run s.IpAddr = %s, port = %d", s.IpAddr, s.Port)
 
 	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepalive.ServerParameters{
@@ -70,7 +73,7 @@ func (s *Server) Run() error {
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", s.Port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatal().Msgf("failed to configure listener: %v", err)
 	}
 
 	// register the service
@@ -90,6 +93,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
 	}
+	log.Info().Msg("Successfully registered in consul")
 
 	return srv.Serve(lis)
 }
@@ -106,9 +110,8 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 	// 	panic(err)
 	// }
 	// defer session.Close()
-	// fmt.Printf("In GetProfiles\n")
 
-	// fmt.Printf("In GetProfiles after setting c\n")
+	log.Trace().Msgf("In GetProfiles")
 
 	res := new(pb.Result)
 	hotels := make([]*pb.Hotel, 0)
@@ -120,10 +123,8 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 		item, err := s.MemcClient.Get(i)
 		if err == nil {
 			// memcached hit
-			// profile_str := string(item.Value)
-
-			// fmt.Printf("memc hit\n")
-			// fmt.Println(profile_str)
+			profile_str := string(item.Value)
+			log.Trace().Msgf("memc hit with %v", profile_str)
 
 			hotel_prof := new(pb.Hotel)
 			json.Unmarshal(item.Value, hotel_prof)
@@ -139,7 +140,7 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 			err := c.Find(bson.M{"id": i}).One(&hotel_prof)
 
 			if err != nil {
-				log.Println("Failed get hotels data: ", err)
+				log.Error().Msgf("Failed get hotels data: ", err)
 			}
 
 			// for _, h := range hotels {
@@ -148,18 +149,20 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 			hotels = append(hotels, hotel_prof)
 
 			prof_json, err := json.Marshal(hotel_prof)
+			if err != nil {
+				log.Error().Msgf("Failed to marshal hotel [id: %v] with err:", hotel_prof.Id, err)
+			}
 			memc_str := string(prof_json)
 
 			// write to memcached
 			s.MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
 
 		} else {
-			fmt.Printf("Memmcached error = %s\n", err)
-			panic(err)
+			log.Panic().Msgf("Tried to get hotelId [%v], but got memmcached error = %s", i, err)
 		}
 	}
 
 	res.Hotels = hotels
-	// fmt.Printf("In GetProfiles after getting resp\n")
+	log.Trace().Msgf("In GetProfiles after getting resp")
 	return res, nil
 }

@@ -28,7 +28,7 @@ spec:
       containers:
         - command:
             - reservation
-          image: supreethkurpad/hotelreservation
+          image: igorrudyk1/hotelreservation:latest
           name: hotel-reserv-reservation
           ports:
             - containerPort: 8087

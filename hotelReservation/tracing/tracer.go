@@ -1,7 +1,6 @@
 package tracing
 
 import (
-	"fmt"
 	"time"
 
 	opentracing "github.com/opentracing/opentracing-go"
@@ -24,7 +23,7 @@ func Init(serviceName, host string) (opentracing.Tracer, error) {
 
 	tracer, _, err := cfg.New(serviceName)
 	if err != nil {
-		return nil, fmt.Errorf("new tracer error: %v", err)
+		return nil, err
 	}
 	return tracer, nil
 }

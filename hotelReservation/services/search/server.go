@@ -4,8 +4,10 @@ import (
 	// "encoding/json"
 	"fmt"
 	// F"io/ioutil"
-	"log"
 	"net"
+
+	"github.com/rs/zerolog/log"
+
 	// "os"
 	"time"
 
@@ -13,10 +15,10 @@ import (
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/dialer"
 	"github.com/harlow/go-micro-services/registry"
-	"github.com/harlow/go-micro-services/tls"
 	geo "github.com/harlow/go-micro-services/services/geo/proto"
 	rate "github.com/harlow/go-micro-services/services/rate/proto"
 	pb "github.com/harlow/go-micro-services/services/search/proto"
+	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
 	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -32,9 +34,9 @@ type Server struct {
 
 	Tracer   opentracing.Tracer
 	Port     int
-	IpAddr	 string
+	IpAddr   string
 	Registry *registry.Client
-	uuid       string
+	uuid     string
 }
 
 // Run starts the server
@@ -74,7 +76,7 @@ func (s *Server) Run() error {
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", s.Port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatal().Msgf("failed to listen: %v", err)
 	}
 
 	// register with consul
@@ -94,6 +96,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
 	}
+	log.Info().Msg("Successfully registered in consul")
 
 	return srv.Serve(lis)
 }
@@ -132,23 +135,22 @@ func (s *Server) initRateClient(name string) error {
 // Nearby returns ids of nearby hotels ordered by ranking algo
 func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchResult, error) {
 	// find nearby hotels
-	// fmt.Printf("in Search Nearby\n")
+	log.Trace().Msg("in Search Nearby")
 
-	// fmt.Printf("nearby lat = %f\n", req.Lat)
-	// fmt.Printf("nearby lon = %f\n", req.Lon)
+	log.Trace().Msgf("nearby lat = %f", req.Lat)
+	log.Trace().Msgf("nearby lon = %f", req.Lon)
 
 	nearby, err := s.geoClient.Nearby(ctx, &geo.Request{
 		Lat: req.Lat,
 		Lon: req.Lon,
 	})
 	if err != nil {
-		fmt.Printf("nearby error: %v", err)
 		return nil, err
 	}
 
-	// for _, hid := range nearby.HotelIds {
-	// 	fmt.Printf("get Nearby hotelId = %s\n", hid)
-	// }
+	for _, hid := range nearby.HotelIds {
+		log.Trace().Msgf("get Nearby hotelId = %s", hid)
+	}
 
 	// find rates for hotels
 	rates, err := s.rateClient.GetRates(ctx, &rate.Request{
@@ -157,7 +159,6 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 		OutDate:  req.OutDate,
 	})
 	if err != nil {
-		fmt.Printf("rates error: %v", err)
 		return nil, err
 	}
 
@@ -169,7 +170,7 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 	// build the response
 	res := new(pb.SearchResult)
 	for _, ratePlan := range rates.RatePlans {
-		// fmt.Printf("get RatePlan HotelId = %s, Code = %s\n", ratePlan.HotelId, ratePlan.Code)
+		log.Trace().Msgf("get RatePlan HotelId = %s, Code = %s", ratePlan.HotelId, ratePlan.Code)
 		res.HotelIds = append(res.HotelIds, ratePlan.HotelId)
 	}
 	return res, nil
