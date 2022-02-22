@@ -1,6 +1,6 @@
 {
   "service_name": "nginx-web-server",
-  "disabled": false,
+  "diabled": false,
   "reporter": {
     "logSpans": true,
     "localAgentHostPort": "jaeger-agent:6831"
