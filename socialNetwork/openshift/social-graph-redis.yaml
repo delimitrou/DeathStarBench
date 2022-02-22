@@ -38,4 +38,6 @@ spec:
       containers:
       - name: social-graph-redis
         image: redis
+      imagePullSecrets:
+        - name: regcred2
       restartPolicy: Always

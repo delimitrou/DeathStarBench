@@ -43,6 +43,8 @@ spec:
           - mountPath: /social-network-microservices/config/jaeger-config.yml
             subPath: jaeger-config.yml
             name: jaeger-conf-yaml
+      imagePullSecrets:
+        - name: regcred2
       restartPolicy: Always
       volumes:
         - name: jaeger-conf-yaml

@@ -38,4 +38,6 @@ spec:
       containers:
       - name: url-shorten-memcached
         image: memcached
+      imagePullSecrets:
+        - name: regcred2
       restartPolicy: Always
