@@ -41,7 +41,7 @@ local function decRandom(length)
 end
 
 local function compose_post()
-  local user_index = math.random(1, max_user_index)
+  local user_index = math.random(0, max_user_index - 1)
   local username = "username_" .. tostring(user_index)
   local user_id = tostring(user_index)
   local text = stringRandom(text_len)
@@ -51,7 +51,7 @@ local function compose_post()
   for i = 0, num_user_mentions, 1 do
     local user_mention_id
     while (true) do
-      user_mention_id = math.random(1, max_user_index)
+      user_mention_id = math.random(0, max_user_index - 1)
       if user_index ~= user_mention_id then
         break
       end
@@ -90,7 +90,7 @@ local function compose_post()
 end
 
 local function read_user_timeline()
-  local user_id = tostring(math.random(1, max_user_index))
+  local user_id = tostring(math.random(0, max_user_index - 1))
   local start = user_start
   local stop = user_stop
 
@@ -103,7 +103,7 @@ local function read_user_timeline()
 end
 
 local function read_home_timeline()
-    local user_id = tostring(math.random(1, max_user_index))
+    local user_id = tostring(math.random(0, max_user_index - 1))
     local start = home_start
     local stop = home_stop
 

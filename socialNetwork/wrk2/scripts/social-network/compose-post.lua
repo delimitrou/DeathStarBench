@@ -30,7 +30,7 @@ local function decRandom(length)
 end
 
 request = function()
-  local user_index = math.random(1, max_user_index)
+  local user_index = math.random(0, max_user_index - 1)
   local username = "username_" .. tostring(user_index)
   local user_id = tostring(user_index)
   local text = stringRandom(256)
@@ -43,7 +43,7 @@ request = function()
   for i = 0, num_user_mentions, 1 do
     local user_mention_id
     while (true) do
-      user_mention_id = math.random(1, max_user_index)
+      user_mention_id = math.random(0, max_user_index - 1)
       if user_index ~= user_mention_id then
         break
       end
