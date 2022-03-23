@@ -9,7 +9,7 @@ local start = tostring(tonumber(os.getenv("start")) or 0)
 local stop = tostring(tonumber(os.getenv("stop")) or 10)
 
 request = function()
-  local user_id = tostring(math.random(1, max_user_index))
+  local user_id = tostring(math.random(0, max_user_index - 1))
 
   local args = "user_id=" .. user_id .. "&start=" .. start .. "&stop=" .. stop
   local method = "GET"

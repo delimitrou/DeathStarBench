@@ -7,7 +7,7 @@ math.random(); math.random(); math.random()
 local max_user_index = tonumber(os.getenv("max_user_index")) or 962
 
 request = function()
-  local user_id = tostring(math.random(1, max_user_index))
+  local user_id = tostring(math.random(0, max_user_index - 1))
   local start = tostring(math.random(0, 100))
   local stop = tostring(start + 10)
 
