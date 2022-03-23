@@ -168,3 +168,112 @@ To add new service to the helm chart the following steps need to be followed:
 ```
 
 - add new service in `templates/configs/other/service-config.tpl`
+
+## MongoDB - deployment options ##
+Helm chart supports two options for deploying MongoDB used by social-network:
+1. **Default setup** - multiple MongoDB instances are being deployed to handle data for individual services, each one runs in separated Pod. Scalability is limited.
+![MongoDB default deployment](assets/mongodb_default_deployment.png "MongoDB default deployment")
+2. **Sharded version** - single MongoDB instance is deployed with support for sharding, replication and persistent storage. Setup reflects real-world usage scenarios. Large data set can be divided into smaller chunks handled by different shards. Each shard has replication enabled to eliminate single point of failure and keep solution highly available. Scaling is possible. More details can be found in [MongoDB documentation](https://docs.mongodb.com/manual/sharding/).
+![MongoDB sharded deployment](assets/mongodb_sharded_deployment.png "MongoDB sharded deployment")
+For deploying sharded version chart has been integrated with [Bitnami MongoDB Sharded package](https://github.com/bitnami/charts/tree/master/bitnami/mongodb-sharded/).
+
+### MongoDB - sharding, replication and persistance
+### Usage:
+```bash
+helm install RELEASE_NAME HELM_CHART_REPO_PATH --set global.mongodb.sharding.enabled=true,global.mongodb.standalone.enabled=false --timeout 10m0s
+```
+
+Following flags need to be set to disable default setup and enable sharded version: `--set global.mongodb.sharding.enabled=true,global.mongodb.standalone.enabled=false`. This is mandatory.
+
+Sharded MongoDB deployment might exceed default timeout set by Helm for installation (300 seconds). Therefore it might be required to raise the time by using timeout flag: `--timeout 10m0s`.
+
+Default settings for used by deployment are present in parent `values.yaml` file:
+```yaml
+mongodb-sharded:
+  fullnameOverride: mongodb-sharded
+  shards: 3
+  mongodbRootPassword: *mongodb-sharded-password
+  shardsvr:
+    dataNode:
+      replicas: 3
+```
+
+All settings can be overriden/customized by providing `--set` flags.
+
+Detailed settings list and documentation can be found at [Bitnami MongoDB github page](https://github.com/bitnami/charts/tree/master/bitnami/mongodb-sharded/#parameters).
+
+### Examples:
+**Note:** all settings should be prefixed with chart name - `mongodb-sharded`
+1. Set shards number: `--set mongodb-sharded.shards=3`
+2. Set replicas count for shard: `--set mongodb-sharded.shardsvr.dataNode.replicas=3`
+3. Set number of mongos instances: `--set mongodb-sharded.mongos.replicas=5`
+
+### Enable sharding for collections:
+Each collection needs to be configured for sharding. This is handled by Helm post-install hook. Dedicated scripts is injected into Kubernetes as a ConfigMap.
+Implementation: `templates/configs/mongodb-sharded-init/configmap.yaml`.
+Hook logs can be found in `setup-collection-sharding-hook` pod. Some errors might be present until MongoDB is fully deployed.
+
+Expected logs:
+```
+2022-03-23 15:12:37,567 [INFO] Connection created
+2022-03-23 15:12:37,568 [INFO] Creating db: media
+2022-03-23 15:12:37,582 [INFO] DB media created
+2022-03-23 15:12:37,583 [INFO] Enable sharding for: media
+2022-03-23 15:12:44,698 [INFO] Sharding enabled for media
+2022-03-23 15:12:44,698 [INFO] Sharding collection : media.media
+2022-03-23 15:12:53,747 [INFO] Collection media.media sharded
+2022-03-23 15:12:53,748 [INFO] Creating db: post
+2022-03-23 15:12:53,788 [INFO] DB post created
+2022-03-23 15:12:53,788 [INFO] Enable sharding for: post
+2022-03-23 15:12:53,880 [INFO] Sharding enabled for post
+2022-03-23 15:12:53,882 [INFO] Sharding collection : post.post
+2022-03-23 15:12:53,995 [INFO] Collection post.post sharded
+2022-03-23 15:12:53,995 [INFO] Creating db: social-graph
+2022-03-23 15:12:54,046 [INFO] DB social-graph created
+2022-03-23 15:12:54,047 [INFO] Enable sharding for: social-graph
+2022-03-23 15:12:54,185 [INFO] Sharding enabled for social-graph
+2022-03-23 15:12:54,185 [INFO] Sharding collection : social-graph.social-graph
+2022-03-23 15:12:54,237 [INFO] Collection social-graph.social-graph sharded
+2022-03-23 15:12:54,237 [INFO] Creating db: url-shorten
+2022-03-23 15:12:54,263 [INFO] DB url-shorten created
+2022-03-23 15:12:54,264 [INFO] Enable sharding for: url-shorten
+2022-03-23 15:12:54,311 [INFO] Sharding enabled for url-shorten
+2022-03-23 15:12:54,311 [INFO] Sharding collection : url-shorten.url-shorten
+2022-03-23 15:12:54,476 [INFO] Collection url-shorten.url-shorten sharded
+2022-03-23 15:12:54,478 [INFO] Creating db: user
+2022-03-23 15:12:54,496 [INFO] DB user created
+2022-03-23 15:12:54,497 [INFO] Enable sharding for: user
+2022-03-23 15:12:54,555 [INFO] Sharding enabled for user
+2022-03-23 15:12:54,556 [INFO] Sharding collection : user.user
+2022-03-23 15:12:54,596 [INFO] Collection user.user sharded
+2022-03-23 15:12:54,597 [INFO] Creating db: user-timeline
+2022-03-23 15:12:54,611 [INFO] DB user-timeline created
+2022-03-23 15:12:54,611 [INFO] Enable sharding for: user-timeline
+2022-03-23 15:12:54,698 [INFO] Sharding enabled for user-timeline
+2022-03-23 15:12:54,698 [INFO] Sharding collection : user-timeline.user-timeline
+2022-03-23 15:12:54,746 [INFO] Collection user-timeline.user-timeline sharded
+```
+
+Helm install output:
+```bash
+helm install dsb socialnetwork --set global.mongodb.sharding.enabled=true,global.mongodb.standalone.enabled=false --timeout 10m0s
+Pod setup-collection-sharding-hook pending
+Pod setup-collection-sharding-hook pending
+Pod setup-collection-sharding-hook pending
+Pod setup-collection-sharding-hook running
+Pod setup-collection-sharding-hook succeeded
+NAME: dsb
+LAST DEPLOYED: Wed Mar 23 16:09:21 2022
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
+
+### Persistance:
+By default sharded version prepares Persitent Volume Claims (PVCs) to store data. This requires PV provisioner support in the underlying infrastructure and ReadWriteMany volumes for deployment scaling.
+
+After uninstalling helm chart, PVCs created by MongoDB installation won't be removed. This can be removed manually by running following shell script:
+```bash
+for p in $(kubectl get pvc -o name -l app.kubernetes.io/name=mongodb-sharded); do kubectl delete $p; done
+```

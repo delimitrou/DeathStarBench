@@ -1,3 +1,7 @@
+{{- define "mongodb-sharded.connection" }}
+  {{ .Values.global.mongodb.sharding.svc.user }}:{{ .Values.global.mongodb.sharding.svc.password }}@{{ .Values.global.mongodb.sharding.svc.name }}
+{{- end }}
+
 {{- define "socialnetwork.templates.other.service-config.json"  }}
 {
     "secret": "secret",
@@ -9,8 +13,8 @@
       "keepalive_ms": 10000
     },
     "social-graph-mongodb": {
-      "addr": "social-graph-mongodb",
-      "port": 27017,
+      "addr": {{ ternary (include "mongodb-sharded.connection" . | trim) "social-graph-mongodb" .Values.global.mongodb.sharding.enabled | quote}},
+      "port": {{ ternary .Values.global.mongodb.sharding.svc.port 27017 .Values.global.mongodb.sharding.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000
@@ -66,8 +70,8 @@
       "keepalive_ms": 10000
     },
     "user-timeline-mongodb": {
-      "addr": "user-timeline-mongodb",
-      "port": 27017,
+      "addr": {{ ternary (include "mongodb-sharded.connection" . | trim) "user-timeline-mongodb" .Values.global.mongodb.sharding.enabled | quote}},
+      "port": {{ ternary .Values.global.mongodb.sharding.svc.port 27017 .Values.global.mongodb.sharding.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000
@@ -87,8 +91,8 @@
       "keepalive_ms": 10000
     },
     "post-storage-mongodb": {
-      "addr": "post-storage-mongodb",
-      "port": 27017,
+      "addr": {{ ternary (include "mongodb-sharded.connection" . | trim) "post-storage-mongodb" .Values.global.mongodb.sharding.enabled | quote}},
+      "port": {{ ternary .Values.global.mongodb.sharding.svc.port 27017 .Values.global.mongodb.sharding.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000
@@ -116,8 +120,8 @@
       "keepalive_ms": 10000
     },
     "media-mongodb": {
-      "addr": "media-mongodb",
-      "port": 27017,
+      "addr": {{ ternary (include "mongodb-sharded.connection" . | trim) "media-mongodb" .Values.global.mongodb.sharding.enabled | quote}},
+      "port": {{ ternary .Values.global.mongodb.sharding.svc.port 27017 .Values.global.mongodb.sharding.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000
@@ -165,8 +169,8 @@
       "keepalive_ms": 10000
     },
     "url-shorten-mongodb": {
-      "addr": "url-shorten-mongodb",
-      "port": 27017,
+      "addr": {{ ternary (include "mongodb-sharded.connection" . | trim) "url-shorten-mongodb" .Values.global.mongodb.sharding.enabled | quote}},
+      "port": {{ ternary .Values.global.mongodb.sharding.svc.port 27017 .Values.global.mongodb.sharding.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000
@@ -187,8 +191,8 @@
       "keepalive_ms": 10000
     },
     "user-mongodb": {
-      "addr": "user-mongodb",
-      "port": 27017,
+      "addr": {{ ternary (include "mongodb-sharded.connection" . | trim) "user-mongodb" .Values.global.mongodb.sharding.enabled | quote}},
+      "port": {{ ternary .Values.global.mongodb.sharding.svc.port 27017 .Values.global.mongodb.sharding.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000
