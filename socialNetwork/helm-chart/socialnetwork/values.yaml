@@ -5,6 +5,16 @@ global:
   serviceType: ClusterIP
   dockerRegistry: docker.io
   defaultImageVersion: latest
+  mongodb:
+    standalone:
+      enabled: false
+    sharding:
+      enabled: true
+      svc:
+        name: "mongodb-sharded"
+        user: "root"
+        password: &mongodb-sharded-password "password"
+        port: 27017
   nginx:
     resolverName: kube-dns.kube-system.svc.cluster.local
   jaeger:
@@ -15,3 +25,11 @@ global:
     samplerParam: 0.01
     disabled: false
     logSpans: false
+
+mongodb-sharded:
+  fullnameOverride: mongodb-sharded
+  shards: 3
+  mongodbRootPassword: *mongodb-sharded-password
+  shardsvr:
+    dataNode:
+      replicas: 3
