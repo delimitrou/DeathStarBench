@@ -245,7 +245,11 @@ void UserTimelineHandler::ReadUserTimeline(
         auto curr_post_id = bson_iter_int64(&post_id_child);
         auto curr_timestamp = bson_iter_int64(&timestamp_child);
         if (idx >= mongo_start) {
-          post_ids.emplace_back(curr_post_id);
+          //In mixed workload condition, post may composed between redis and mongo read
+          //mongodb index will shift and duplicate post_id occurs
+          if ( std::find(post_ids.begin(), post_ids.end(), curr_post_id) == post_ids.end() ) {
+            post_ids.emplace_back(curr_post_id);
+          }
         }
         redis_update_map.insert(std::make_pair(std::to_string(curr_post_id),
                                                (double)curr_timestamp));

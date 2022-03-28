@@ -412,14 +412,18 @@ void ComposePostHandler::ComposePost(
     user_mention_ids.emplace_back(item.user_id);
   }
 
+  //In mixed workloed condition, need to make sure _UploadPostHelper execute
+  //Before _UploadUserTimelineHelper and _UploadHomeTimelineHelper.
+  //Change _UploadUserTimelineHelper and _UploadHomeTimelineHelper to deferred.
+  //To let them start execute after post_future.get() return.
   auto post_future =
       std::async(std::launch::async, &ComposePostHandler::_UploadPostHelper,
                  this, req_id, post, writer_text_map);
   auto user_timeline_future = std::async(
-      std::launch::async, &ComposePostHandler::_UploadUserTimelineHelper, this,
+      std::launch::deferred, &ComposePostHandler::_UploadUserTimelineHelper, this,
       req_id, post.post_id, user_id, timestamp, writer_text_map);
   auto home_timeline_future = std::async(
-      std::launch::async, &ComposePostHandler::_UploadHomeTimelineHelper, this,
+      std::launch::deferred, &ComposePostHandler::_UploadHomeTimelineHelper, this,
       req_id, post.post_id, user_id, timestamp, user_mention_ids,
       writer_text_map);
 

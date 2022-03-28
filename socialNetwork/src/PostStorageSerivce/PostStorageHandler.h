@@ -370,6 +370,7 @@ void PostStorageHandler::ReadPosts(
 
   std::set<int64_t> post_ids_not_cached(post_ids.begin(), post_ids.end());
   if (post_ids_not_cached.size() != post_ids.size()) {
+    LOG(error)<< "Post_ids are duplicated";
     ServiceException se;
     se.errorCode = ErrorCode::SE_THRIFT_HANDLER_ERROR;
     se.message = "Post_ids are duplicated";
