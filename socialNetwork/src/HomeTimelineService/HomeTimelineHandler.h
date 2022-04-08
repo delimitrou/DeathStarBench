@@ -124,17 +124,31 @@ void HomeTimelineHandler::WriteHomeTimeline(
         throw err;
       }
     } else {
-      // TODO: Redis++ currently does not support pipeline with multiple
-      //       hashtags in cluster mode.
-      //       Currently, we send one request for each follower, which may
-      //       incur some performance overhead. We are following the updates
-      //       of Redis++ clients:
-      //       https://github.com/sewenew/redis-plus-plus/issues/212
+      // Create multi-pipeline that match with shards pool
+      std::map<std::shared_ptr<ConnectionPool>, std::shared_ptr<Pipeline>> pipe_map;
+      auto *shards_pool = _redis_cluster_client_pool->get_shards_pool();
+
+      for (auto &follower_id : followers_id_set) {
+        auto conn = shards_pool->fetch(std::to_string(follower_id));
+        auto pipe = pipe_map.find(conn);
+        if(pipe == pipe_map.end()) {//Not found, create new pipeline and insert
+          auto new_pipe = std::make_shared<Pipeline>(_redis_cluster_client_pool->pipeline(std::to_string(follower_id), false));
+          pipe_map.insert(make_pair(conn, new_pipe));
+          auto *_pipe = new_pipe.get();
+          _pipe->zadd(std::to_string(follower_id), post_id_str, timestamp,
+                  UpdateType::NOT_EXIST);
+        }else{//Found, use exist pipeline
+          std::pair<std::shared_ptr<ConnectionPool>, std::shared_ptr<Pipeline>> found = *pipe;
+          auto *_pipe = found.second.get();
+          _pipe->zadd(std::to_string(follower_id), post_id_str, timestamp,
+                  UpdateType::NOT_EXIST);
+        }
+      }
+      // LOG(info) <<"followers_id_set items:" << followers_id_set.size()<<"; pipeline items:" << pipe_map.size();
       try {
-        for (auto &follower_id : followers_id_set) {
-          _redis_cluster_client_pool->zadd(std::to_string(follower_id),
-                                           post_id_str, timestamp,
-                                           UpdateType::NOT_EXIST);
+        for(auto const &it : pipe_map) {
+          auto _pipe = it.second.get();
+          _pipe->exec();
         }
 
       } catch (const Error &err) {

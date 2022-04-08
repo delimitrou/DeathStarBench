@@ -123,6 +123,8 @@ RUN apt-get update \
   && git clone https://github.com/sewenew/redis-plus-plus.git \
   && cd redis-plus-plus \
   && git checkout ${LIB_REDIS_PLUS_PLUS_VERSION} \
+  && sed -i '/Transaction transaction/i\\    ShardsPool* get_shards_pool(){\n        return &_pool;\n    }\n' \
+     src/sw/redis++/redis_cluster.h \
   && cmake -DREDIS_PLUS_PLUS_USE_TLS=ON . \
   && make -j$(nproc) \
   && make install \
