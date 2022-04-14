@@ -15,6 +15,12 @@
 #include "../logger.h"
 #include "../tracing.h"
 
+
+// Instrumenation Class
+#include "Instrument.h"
+static Instrument instr;
+// Instrumentation Class
+
 namespace social_network {
 using json = nlohmann::json;
 
@@ -164,6 +170,12 @@ void PostStorageHandler::StorePost(
 void PostStorageHandler::ReadPost(
     Post &_return, int64_t req_id, int64_t post_id,
     const std::map<std::string, std::string> &carrier) {
+
+    // Instrumenation code
+    instr.IncrementKey("ReadPost");
+    instr.dumpStats();
+    // Instrumentation code
+
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;

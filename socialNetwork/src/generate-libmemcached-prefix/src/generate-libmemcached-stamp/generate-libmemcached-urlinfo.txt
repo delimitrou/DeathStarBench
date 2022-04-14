@@ -1,0 +1,3 @@
+repository='external project URL'
+module='https://launchpad.net/libmemcached/1.0//+download/libmemcached-.tar.gz'
+tag=''

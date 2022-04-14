@@ -50,7 +50,17 @@ services:
       - ./config:/social-network-microservices/config
 
   post-storage-service:
-    image: yg397/social-network-microservices:latest
+    #
+    #
+    #       CHANGE THIS TO BE YOUR COMPIED IMAGE
+    #
+    #
+    image: 3363f76f4da7
+    #
+    #
+    #       CHANGE THIS TO BE YOUR COMPIED IMAGE
+    #
+    #  
     hostname: post-storage-service
     ports:
       - 10002:9090
