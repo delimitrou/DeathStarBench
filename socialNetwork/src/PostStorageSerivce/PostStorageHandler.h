@@ -56,11 +56,6 @@ void PostStorageHandler::StorePost(
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
 
-    // Instrumenation code
-    instr.IncrementKey("StorePost");
-    instr.dumpStats();
-    // Instrumentation code
-
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
@@ -163,12 +158,19 @@ void PostStorageHandler::StorePost(
     bson_destroy(new_doc);
     mongoc_collection_destroy(collection);
     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+
+    // Instrumenation code
+    instr.IncrementKey("StorePost Handler Error: Failed to insert post to MongoDB");
+    // Instrumenation code
+
     throw se;
   }
 
   bson_destroy(new_doc);
   mongoc_collection_destroy(collection);
   mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+
+  instr.IncrementKey("StorePost Handler Success");
 
   span->Finish();
 }
@@ -179,7 +181,6 @@ void PostStorageHandler::ReadPost(
 
     // Instrumenation code
     instr.IncrementKey("ReadPost");
-    instr.dumpStats();
     // Instrumentation code
 
   // Initialize a span
@@ -376,7 +377,6 @@ void PostStorageHandler::ReadPosts(
 
     // Instrumenation code
     instr.IncrementKey("ReadPosts");
-    instr.dumpStats();
     // Instrumentation code
 
   TextMapReader reader(carrier);

@@ -38,17 +38,8 @@ services:
 
   compose-post-service:
 
-    ##########################################################
-    #
-    #     CHANGE THIS TO UPDATE CODE
-    #
-    #
+
     image: yg397/social-network-microservices:latest
-    #
-    #
-    #     CHANGE THIS TO UPDATE CODE
-    #
-    ##########################################################
   
     hostname: compose-post-service
     #    ports:
@@ -62,17 +53,17 @@ services:
       - ./config:/social-network-microservices/config
 
   post-storage-service:
+    ##########################################################
+    #
+    #     CHANGE THIS TO UPDATE CODE
     #
     #
-    #       CHANGE THIS TO BE YOUR COMPIED IMAGE
+    image: 159f3e90ffed
     #
     #
-    image: 3363f76f4da7
+    #     CHANGE THIS TO UPDATE CODE
     #
-    #
-    #       CHANGE THIS TO BE YOUR COMPIED IMAGE
-    #
-    #  
+    ##########################################################
     hostname: post-storage-service
     ports:
       - 10002:9090

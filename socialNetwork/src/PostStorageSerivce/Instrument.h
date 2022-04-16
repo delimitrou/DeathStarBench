@@ -8,10 +8,13 @@
 #include <mutex>
 #include <ctime>
 #include <random>
+#include <thread>
+#include <memory>
+
+
 
 
 using namespace std;
-
 
 std::string random_string()
 {
@@ -28,18 +31,35 @@ std::string random_string()
 class Instrument {
 private:
     map<string, int> keyToCounter;
+    map<string, int> previousCounterValue;
     string file;
     mutex m;
+    unique_ptr<thread> statsThread;
+
+
+
     
 public:
     Instrument(){
-       file = "stats_" + random_string() + ".out";  
+        file = "stats_" + random_string() + ".out";  
+        dumpStats();
+        Instrument* ptr = this;
+        thread* tmp = new thread(&Instrument::writeStats, this);
+        statsThread.reset(tmp);
     }
 
-    void IncrementKey(string key){
-       m.lock();
-       keyToCounter[key]++;
-       m.unlock();
+    ~Instrument(){
+        
+        // Doesnt matter if throws an error
+        statsThread->~thread();
+
+    }
+
+    void writeStats(){
+        while (true){
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            dumpStats();
+        }
     }
 
     void dumpStats(){
@@ -48,11 +68,26 @@ public:
         openedFile.open(file, std::ios_base::app);
         openedFile << "StatsDump:" << std::time(0) << "\n";
         for(std::map<string,int>::iterator it = keyToCounter.begin(); it != keyToCounter.end(); it++){
-           openedFile << it->first << "=" << it->second << "\n";
+           // openedFile << "Value:" << it->first << "=" << it->second << "\n";
+           openedFile << "Rate Per Second: " << it->first << "=" << it->second - previousCounterValue[it->first] << "\n";
+           previousCounterValue[it->first]  = it->second;
         }
         openedFile.close();
         m.unlock();
+    }        
+
+    void IncrementKey(string key){
+       m.lock();
+       keyToCounter[key]++;
+       m.unlock();
     }
 };
 
+
+
+
+
+
 #endif
+
+
