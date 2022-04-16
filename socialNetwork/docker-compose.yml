@@ -37,7 +37,19 @@ services:
     restart: always
 
   compose-post-service:
+
+    ##########################################################
+    #
+    #     CHANGE THIS TO UPDATE CODE
+    #
+    #
     image: yg397/social-network-microservices:latest
+    #
+    #
+    #     CHANGE THIS TO UPDATE CODE
+    #
+    ##########################################################
+  
     hostname: compose-post-service
     #    ports:
     #      - 10001:9090
