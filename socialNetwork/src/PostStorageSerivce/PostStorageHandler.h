@@ -55,6 +55,12 @@ void PostStorageHandler::StorePost(
     int64_t req_id, const social_network::Post &post,
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+
+    // Instrumenation code
+    instr.IncrementKey("StorePost");
+    instr.dumpStats();
+    // Instrumentation code
+
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
@@ -367,6 +373,12 @@ void PostStorageHandler::ReadPosts(
     const std::vector<int64_t> &post_ids,
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+
+    // Instrumenation code
+    instr.IncrementKey("ReadPosts");
+    instr.dumpStats();
+    // Instrumentation code
+
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
