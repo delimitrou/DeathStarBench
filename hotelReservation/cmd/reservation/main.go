@@ -11,6 +11,7 @@ import (
 	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/services/reservation"
 	"github.com/harlow/go-micro-services/tracing"
+	"github.com/harlow/go-micro-services/tune"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -20,6 +21,7 @@ import (
 )
 
 func main() {
+	tune.Init()
 	log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Caller().Logger()
 
 	log.Info().Msg("Reading config...")
