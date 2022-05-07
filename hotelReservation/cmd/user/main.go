@@ -11,11 +11,13 @@ import (
 	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/services/user"
 	"github.com/harlow/go-micro-services/tracing"
+	"github.com/harlow/go-micro-services/tune"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	tune.Init()
 	// initializeDatabase()
 	log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Caller().Logger()
 
