@@ -7,9 +7,9 @@ global:
   defaultImageVersion: latest
   mongodb:
     standalone:
-      enabled: false
-    sharding:
       enabled: true
+    sharding:
+      enabled: false
       svc:
         name: "mongodb-sharded"
         user: "root"
