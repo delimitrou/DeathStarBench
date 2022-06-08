@@ -150,11 +150,11 @@ if __name__ == '__main__':
 
   addr = 'http://{}:{}'.format(args.ip, args.port)
   limit = args.limit
-  loop = asyncio.get_event_loop()
-  future = asyncio.ensure_future(register(addr, nodes, limit))
+  loop = asyncio.new_event_loop()
+  future = asyncio.ensure_future(register(addr, nodes, limit), loop=loop)
   loop.run_until_complete(future)
-  future = asyncio.ensure_future(follow(addr, edges, limit))
+  future = asyncio.ensure_future(follow(addr, edges, limit), loop=loop)
   loop.run_until_complete(future)
   if args.compose:
-    future = asyncio.ensure_future(compose(addr, nodes, limit))
+    future = asyncio.ensure_future(compose(addr, nodes, limit), loop=loop)
     loop.run_until_complete(future)
