@@ -1,0 +1,24 @@
+<configuration>
+
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <!-- See http://logback.qos.ch/manual/layouts.html -->
+      <!-- https://doc.akka.io/docs/akka/current/typed/logging.html -->
+      <pattern>[%date{ISO8601}] [%X{akkaAddress}] [%level] [%logger] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="com.example" level="debug" additivity="false">
+    <appender-ref ref="console" />
+  </logger>
+
+  <logger name="akka" level="info" additivity="false">
+    <appender-ref ref="console" />
+  </logger>
+
+  <root level="warn">
+    <appender-ref ref="console"/>
+  </root>
+
+</configuration>
+
