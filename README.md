@@ -10,6 +10,7 @@ Open-source benchmark suite for cloud microservices. DeathStarBench includes fiv
 * E-commerce site (in progress)
 * Banking System (in progress)
 * Drone coordination system (in progress)
+* ContosoCrafts (in progress)
 
 ## License & Copyright 
 
