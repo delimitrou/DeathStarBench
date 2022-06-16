@@ -74,6 +74,10 @@ Now you can run some of the example tests:
 ./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/contosoCrafts/get_singles.lua http://localhost:9090/Products/Index= -R <reqs-per-sec>
 ```
 
-2. @TODO
+2. Evaluation of random products
+
+```bash
+./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/contosoCrafts/rate_product.lua http://localhost:9090/Products/ -R <reqs-per-sec>
+```
 
 3. @TODO
