@@ -19,6 +19,8 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+    ports:
+      - "9090:80"
 
   ##### Checkout Processor #####
   checkoutprocessor:
