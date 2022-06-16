@@ -80,4 +80,10 @@ Now you can run some of the example tests:
 ./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/contosoCrafts/rate_product.lua http://localhost:9090/Products/ -R <reqs-per-sec>
 ```
 
-3. @TODO
+3. Getting all products
+
+./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/contosoCrafts/get_all.lua http://localhost:9090/Products/ -R <reqs-per-sec>
+
+1. Mixed scenario 
+
+./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/contosoCrafts/mix_scenario.lua http://localhost:9090/Products/ -R <reqs-per-sec>
