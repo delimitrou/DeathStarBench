@@ -29,6 +29,13 @@ namespace ContosoCrafts.ProductsApi.Controllers
             return Ok(result);
         }
 
+        [HttpGet("Index={index:int:required}")]
+        public async Task<ActionResult> GetSingleByIndex(int index)
+        {
+            var result = await _productService.GetSingleByIndex(index);
+            return Ok(result);
+        }
+
         [HttpPatch]
         public async Task<ActionResult> Patch(RatingRequest request)
         {

@@ -43,5 +43,14 @@ namespace ContosoCrafts.ProductsApi.Services
             var cursor = await collection.FindAsync(filter);
             return cursor.SingleOrDefault();
         }
+
+        public async Task<Product> GetSingleByIndex(int index)
+        {
+            var collection = this._database.GetCollection<Product>(COLLECTION_NAME);
+            var results = await collection.Find(new BsonDocument())
+                .Skip(Convert.ToInt32(index)).Limit(Convert.ToInt32(1))
+                .ToListAsync();
+            return results[0];
+        }
     }
 }

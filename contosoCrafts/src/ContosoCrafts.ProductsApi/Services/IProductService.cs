@@ -9,5 +9,6 @@ namespace ContosoCrafts.ProductsApi.Services
         Task<IEnumerable<Product>> GetProducts(int page = 1, int limit = 20);
         Task AddRating(string productId, int rating);
         Task<Product> GetSingle(string id);
+        Task<Product> GetSingleByIndex(int index);
     }
 }
