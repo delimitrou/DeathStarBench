@@ -1,0 +1,35 @@
+@inject EventAggregator.Blazor.IEventAggregator Aggregator
+@implements EventAggregator.Blazor.IHandle<ShoppingCartUpdated>
+@implements IDisposable
+
+<button class="navbar-brand fa-lg" data-toggle="modal" data-target="#@CheckoutModalTarget" @onclick="(e => Checkout())">
+    <i class="fa fa-shopping-cart" data-count="@shoppingCartCount" aria-hidden="true"></i>
+</button>
+
+@code {
+    [Parameter]
+    public string CheckoutModalTarget { get; set; }
+    int shoppingCartCount = 0;
+
+    protected override void OnInitialized()
+    {
+        Aggregator.Subscribe(this);
+    }
+
+    protected async Task Checkout()
+    {
+        await Aggregator.PublishAsync(new CheckoutStarted());
+    }
+
+    public Task HandleAsync(ShoppingCartUpdated cartUpdated)
+    {
+        shoppingCartCount = cartUpdated.ItemCount;
+        InvokeAsync(() => StateHasChanged());
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        Aggregator.Unsubscribe(this);
+    }
+}

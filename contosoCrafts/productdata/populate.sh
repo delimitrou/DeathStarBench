@@ -1,0 +1,2 @@
+echo "Importing product data...."
+mongoimport --db=contosocrafts --collection=products --file=/data/products.json --jsonArray --upsertFields=Id --mode=upsert --username=admin --password=admin --authenticationDatabase=admin

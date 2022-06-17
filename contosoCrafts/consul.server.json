@@ -1,0 +1,16 @@
+{
+  "datacenter": "contoso-steeltoe-dc",
+  "log_level": "WARN",
+  "bind_addr": "0.0.0.0",
+  "client_addr": "0.0.0.0",
+  "bootstrap": true,
+  "disable_update_check": true,
+  "telemetry": {
+    "prometheus_retention_time": "60s"
+  },
+  "ui": true,
+  "dns_config": {
+    "enable_truncate": true,
+    "udp_answer_limit": 100
+  }
+}

@@ -1,0 +1,184 @@
+﻿.checked {
+  color: orange;
+}
+
+.fa-star {
+  cursor: pointer;
+}
+
+button.navbar-brand.fa-lg {
+  font-size: xx-large;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+button .fa-shopping-cart {
+  color: white;
+}
+
+.fa[data-count] {
+  position: relative;
+}
+.fa[data-count]:after {
+  position: absolute;
+  right: -0.75em;
+  top: -0.75em;
+  content: attr(data-count);
+  padding: 0.4em;
+  border-radius: 10em;
+  line-height: 0.9em;
+  color: white;
+  background: rgba(255, 0, 0, 0.75);
+  text-align: center;
+  min-width: 2em;
+  font: bold 0.4em sans-serif;
+}
+
+#checkoutModal .modal-header .card-body {
+  padding: 0;
+}
+
+#checkoutModal .modal-header,
+#productModal .modal-header {
+  background-color: #e9a8a6;
+}
+
+/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+.card-columns .card:hover .card-img {
+  opacity: 1;
+  -webkit-transform-style: preserve-3d;
+}
+
+.card-columns .card-body {
+  height: 100px;
+  font-family: "Nunito", sans-serif;
+  background: #fbfafd;
+}
+
+.card-columns .card-img {
+  height: 330px;
+  vertical-align: bottom;
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+  opacity: 0.8;
+}
+
+.modal .card-img {
+  height: 500px;
+  vertical-align: bottom;
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+}
+
+.card-columns .card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(37, 33, 82, 0.12),
+    0 4px 8px rgba(37, 33, 82, 0.06);
+}
+.card-footer {
+  background: #fbfafd;
+}
+
+a.navbar-brand {
+  white-space: normal;
+  font-family: "Yellowtail", cursive;
+  font-size: xx-large;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #252152;
+  border-color: #252152;
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #e9a8a6;
+  border-color: #e9a8a6;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+p {
+  font-family: "Nunito", sans-serif;
+}
+h1 {
+  font-family: "Nunito", sans-serif;
+}
+ul {
+  font-family: "Nunito", sans-serif;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+  font-family: "Nunito", sans-serif;
+}
+/*Backgrounds*/
+.bg-navbar {
+  background: -webkit-linear-gradient(110deg, #e9a8a6 60%, #252152 60%);
+  background: -o-linear-gradient(110deg, #e9a8a6 60%, #252152 60%);
+  background: -moz-linear-gradient(110deg, #e9a8a6 60%, #252152 60%);
+  background: linear-gradient(110deg, #e9a8a6 60%, #252152 60%);
+}
+.bg-footer {
+  background: -webkit-linear-gradient(110deg, #252152 60%, #e9a8a6 60%);
+  background: -o-linear-gradient(110deg, #252152 60%, #e9a8a6 60%);
+  background: -moz-linear-gradient(110deg, #252152 60%, #e9a8a6 60%);
+  background: linear-gradient(110deg, #252152 60%, #e9a8a6 60%);
+}

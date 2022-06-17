@@ -1,0 +1,86 @@
+version: "3.7"
+
+services:
+  ##### MongoDB #####
+  mongodb:
+    container_name: mongo_service
+    image: mongo:4.2.8
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+      - MONGO_INITDB_DATABASE=contosocrafts
+    volumes:
+      - ./productdata/products.json:/data/products.json
+      - ./productdata/populate.sh:/docker-entrypoint-initdb.d/populate.sh
+      - ./contoso_tmp/mongo/data/db:/data/db
+    ports:
+      - "27017:27017"
+
+  ##### Rabbitmq #####
+  rabbitmq:
+    image: "rabbitmq:3.8.5-management"
+    container_name: "rabbitmq_service"
+    hostname: "rabbitmq_service"
+    environment:
+      - RABBITMQ_DEFAULT_USER=demo
+      - RABBITMQ_DEFAULT_PASS=demo
+      - RABBITMQ_ERLANG_COOKIE=demo_cookie_1234
+      - RABBITMQ_DEFAULT_VHOST=contoso_steeltoe
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  ##### Redis #####
+  redis:
+    container_name: "redis_service"
+    image: "redis:6.0.5-alpine"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+
+  ##### Zipkin #####
+  zipkin:
+    container_name: "zipkin_service"
+    image: "openzipkin/zipkin:2.21.5"
+    ports:
+      - 9411:9411
+
+  ##### Seq #####
+  seq:
+    container_name: "seq_service"
+    image: datalust/seq:2020.1
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - ./contoso_tmp/seq/data:/data
+    ports:
+      - "8191:80"
+      - "12201:12201/udp"
+
+  ##### fluent-bit #####
+  fluent-bit:
+    image: fluent/fluent-bit:1.5.2
+    container_name: "fluentbit_service"
+    hostname: "fluentbit_service"
+    ports:
+      - "24224:24224"
+    volumes:
+      - "./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro"
+
+  ##### Consul #####
+  consul:
+    container_name: consul_service
+    image: consul:1.8.0
+    restart: unless-stopped
+    ports:
+      - "8500:8500" # HTTP API and UI port
+    command: consul agent -dev -config-dir /etc/consul.d
+    volumes:
+      - ./consul.server.json:/etc/consul.d/consul.server.json
+
+networks:
+  default:
+    name: contoso_steeltoe_network
+    driver: bridge

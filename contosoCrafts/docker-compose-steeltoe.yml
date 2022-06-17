@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+  ##### Website  #####
+  website:
+    build:
+      context: ./src/ContosoCrafts.WebSite
+      dockerfile: Dockerfile
+    container_name: contoso_website
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+
+  ##### API #####
+  productsapi:
+    build:
+      context: ./src/ContosoCrafts.ProductsApi
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "9090:80"
+
+  ##### Checkout Processor #####
+  checkoutprocessor:
+    build:
+      context: ./src/ContosoCrafts.CheckoutProcessor
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+
+networks:
+  default:
+    external:
+      name: contoso_steeltoe_network

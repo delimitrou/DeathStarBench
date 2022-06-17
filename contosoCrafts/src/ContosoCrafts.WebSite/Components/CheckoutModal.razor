@@ -1,0 +1,83 @@
+@inject IHttpClientFactory ClientFactory
+@inject EventAggregator.Blazor.IEventAggregator Aggregator
+@inject IDistributedCache Cache
+@inject RabbitMQBus MessageBus
+
+@implements EventAggregator.Blazor.IHandle<CheckoutStarted>
+
+<div class="modal fade" id="checkoutModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Checkout</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">
+                      <table class="table table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                            <th>Title</th>
+                            <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(Items != null){
+                                @foreach (var item in Items)
+                                {
+                                    <tr>
+                                    <td>@item.Title</td>
+                                    <td>@item.Quantity</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                 <button class="btn btn-primary"  data-toggle="modal" data-target="#checkoutModal" @onclick="(e => SubmitCheckout())">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {    
+    IEnumerable<CartItem> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Aggregator.Subscribe(this);
+    }
+    public async Task HandleAsync(CheckoutStarted cartUpdated)
+    {
+        // get state
+        var cartData = await Cache.GetStringAsync(Constants.CART_CACHE_KEY);
+
+        if (cartData == null) return;
+
+        var cartItems = JsonSerializer.Deserialize<Dictionary<string, CartItem>>(cartData);
+        Items = cartItems.Values;
+
+        StateHasChanged();
+    }
+
+    protected async Task SubmitCheckout()
+    {
+        if (Items == null || !Items.Any()) return;
+
+        //Submit checkout
+        MessageBus.Publish(Items);
+
+        // Clear state store
+        await Cache.RemoveAsync(Constants.CART_CACHE_KEY);
+
+        Items = null;
+        await Aggregator.PublishAsync(new ShoppingCartUpdated { ItemCount = 0 });
+        StateHasChanged();
+    }
+}

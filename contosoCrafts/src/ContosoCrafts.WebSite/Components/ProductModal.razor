@@ -1,0 +1,77 @@
+<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productTitle">@Product.Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-img" style="background-image: url('@Product.Image');">
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@Product.Description</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @if (voteCount == 0)
+                {
+                    <span>Be the first to vote!</span>
+                }
+                else
+                {
+                    <span>@voteCount @voteLabel</span>
+                }
+                @for (int i = 1; i < 6; i++)
+                {
+                    var currentStar = i;
+                    if (i <= currentRating)
+                    {
+                        <span class="fa fa-star checked" @onclick="(e => SubmitRating(currentStar))"></span>
+                    }
+                    else
+                    {
+                        <span class="fa fa-star" @onclick="(e => SubmitRating(currentStar))"></span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Product Product { get; set; }
+
+    [Parameter]
+    public Func<int, Task> SubmitRating { get; set; }
+
+    int currentRating = 0;
+    int voteCount = 0;
+    string voteLabel;
+
+    protected override void OnParametersSet()
+    {
+        if (Product == null) Product = new Product();
+        GetCurrentRating();
+        base.OnParametersSet();
+    }
+
+    void GetCurrentRating()
+    {
+        if (Product.Ratings == null || Product.Ratings.Count() == 0)
+        {
+            currentRating = 0;
+            voteCount = 0;
+        }
+        else
+        {
+            voteCount = Product.Ratings.Count();
+            voteLabel = voteCount > 1 ? "Votes" : "Vote";
+            currentRating = Product.Ratings.Sum() / voteCount;
+        }
+    }
+}

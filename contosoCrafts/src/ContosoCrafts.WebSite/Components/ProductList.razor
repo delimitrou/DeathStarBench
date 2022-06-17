@@ -1,0 +1,31 @@
+@inherits ProductListBase
+
+<div>
+    <div class="card-columns">
+        @if(products != null)
+        {
+            @foreach (var product in products)
+            {
+                <div class="card">
+                    <div class="card-img" style="background-image: url('@product.Image');">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Title</h5>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <button @onclick="(e => SelectProduct(product.Id))"
+                                    data-toggle="modal" data-target="#productModal" class="btn btn-primary">
+                                Info
+                            </button>
+                            <button class="btn btn-primary" @onclick="(e => AddToCart(product.Id, product.Title))">
+                                Add to cart
+                            </button>
+                        </small>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+        <ProductModal Product="@selectedProduct" SubmitRating="@SubmitRating"></ProductModal>
+</div>
