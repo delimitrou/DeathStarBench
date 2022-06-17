@@ -33,6 +33,26 @@ dockerized and can be benchmark-tested by
 - [Fluent Bit](https://fluentbit.io/) - Log forwarder
 - [Seq](https://datalust.co/seq) - Log Aggregator
 
+## Adaptation
+
+DeathStarBench is not a ready, standalone framework which we can run
+as single component or import to the existing project. It is a kind
+of prototype for benchmarking web applications. We don't have any
+instruction how to adapt more services there, instead of that fact
+we have three example services with description how to run and test
+them. In ContosoCrafts we provided the same instruction in this
+README file below. We are also leaving a small note how we have
+adapted ContosoCrafts to DeathStarBench and made it able to be
+benchmarked (stress-test):
+
+1. Forked DeathStarBench for our purposes.
+2. Downloaded DeathStarBench and ContosoCrafts into separate directories.
+3. Moved ContosoCrafts to the DeathStarBench repository as a new service.
+4. Provided wrk2 in ContosoCrafts as our test framework
+5. Prepared some special request generators as .lua scripts.
+6. Just tried to run application and wrk2 with our scripts.
+7. Prepared documentation for new service.
+
 ## Running
 
 #### Pre-requirements
@@ -82,8 +102,12 @@ Now you can run some of the example tests:
 
 3. Getting all products
 
+```bash
 ./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/contosoCrafts/get_all.lua http://localhost:9090/Products/ -R <reqs-per-sec>
+```
 
 1. Mixed scenario 
 
+```bash
 ./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/contosoCrafts/mix_scenario.lua http://localhost:9090/Products/ -R <reqs-per-sec>
+```
