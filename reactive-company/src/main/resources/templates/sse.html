@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Reactive Company</title>
+
+<link data-th-href="@{/css/bootstrap.min.css}" rel="stylesheet">
+<link data-th-href="@{/css/reactive-company.css}" rel="stylesheet">
+
+<script data-th-inline="javascript">
+
+        /*
+         * BlogStream will be in charge of the EventSource that will retrieve
+         * the Server-Sent Events (SSE) sent from the server to update the blog
+         *
+         * NOTE these events will be rendered in HTML by Thymeleaf, so all needed
+         * to insert them into the document will be using the "innerHTML" property.
+         */
+        function BlogStream () {
+
+            this.source = null;
+
+            this.start = function () {
+
+                var blogTable = document.getElementById("blogTableBody");
+                var sourceUrl = [[@{|/stream/blog|}]];
+
+                this.source = new EventSource(sourceUrl);
+
+                this.source.addEventListener("message", function (event) {
+                    // This is just HTML, so no need to do anything else
+                    blogTable.innerHTML += event.data;
+                });
+
+                this.source.onerror = function () {
+                    this.close();
+                };
+
+            };
+
+            this.stop = function() {
+                this.source.close();
+            }
+
+        }
+        
+        /*
+         * ProjectStream will be in charge of the EventSource that will retrieve
+         * the Server-Sent Events (SSE) sent from the server to update the projects
+         *
+         * NOTE these events will be rendered in HTML by Thymeleaf, so all needed
+         * to insert them into the document will be using the "innerHTML" property.
+         */
+        function ProjectStream () {
+
+            this.source = null;
+
+            this.start = function () {
+
+                var projectTable = document.getElementById("projectTableBody");
+                var sourceUrl = [[@{|/stream/project|}]];
+
+                this.source = new EventSource(sourceUrl);
+
+                this.source.addEventListener("message", function (event) {
+                    // This is just HTML, so no need to do anything else
+                    projectTable.innerHTML += event.data;
+                });
+
+                this.source.onerror = function () {
+                    this.close();
+                };
+
+            };
+
+            this.stop = function() {
+                this.source.close();
+            }
+
+        }
+        
+        /*
+         * BlogStream will be in charge of the EventSource that will retrieve
+         * the Server-Sent Events (SSE) sent from the server to update the blog
+         *
+         * NOTE these events will be rendered in JSON by Spring WebFlux (using Jackson),
+         * so we will need to parse them and intervene on the DOM in order to create
+         * the needed nodes to display the info coming in the JSON objects.
+         */
+        function BlogTailStream () {
+
+            this.source = null;
+
+            this.start = function () {
+
+                var matchCommentsTable = document.getElementById("blogTailTable");
+                var sourceUrl = [[@{|/tail/blogposts|}]];
+
+                this.source = new EventSource(sourceUrl);
+
+                this.source.addEventListener("message", function (event) {
+
+                    // These events are JSON, so parsing and DOM fiddling are needed
+
+                    var comment = JSON.parse(event.data);
+
+                    var row = matchCommentsTable.getElementsByTagName("tbody")[0].insertRow(0);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+
+                    cell1.innerHTML = comment.title;
+                    cell2.innerHTML = comment.published;
+                    cell3.innerHTML = comment.publishedTime;
+
+
+                });
+
+                this.source.onerror = function () {
+                    this.close();
+                };
+
+            };
+
+            this.stop = function() {
+                this.source.close();
+            }
+
+        }
+        
+        /*
+         * Instantiate both SSE controller objects.
+         */
+        blogStream = new BlogStream();
+        projectStream = new ProjectStream();
+        blogTailStream = new BlogTailStream();
+
+
+        /*
+         * Register callbacks for starting and stopping the SSE controller.
+         */
+        window.onload = function() {
+        	blogStream.start();
+        	projectStream.start();
+        	blogTailStream.start();
+        };
+        window.onbeforeunload = function() {
+        	blogStream.stop();
+        	projectStream.stop();
+        	blogTailStream.stop();
+        }
+
+</script>
+
+</head>
+<body>
+	<div class="container">
+	    <h2>Streams</h2>
+		<div class="row">
+			<h3>Blog posts</h3>
+			<table  class="table table-striped">
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Published</th>
+						<th>Publish time</th>
+					</tr>
+				</thead>
+				<tbody id="blogTableBody">
+					<tr data-th-each="blogPost : ${blogPosts}">
+						<td>[[${blogPost.title}]]</td>
+						<td>[[${blogPost.published}]]</td>
+						<td>[[${blogPost.publishedTime}]]</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="row">
+			<h3>Projects</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Repository URL</th>
+						<th>Site URL</th>
+						<th>Category</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody id="projectTableBody" >
+					<tr data-th-each="project : ${projects}">
+						<td>[[${project.name}]]</td>
+						<td>[[${project.repoUrl}]]</td>
+						<td>[[${project.siteUrl}]]</td>
+						<td>[[${project.category}]]</td>
+						<td>[[${project.description}]]</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="row">
+			<h3>Blog posts - Tail</h3>
+			<table id="blogTailTable" class="table table-striped">
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Published</th>
+						<th>Publish time</th>
+					</tr>
+				</thead>
+				<tbody>
+			    	<!-- This will be populated by 'BlogTailStream' java script function -->
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+</body>
+</html>

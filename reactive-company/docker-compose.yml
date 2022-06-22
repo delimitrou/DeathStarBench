@@ -1,0 +1,16 @@
+version: "3"
+
+services:  
+  
+  reactive-company:
+    image: idugalic/reactive-company
+    ports:
+     - "8080:8080"
+    command: java -Dspring.profiles.active=docker -jar /app.jar
+    
+  mongodb:
+    image: mongo:3.0.4
+    hostname: mongodb
+    command: mongod --smallfiles
+    ports:
+     - "27017:27017"

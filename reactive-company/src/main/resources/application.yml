@@ -1,0 +1,22 @@
+server:
+  port: ${PORT:8080}
+
+
+spring:
+  data:
+    mongodb:
+      database: reactivecompany
+      
+  thymeleaf: 
+    reactive:
+      max-chunk-size: 8192
+    cache: false
+
+      
+---
+spring:
+  profiles: docker
+  data:
+    mongodb:
+      uri: mongodb://mongodb:27017/reactivecompany
+

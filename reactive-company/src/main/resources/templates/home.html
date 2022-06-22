@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Reactive Company</title>
+
+<link data-th-href="@{/css/bootstrap.min.css}" rel="stylesheet">
+<link data-th-href="@{/css/reactive-company.css}" rel="stylesheet">
+
+</head>
+<body>
+	<div class="container">
+	    <h2>Home</h2>
+		<div class="row">
+			<h3>Blog posts</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Published</th>
+						<th>Publish time</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-th-each="blogPost : ${blogPosts}">
+						<td>[[${blogPost.title}]]</td>
+						<td>[[${blogPost.published}]]</td>
+						<td>[[${blogPost.publishedTime}]]</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="row">
+			<h3>Projects</h3>
+			<table class="table table-striped">
+			<thead>
+					<tr>
+						<th>Name</th>
+						<th>Repository URL</th>
+						<th>Site URL</th>
+						<th>Category</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-th-each="project : ${projects}">
+						<td>[[${project.name}]]</td>
+						<td>[[${project.repoUrl}]]</td>
+						<td>[[${project.siteUrl}]]</td>
+						<td>[[${project.category}]]</td>
+						<td>[[${project.description}]]</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div>
+		 <a href="/stream">Reactive Steaming - All the way</a>
+		</div>
+	</div>
+
+</body>
+</html>
