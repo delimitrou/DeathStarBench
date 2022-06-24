@@ -8,51 +8,19 @@ services:
       CLUSTER_PORT: 1600
       CLUSTER_IP: seed
       SEED_PORT_1600_TCP_ADDR: seed
+      JAEGER_HOST: jaeger
 
-# envs for monitoring
-#      OTEL_METRICS_EXPORTER: zipkin
-      OTEL_TRACES_EXPORTER: zipkin
-#     OTEL_TRACES_EXPORTER: logging
-      OTLP_TRACES_EXPORTER: jaeger
-      OTLP_EXPORTER_JAEGER_ENDPOINT: http://localhost:55681
-      JAEGER_SERVICE_NAME: seed
   c1:
-    image: suu_project_repository/microservice_1:latest
+    image: suu_project_repository/microservice_2:latest
     ports:
       - '1601:1601'
     environment:
       CLUSTER_PORT: 1601
       CLUSTER_IP: c1
       SEED_PORT_1600_TCP_ADDR: seed
+      JAEGER_HOST: jaeger
 
-# envs for monitoring
-#      OTEL_METRICS_EXPORTER: zipkin
-      OTEL_TRACES_EXPORTER: zipkin
-#     OTEL_TRACES_EXPORTER: logging
-      OTLP_TRACES_EXPORTER: jaeger
-      OTLP_EXPORTER_JAEGER_ENDPOINT: http://localhost:55681
-      JAEGER_SERVICE_NAME: c1
-  c2:
-    image: suu_project_repository/microservice_2:latest # repeated first microservice, just as an example
-    ports:
-      - '1602:1602'
-    environment:
-      CLUSTER_PORT: 1602
-      CLUSTER_IP: c2
-      SEED_PORT_1600_TCP_ADDR: seed
 
-# envs for monitoring
-#      OTEL_METRICS_EXPORTER: zipkin
-#      OTEL_TRACES_EXPORTER: zipkin
-#     OTEL_TRACES_EXPORTER: logging
-#      OTEL_EXPORTER_PROMETHEUS_PORT: 
-      OTLP_TRACES_EXPORTER: jaeger
-      OTLP_EXPORTER_JAEGER_ENDPOINT: http://localhost:55681
-      JAEGER_SERVICE_NAME: c2
-#      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
-#      JAEGER_AGENT_HOST: jaeger
-#      JAEGER_AGENT_PORT: 6831
-#      JAEGER_SAMPLER_MANAGER_HOST_PORT: "jaeger:5778"
 
   jaeger:
     image: jaegertracing/opentelemetry-all-in-one:latest
@@ -63,8 +31,6 @@ services:
       - 6832:6832/udp
       - 5778:5778
       - 16686:16686
-      - 14268:14268
+      # - 14268:14268 do not set
       - 9411:9411
       - 55681:55681
-    environment:
-      COLLECTOR_OTLP_ENABLED: true

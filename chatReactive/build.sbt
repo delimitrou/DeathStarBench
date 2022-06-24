@@ -15,25 +15,17 @@ val commonScalacSettings = Seq(
 val akka = "2.6.12"
 val telemetry = "1.11.0" // for jaeger tracing
 
-val commonDependencies = Seq (
+lazy val commonDependencies = Seq (
   // -- Logging --
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   // -- Akka --
   "com.typesafe.akka" %% "akka-actor-typed"   % akka,
   "com.typesafe.akka" %% "akka-cluster-typed" % akka,
   
-  // opentelemetry for jaeger
-  "io.opentelemetry" % "opentelemetry-bom" % telemetry pomOnly(),
-  "io.opentelemetry" % "opentelemetry-api" % telemetry,
-  "io.opentelemetry" % "opentelemetry-sdk" % telemetry,
-  "io.opentelemetry" % "opentelemetry-exporter-jaeger" % telemetry,
-  // "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % alphaVersion,
-  // "io.opentelemetry" % "opentelemetry-exporter-prometheus" % alphaVersion,
-  "io.opentelemetry" % "opentelemetry-exporter-zipkin" % telemetry,
-  "io.opentelemetry" % "opentelemetry-exporter-jaeger" % telemetry,
-  "io.opentelemetry" % "opentelemetry-exporter-otlp" % telemetry,
-
-  "io.opentelemetry.javaagent" % "opentelemetry-javaagent" % telemetry % "runtime"
+  // kamon for jaeger (and potentially prometheus)
+  "io.kamon" %% "kamon-bundle" % "2.5.4",
+  "io.kamon" %% "kamon-akka" % "2.5.4",
+  "io.kamon" %% "kamon-jaeger" % "2.5.4"
 )
 
 lazy val microservice_1 = project
@@ -49,7 +41,7 @@ lazy val microservice_1 = project
     javaOptions += "-Dotel.javaagent.debug=true",
 
     version in Docker := "latest",
-    dockerExposedPorts in Docker := Seq(1601),
+    dockerExposedPorts in Docker := Seq(1600),
     dockerRepository := Some("suu_project_repository"),
     dockerBaseImage := "java",
 
@@ -57,10 +49,10 @@ lazy val microservice_1 = project
     daemonUserUid in Docker := Option("0"),
     daemonUser in Docker    := "daemon",
 
-    dockerCommands ++= Seq(
-        Cmd("RUN", "wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar"),
-        Cmd("ENV", "JAVA_OPTS=\"-javaagent:/opt/docker/opentelemetry-javaagent.jar\"")
-    )
+    // dockerCommands ++= Seq(
+    //     Cmd("RUN", "wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar"),
+    //     Cmd("ENV", "JAVA_OPTS=\"-javaagent:/opt/docker/opentelemetry-javaagent.jar\"")
+    // )
   )
 
 lazy val microservice_2 = project
@@ -76,7 +68,7 @@ lazy val microservice_2 = project
     javaOptions += "-Dotel.javaagent.debug=true",
 
     version in Docker := "latest",
-    dockerExposedPorts in Docker := Seq(1602),
+    dockerExposedPorts in Docker := Seq(1601),
     dockerRepository := Some("suu_project_repository"),
     dockerBaseImage := "java",
 
@@ -84,8 +76,9 @@ lazy val microservice_2 = project
     daemonUserUid in Docker := Option("0"),
     daemonUser in Docker    := "daemon",
 
-    dockerCommands ++= Seq(
-        Cmd("RUN", "wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar"),
-        Cmd("ENV", "JAVA_OPTS=\"-javaagent:/opt/docker/opentelemetry-javaagent.jar\"")
-    )
+    // dockerCommands ++= Seq(
+    //     Cmd("RUN", "wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar"),
+    //     Cmd("ENV", "JAVA_OPTS=\"-javaagent:/opt/docker/opentelemetry-javaagent.jar -Dotel.javaagent.debug=true\""),
+    //     // Cmd("ENV", "otel.javaagent.debug=true")
+    // )
   )

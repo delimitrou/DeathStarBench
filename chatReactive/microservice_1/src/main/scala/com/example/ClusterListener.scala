@@ -1,36 +1,52 @@
 package com.example
 
+import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.cluster.ClusterEvent
-import akka.cluster.ClusterEvent._
+import akka.cluster.ClusterEvent.MemberEvent
+import akka.cluster.ClusterEvent.MemberRemoved
+import akka.cluster.ClusterEvent.MemberUp
+import akka.cluster.ClusterEvent.ReachabilityEvent
+import akka.cluster.ClusterEvent.ReachableMember
+import akka.cluster.ClusterEvent.UnreachableMember
 import akka.cluster.typed.Cluster
 import akka.cluster.typed.Subscribe
 
 object ClusterListener {
-  def apply(): Behavior[ClusterEvent.ClusterDomainEvent] =
-    Behaviors.setup { ctx =>
-      ctx.log.debug("starting up cluster listener...")
-      Cluster(ctx.system).subscriptions ! Subscribe(ctx.self, classOf[ClusterEvent.ClusterDomainEvent])
 
-      Behaviors.receiveMessagePartial {
-        case MemberUp(member) =>
-          ctx.log.debug("Member is Up: {}", member.address)
-          Behaviors.same
-        case UnreachableMember(member) =>
-          ctx.log.debug("Member detected as unreachable: {}", member)
-          Behaviors.same
-        case MemberRemoved(member, previousStatus) =>
-          ctx.log.debug("Member is Removed: {} after {}",
-            member.address, previousStatus)
-          Behaviors.same
-        case LeaderChanged(member) =>
-          ctx.log.info("Leader changed: " + member)
-          Behaviors.same
-        case any: MemberEvent =>
-          ctx.log.info("Member Event: " + any.toString)
-          Behaviors.same
+  sealed trait Event
+  // internal adapted cluster events only
+  private final case class ReachabilityChange(reachabilityEvent: ReachabilityEvent) extends Event
+  private final case class MemberChange(event: MemberEvent) extends Event
+
+  def apply(): Behavior[Event] = Behaviors.setup { ctx =>
+    val memberEventAdapter: ActorRef[MemberEvent] = ctx.messageAdapter(MemberChange)
+    Cluster(ctx.system).subscriptions ! Subscribe(memberEventAdapter, classOf[MemberEvent])
+
+    val reachabilityAdapter = ctx.messageAdapter(ReachabilityChange)
+    Cluster(ctx.system).subscriptions ! Subscribe(reachabilityAdapter, classOf[ReachabilityEvent])
+
+    Behaviors.receiveMessage { message =>
+      message match {
+        case ReachabilityChange(reachabilityEvent) =>
+          reachabilityEvent match {
+            case UnreachableMember(member) =>
+              ctx.log.info("Member detected as unreachable: {}", member)
+            case ReachableMember(member) =>
+              ctx.log.info("Member back to reachable: {}", member)
+          }
+
+        case MemberChange(changeEvent) =>
+          changeEvent match {
+            case MemberUp(member) =>
+              ctx.log.info("Member is Up: {}", member.address)
+            case MemberRemoved(member, previousStatus) =>
+              ctx.log.info("Member is Removed: {} after {}",
+                member.address, previousStatus)
+            case _: MemberEvent => // ignore
+          }
       }
+      Behaviors.same
     }
+  }
 }
-

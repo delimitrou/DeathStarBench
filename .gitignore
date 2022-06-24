@@ -1,5 +1,7 @@
 .vscode
 .metals
+.bloop
+metals.sbt
 
 .DS_Store
 build
