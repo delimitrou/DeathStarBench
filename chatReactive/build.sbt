@@ -13,7 +13,7 @@ val commonScalacSettings = Seq(
 )
 
 val akka = "2.6.12"
-val telemetry = "1.11.0" // for jaeger tracing
+val akkaHttpVersion = "10.2.9"
 
 lazy val commonDependencies = Seq (
   // -- Logging --
@@ -21,6 +21,8 @@ lazy val commonDependencies = Seq (
   // -- Akka --
   "com.typesafe.akka" %% "akka-actor-typed"   % akka,
   "com.typesafe.akka" %% "akka-cluster-typed" % akka,
+  "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+  "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
   
   // kamon for jaeger (and potentially prometheus)
   "io.kamon" %% "kamon-bundle" % "2.5.4",

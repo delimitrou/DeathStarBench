@@ -10,17 +10,9 @@ object App {
   object RootBehavior {
     def apply(): Behavior[Nothing] = Behaviors.setup[Nothing] { context =>
       // Create an actor that handles cluster domain events
-      val actor = context.spawn(ClusterListener(), "ClusterListener")
-      println(actor.path)
-      // while(true){
-      //   val span = kamon.Kamon.spanBuilder("find-users")
-      //     .tag("string-tag", "hello")
-      //     .tag("number-tag", 42)
-      //     .tag("boolean-tag", true)
-      //     .start()
+      val clusterListener = context.spawn(ClusterListener(), "ClusterListener")
+      val httpServer = context.spawn[Nothing](HttpServerWithActorInteraction(), "HttpServer")
 
-      //   span.finish()
-      // }
       Behaviors.empty
     }
   }

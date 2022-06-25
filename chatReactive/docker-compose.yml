@@ -4,6 +4,7 @@ services:
     image: suu_project_repository/microservice_1:latest
     ports:
       - '1600:1600'
+      - 8080:8080
     environment:
       CLUSTER_PORT: 1600
       CLUSTER_IP: seed
@@ -19,8 +20,6 @@ services:
       CLUSTER_IP: c1
       SEED_PORT_1600_TCP_ADDR: seed
       JAEGER_HOST: jaeger
-
-
 
   jaeger:
     image: jaegertracing/opentelemetry-all-in-one:latest
