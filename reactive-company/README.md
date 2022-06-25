@@ -85,10 +85,10 @@ Now you can run some of the example tests:
 ./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/reactive-company/add_blogpost.lua http://localhost:8080/blogposts/ -R <reqs-per-sec>
 ```
 
-2. @TODO
+2. Getting all blog posts
 
 ```bash
-@TODO
+./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/reactive-company/get_all_blogposts.lua http://localhost:8080/blogposts/ -R <reqs-per-sec>
 ```
 
 3. @TODO
