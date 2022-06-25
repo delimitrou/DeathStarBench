@@ -91,10 +91,10 @@ Now you can run some of the example tests:
 ./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/reactive-company/get_all_blogposts.lua http://localhost:8080/blogposts/ -R <reqs-per-sec>
 ```
 
-3. @TODO
+3. Getting all projects
 
 ```bash
-@TODO
+./wrk -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/reactive-company/get_all_projects.lua http://localhost:8080/projects/ -R <reqs-per-sec>
 ```
 
 #### Stopping service
