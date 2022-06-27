@@ -2,6 +2,10 @@
   {{ .Values.global.mongodb.sharding.svc.user }}:{{ .Values.global.mongodb.sharding.svc.password }}@{{ .Values.global.mongodb.sharding.svc.name }}
 {{- end }}
 
+{{- define "memcached-cluster.connection" }}
+  {{ .Release.Name }}-mcrouter
+{{- end }}
+
 {{- define "socialnetwork.templates.other.service-config.json"  }}
 {
     "secret": "secret",
@@ -98,11 +102,12 @@
       "keepalive_ms": 10000
     },
     "post-storage-memcached": {
-      "addr": "post-storage-memcached",
-      "port": 11211,
+      "addr": {{ ternary (include "memcached-cluster.connection" . | trim) "post-storage-memcached" .Values.global.memcached.cluster.enabled | quote}},
+      "port": {{ ternary .Values.global.memcached.cluster.port 11211 .Values.global.memcached.cluster.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
-      "keepalive_ms": 10000
+      "keepalive_ms": 10000,
+      "binary_protocol": {{ ternary 0 1 .Values.global.memcached.cluster.enabled}}
     },
     "unique-id-service": {
       "addr": "unique-id-service",
@@ -127,11 +132,12 @@
       "keepalive_ms": 10000
     },
     "media-memcached": {
-      "addr": "media-memcached",
-      "port": 11211,
+      "addr": {{ ternary (include "memcached-cluster.connection" . | trim) "media-memcached" .Values.global.memcached.cluster.enabled | quote}},
+      "port": {{ ternary .Values.global.memcached.cluster.port 11211 .Values.global.memcached.cluster.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
-      "keepalive_ms": 10000
+      "keepalive_ms": 10000,
+      "binary_protocol": {{ ternary 0 1 .Values.global.memcached.cluster.enabled}}
     },
     "media-frontend": {
       "addr": "media-frontend",
@@ -162,11 +168,12 @@
       "keepalive_ms": 10000
     },
     "url-shorten-memcached": {
-      "addr": "url-shorten-memcached",
-      "port": 11211,
+      "addr": {{ ternary (include "memcached-cluster.connection" . | trim) "url-shorten-memcached" .Values.global.memcached.cluster.enabled | quote}},
+      "port": {{ ternary .Values.global.memcached.cluster.port 11211 .Values.global.memcached.cluster.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
-      "keepalive_ms": 10000
+      "keepalive_ms": 10000,
+      "binary_protocol": {{ ternary 0 1 .Values.global.memcached.cluster.enabled}}
     },
     "url-shorten-mongodb": {
       "addr": {{ ternary (include "mongodb-sharded.connection" . | trim) "url-shorten-mongodb" .Values.global.mongodb.sharding.enabled | quote}},
@@ -184,11 +191,12 @@
       "netif": "eth0"
     },
     "user-memcached": {
-      "addr": "user-memcached",
-      "port": 11211,
+      "addr": {{ ternary (include "memcached-cluster.connection" . | trim) "user-memcached" .Values.global.memcached.cluster.enabled | quote}},
+      "port": {{ ternary .Values.global.memcached.cluster.port 11211 .Values.global.memcached.cluster.enabled}},
       "connections": 512,
       "timeout_ms": 10000,
-      "keepalive_ms": 10000
+      "keepalive_ms": 10000,
+      "binary_protocol": {{ ternary 0 1 .Values.global.memcached.cluster.enabled}}
     },
     "user-mongodb": {
       "addr": {{ ternary (include "mongodb-sharded.connection" . | trim) "user-mongodb" .Values.global.mongodb.sharding.enabled | quote}},

@@ -5,6 +5,12 @@ global:
   serviceType: ClusterIP
   dockerRegistry: docker.io
   defaultImageVersion: latest
+  memcached:
+    cluster:
+      enabled: true
+      port: &memcached-cluster-port 5000
+    standalone:
+      enabled: false
   mongodb:
     standalone:
       enabled: true
@@ -33,3 +39,9 @@ mongodb-sharded:
   shardsvr:
     dataNode:
       replicas: 3
+
+mcrouter:
+  controller: statefulset
+  memcached:
+    replicaCount: 3
+  mcrouterCommandParams.port: *memcached-cluster-port

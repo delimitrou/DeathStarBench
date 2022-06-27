@@ -21,12 +21,14 @@ dependencies:
     version: 0.1.0
   - name: media-memcached
     version: 0.1.0
+    condition: global.memcached.standalone.enabled
   - name: media-frontend
     version: 0.1.0
   - name: nginx-thrift
     version: 0.1.0
   - name: post-storage-memcached
     version: 0.1.0
+    condition: global.memcached.standalone.enabled
   - name: post-storage-mongodb
     condition: global.mongodb.standalone.enabled
     version: 0.1.0
@@ -45,6 +47,7 @@ dependencies:
     version: 0.1.0
   - name: url-shorten-memcached
     version: 0.1.0
+    condition: global.memcached.standalone.enabled
   - name: url-shorten-mongodb
     version: 0.1.0
     condition: global.mongodb.standalone.enabled
@@ -52,6 +55,7 @@ dependencies:
     version: 0.1.0
   - name: user-memcached
     version: 0.1.0
+    condition: global.memcached.standalone.enabled
   - name: user-mention-service
     version: 0.1.0
   - name: user-mongodb
@@ -70,3 +74,7 @@ dependencies:
     version: 4.0.11
     condition: global.mongodb.sharding.enabled
     repository: https://charts.bitnami.com/bitnami
+  - name: mcrouter
+    version: 0.3.0
+    condition: global.memcached.cluster.enabled
+    repository: https://evryfs.github.io/helm-charts/
