@@ -7,10 +7,10 @@ global:
   defaultImageVersion: latest
   memcached:
     cluster:
-      enabled: true
+      enabled: false
       port: &memcached-cluster-port 5000
     standalone:
-      enabled: false
+      enabled: true
   mongodb:
     standalone:
       enabled: true
