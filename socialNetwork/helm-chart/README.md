@@ -173,6 +173,7 @@ To add new service to the helm chart the following steps need to be followed:
 Helm chart supports two options for deploying MongoDB used by social-network:
 1. **Default setup** - multiple MongoDB instances are being deployed to handle data for individual services, each one runs in separated Pod. Scalability is limited.
 ![MongoDB default deployment](assets/mongodb_default_deployment.png "MongoDB default deployment")
+
 2. **Sharded version** - single MongoDB instance is deployed with support for sharding, replication and persistent storage. Setup reflects real-world usage scenarios. Large data set can be divided into smaller chunks handled by different shards. Each shard has replication enabled to eliminate single point of failure and keep solution highly available. Scaling is possible. More details can be found in [MongoDB documentation](https://docs.mongodb.com/manual/sharding/).
 ![MongoDB sharded deployment](assets/mongodb_sharded_deployment.png "MongoDB sharded deployment")
 For deploying sharded version chart has been integrated with [Bitnami MongoDB Sharded package](https://github.com/bitnami/charts/tree/master/bitnami/mongodb-sharded/).
@@ -187,7 +188,7 @@ Following flags need to be set to disable default setup and enable sharded versi
 
 Sharded MongoDB deployment might exceed default timeout set by Helm for installation (300 seconds). Therefore it might be required to raise the time by using timeout flag: `--timeout 10m0s`.
 
-Default settings for used by deployment are present in parent `values.yaml` file:
+Default settings used by deployment are present in parent `values.yaml` file:
 ```yaml
 mongodb-sharded:
   fullnameOverride: mongodb-sharded
@@ -210,7 +211,7 @@ Detailed settings list and documentation can be found at [Bitnami MongoDB github
 
 ### Enable sharding for collections:
 Each collection needs to be configured for sharding. This is handled by Helm post-install hook. Dedicated scripts is injected into Kubernetes as a ConfigMap.
-Implementation: `templates/configs/mongodb-sharded-init/configmap.yaml`.
+Implementation: `templates/hooks/mongodb/configmap.yaml`.
 Hook logs can be found in `setup-collection-sharding-hook` pod. Some errors might be present until MongoDB is fully deployed.
 
 Expected logs:
@@ -276,4 +277,97 @@ By default sharded version prepares Persitent Volume Claims (PVCs) to store data
 After uninstalling helm chart, PVCs created by MongoDB installation won't be removed. This can be removed manually by running following shell script:
 ```bash
 for p in $(kubectl get pvc -o name -l app.kubernetes.io/name=mongodb-sharded); do kubectl delete $p; done
+```
+
+## MemcacheD - deployment options ##
+There're two options to deploy MemcacheD using socialnetwork helm chart:
+1. **Default setup** - separated MemcacheD pods are deployed and used by different services. Scalability is limited - increasing number of replicas doesn't guarantee data consistency between MemcacheD pods. Cache misses might be observed when more replicas of MemcacheD is running - cached data is split across all pods. Restart of MemcacheD pods will force application to repopulate the cache from scratch. `Binary protocol` is used for communication between client and MemcacheD instance.
+![MemcacheD default deployment](assets/memcached_default_deployment.png "MemcacheD default deployment")
+
+2. **Clustered setup** - MemcacheD replicas are deployed along with [mcrouter service](https://github.com/facebook/mcrouter/wiki) to achieve replication and data consistency between MemcacheD pods. In this scenario applications can benefit from parallel reads from all MemcacheD replicas without a risk of hitting cache miss. For large data volumes it's also possible to configure sharding to overcome memory limits. Due to [mcrouter limitation](https://github.com/facebook/mcrouter/issues/6) it's only possible to use `ASCII protocol`. To use clustered setup services need to use separated key spaces to avoid colissions.
+![MemcacheD cluster deployment](assets/memcached_cluster_deployment.png "MemcacheD cluster deployment")
+### Usage:
+```bash
+helm install RELEASE_NAME HELM_CHART_REPO_PATH --set global.memcached.cluster.enabled=true,global.memcached.standalone.enabled=false --timeout 10m0s
+```
+Following flags need to be set to disable default setup and enable sharded version: `--set global.memcached.cluster.enabled=true,global.memcached.standalone.enabled=false`. This is mandatory.
+
+Mcrouter installation is handled by separated Helm chart wich was added as dependency to social-network chart. Default installation settings are part of parent `values.yaml` file:
+```yaml
+mcrouter:
+  controller: statefulset
+  memcached:
+    replicaCount: 3
+  mcrouterCommandParams.port: *memcached-cluster-port
+```
+
+[Mcrouter chart](https://artifacthub.io/packages/helm/evryfs-oss/mcrouter) also handles MemcacheD installation. MemcacheD is installed using dedicated Bitnami chart. Custom settings can be provided in `mcrouter.memcached` section - all will be passed to Bitami MemcacheD chart during installation. All settings can be found in [chart documentation](https://artifacthub.io/packages/helm/bitnami/memcached/5.15.14).
+
+Detailed mcrouter overview can be found [here](https://engineering.fb.com/2014/09/15/web/introducing-mcrouter-a-memcached-protocol-router-for-scaling-memcached-deployments/#:~:text=Mcrouter%20is%20a%20memcached%20protocol,5%20billion%20requests%20per%20second.).
+
+### mcrouter configuration:
+Mcrouter configuration is stored in dedicated `ConfigMap` - default installation generates broken config file - MemcacheD server list is not matching actual MemcacheD pods. To overcome this issue dedicated `post-install` hook was developed to fix setup and also give an option to customize mcrouter behaviour.
+
+Implementation of the hook and mcrouter config template can be found in `templates/mcrouter` folder.
+
+Mcrouter config template - default configuration enables replication for single MemcacheD pool:
+```json
+{
+    "pools": {
+    "A": {
+        "servers": [
+            "MEMCACHED_SERVERS_LIST"
+        ]
+    }
+    },
+    "route": {
+    "type": "OperationSelectorRoute",
+    "default_policy": "PoolRoute|A",
+    "operation_policies": {
+            "add": "AllFastestRoute|Pool|A",
+            "delete": "AllFastestRoute|Pool|A",
+            "get": "LatestRoute|Pool|A",
+            "set": "AllFastestRoute|Pool|A"
+        }
+    }
+}
+```
+
+
+Hook waits for mcrouter and MemcacheD deployments to be available, lists MemcacheD pods and recreates mcrouter `ConfigMap` with correct list of MemcacheD instances. Afterwards it triggers mcrouter restart to reload new config.
+
+Expected hook logs (can be inspected by running `kubectl logs setup-mcrouter-configmap`):
+```bash
+aiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+Waiting for 3 pods to be ready...
+Waiting for 2 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 3 new pods have been updated...
+Generating new config.json with following list of memcached nodes-> "dsb-memcached-0.dsb-memcached:11211","dsb-memcached-1.dsb-memcached:11211","dsb-memcached-2.dsb-memcached:11211"
+Generating new config map -> dsb-mcrouter
+Warning: resource configmaps/dsb-mcrouter is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+configmap/dsb-mcrouter configured
+Restarting statefulset -> dsb-mcrouter
+statefulset.apps/dsb-mcrouter restarted
+Waiting for statefulset to be ready -> dsb-mcrouter
+Waiting for partitioned roll out to finish: 0 out of 1 new pods have been updated...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+```
+
+Helm install output:
+```bash
+helm install dsb socialnetwork --set global.memcached.cluster.enabled=true,global.memcached.standalone.enabled=false
+Pod setup-mcrouter-configmap pending
+Pod setup-mcrouter-configmap pending
+Pod setup-mcrouter-configmap running
+Pod setup-mcrouter-configmap succeeded
+NAME: dsb
+LAST DEPLOYED: Mon Jun 27 13:33:50 2022
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
 ```

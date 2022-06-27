@@ -83,5 +83,8 @@ dependencies:
 - name: mongodb-sharded
   repository: https://charts.bitnami.com/bitnami
   version: 4.0.11
-digest: sha256:bfe271cac52b71a80e38699fed4e1f9eb9ac7bddfb1bc6f02d5f1efbd034a90a
-generated: "2022-03-23T16:05:57.045163+01:00"
+- name: mcrouter
+  repository: https://evryfs.github.io/helm-charts/
+  version: 0.3.0
+digest: sha256:01cb0d70dc3ed6f3f5ff3ae0b8970816bebaf1996c8ee4e78226dc3a7cd291c6
+generated: "2022-06-20T14:30:19.649221+02:00"
