@@ -1,0 +1,36 @@
+Running 15s test @ http://localhost:8080/stream
+  1 threads and 100 connections
+  Thread calibration: mean lat.: 9.331ms, rate sampling interval: 23ms
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     9.86ms  484.00us  10.34ms   50.00%
+    Req/Sec     0.33      5.34    86.00     99.61%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    9.38ms
+ 75.000%   10.35ms
+ 90.000%   10.35ms
+ 99.000%   10.35ms
+ 99.900%   10.35ms
+ 99.990%   10.35ms
+ 99.999%   10.35ms
+100.000%   10.35ms
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+       9.383     0.000000            1         1.00
+       9.383     0.100000            1         1.11
+       9.383     0.200000            1         1.25
+       9.383     0.300000            1         1.43
+       9.383     0.400000            1         1.67
+       9.383     0.500000            1         2.00
+      10.351     0.550000            2         2.22
+      10.351     1.000000            2          inf
+#[Mean    =        9.864, StdDeviation   =        0.484]
+#[Max     =       10.344, Total count    =            2]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  200 requests in 16.51s, 4.20MB read
+  Socket errors: connect 0, read 0, write 0, timeout 700
+Requests/sec:     12.12
+Transfer/sec:    260.62KB
+9376.000000,9864.000000,10344.000000,0,700,0
