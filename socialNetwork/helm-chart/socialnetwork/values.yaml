@@ -5,6 +5,11 @@ global:
   serviceType: ClusterIP
   dockerRegistry: docker.io
   defaultImageVersion: latest
+  redis:
+    cluster:
+      enabled: false
+    standalone:
+      enabled: true
   memcached:
     cluster:
       enabled: false
@@ -45,3 +50,21 @@ mcrouter:
   memcached:
     replicaCount: 3
   mcrouterCommandParams.port: *memcached-cluster-port
+
+redis:
+  auth:
+    enabled: false
+  architecture: replication
+  replica:
+    replicaCount: 5
+    persistence:
+      enabled: false
+  master:
+    persistence:
+      enabled: false
+    startupProbe:
+      initialDelaySeconds: 60
+      timeoutSeconds: 30
+    livenessProbe:
+      initialDelaySeconds: 60
+      timeoutSeconds: 30
