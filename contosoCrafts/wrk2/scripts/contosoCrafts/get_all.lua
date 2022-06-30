@@ -16,3 +16,9 @@ end
 request = function()
     return get_all_products()
 end
+
+
+done = function(summary, latency, requests)
+    local log = "%f,%f,%f,%d,%d,%d"
+    print(log:format(latency.min, latency.mean, latency.max, summary.errors.status, summary.errors.timeout, summary.errors.connect))
+end
