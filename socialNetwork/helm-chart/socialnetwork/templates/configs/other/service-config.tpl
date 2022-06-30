@@ -6,6 +6,11 @@
   {{ .Release.Name }}-mcrouter
 {{- end }}
 
+# this needs to be extended with redis-replicas to spread reads across all instances, requires code changes on the service level
+{{- define "redis-cluster.connection" }}
+  {{ .Release.Name }}-redis-master
+{{- end}}
+
 {{- define "socialnetwork.templates.other.service-config.json"  }}
 {
     "secret": "secret",
@@ -24,7 +29,7 @@
       "keepalive_ms": 10000
     },
     "social-graph-redis": {
-      "addr": "social-graph-redis",
+      "addr": {{ ternary (include "redis-cluster.connection" . | trim) "social-graph-redis" .Values.global.redis.cluster.enabled | quote}},
       "port": 6379,
       "connections": 512,
       "timeout_ms": 10000,
@@ -46,7 +51,7 @@
       "keepalive_ms": 10000
     },
     "home-timeline-redis": {
-      "addr": "home-timeline-redis",
+      "addr": {{ ternary (include "redis-cluster.connection" . | trim) "home-timeline-redis" .Values.global.redis.cluster.enabled | quote}},
       "port": 6379,
       "connections": 512,
       "timeout_ms": 10000,
@@ -60,7 +65,7 @@
       "keepalive_ms": 10000
     },
     "compose-post-redis": {
-      "addr": "compose-post-redis",
+      "addr": {{ ternary (include "redis-cluster.connection" . | trim) "compose-post-redis" .Values.global.redis.cluster.enabled | quote}},
       "port": 6379,
       "connections": 512,
       "timeout_ms": 10000,
@@ -81,7 +86,7 @@
       "keepalive_ms": 10000
     },
     "user-timeline-redis": {
-      "addr": "user-timeline-redis",
+      "addr": {{ ternary (include "redis-cluster.connection" . | trim) "user-timeline-redis" .Values.global.redis.cluster.enabled | quote}},
       "port": 6379,
       "connections": 512,
       "timeout_ms": 10000,

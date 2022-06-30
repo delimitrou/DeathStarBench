@@ -86,5 +86,8 @@ dependencies:
 - name: mcrouter
   repository: https://evryfs.github.io/helm-charts/
   version: 0.3.0
-digest: sha256:01cb0d70dc3ed6f3f5ff3ae0b8970816bebaf1996c8ee4e78226dc3a7cd291c6
-generated: "2022-06-20T14:30:19.649221+02:00"
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.12.2
+digest: sha256:49bf1c70e8d275ca63fa8c986620c0da6364c5fc9037c65a3f800e80d25b7188
+generated: "2022-06-30T14:03:51.123982+02:00"
