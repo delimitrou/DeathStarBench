@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   social-graph-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: social-graph-service
     #    ports:
     #      - 10000:9090
@@ -37,7 +37,7 @@ services:
     restart: always
 
   compose-post-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: compose-post-service
     #    ports:
     #      - 10001:9090
@@ -50,7 +50,7 @@ services:
       - ./config:/social-network-microservices/config
 
   post-storage-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: post-storage-service
     ports:
       - 10002:9090
@@ -79,7 +79,7 @@ services:
     restart: always
 
   user-timeline-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: user-timeline-service
     #    ports:
     #      - 10003:9090
@@ -108,7 +108,7 @@ services:
     restart: always
 
   url-shorten-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: url-shorten-service
     #    ports:
     #      - 10004:9090
@@ -137,7 +137,7 @@ services:
     restart: always
 
   user-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: user-service
     #    ports:
     #      - 10005:9090
@@ -166,7 +166,7 @@ services:
     restart: always
 
   media-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: media-service
     #    ports:
     #      - 10006:9090
@@ -195,7 +195,7 @@ services:
     restart: always
 
   text-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: text-service
     #    ports:
     #      - 10007:9090
@@ -208,7 +208,7 @@ services:
       - ./config:/social-network-microservices/config
 
   unique-id-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: unique-id-service
     #    ports:
     #      - 10008:9090
@@ -221,7 +221,7 @@ services:
       - ./config:/social-network-microservices/config
 
   user-mention-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: user-mention-service
     #    ports:
     #      - 10009:9090
@@ -234,7 +234,7 @@ services:
       - ./config:/social-network-microservices/config
 
   home-timeline-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: home-timeline-service
     #    ports:
     #      - 10010:9090

@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
       - name: post-storage-service
-        image: yg397/social-network-microservices
+        image: deathstarbench/social-network-microservices
         command: ["PostStorageService"]
         ports:
         - containerPort: 9090

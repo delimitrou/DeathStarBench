@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   config:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: config
     environment:
       - TLS
@@ -11,7 +11,7 @@ services:
       - ./nginx-web-server/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
 
   social-graph-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: social-graph-service
     #    ports:
     #      - 10000:9090
@@ -71,7 +71,7 @@ services:
       - ./keys:/keys
 
   compose-post-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: compose-post-service
     #    ports:
     #      - 10001:9090
@@ -87,7 +87,7 @@ services:
       - ./keys:/keys
 
   post-storage-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: post-storage-service
     ports:
       - 10002:9090
@@ -129,7 +129,7 @@ services:
       - ./keys:/keys
 
   user-timeline-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: user-timeline-service
     #    ports:
     #      - 10003:9090
@@ -175,7 +175,7 @@ services:
       - ./keys:/keys
 
   url-shorten-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: url-shorten-service
     #    ports:
     #      - 10004:9090
@@ -217,7 +217,7 @@ services:
       - ./keys:/keys
 
   user-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: user-service
     #    ports:
     #      - 10005:9090
@@ -259,7 +259,7 @@ services:
       - ./keys:/keys
 
   media-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: media-service
     #    ports:
     #      - 10006:9090
@@ -301,7 +301,7 @@ services:
       - ./keys:/keys
 
   text-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: text-service
     #    ports:
     #      - 10007:9090
@@ -317,7 +317,7 @@ services:
       - ./keys:/keys
 
   unique-id-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: unique-id-service
     #    ports:
     #      - 10008:9090
@@ -333,7 +333,7 @@ services:
       - ./keys:/keys
 
   user-mention-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: user-mention-service
     #    ports:
     #      - 10009:9090
@@ -349,7 +349,7 @@ services:
       - ./keys:/keys
 
   home-timeline-service:
-    image: yg397/social-network-microservices:latest
+    image: deathstarbench/social-network-microservices:latest
     hostname: home-timeline-service
     #    ports:
     #      - 10010:9090
