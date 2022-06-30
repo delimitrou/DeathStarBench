@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
       - name: unique-id-service
-        image: yg397/social-network-microservices
+        image: deathstarbench/social-network-microservices
         command: ["UniqueIdService"]
         volumeMounts:
           - mountPath: /social-network-microservices/config/jaeger-config.yml

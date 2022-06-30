@@ -6,7 +6,7 @@ ports:
 
 container:
   command: ComposePostService
-  image: yg397/social-network-microservices
+  image: deathstarbench/social-network-microservices
   name: compose-post-service
   ports: 
   - containerPort: 9090

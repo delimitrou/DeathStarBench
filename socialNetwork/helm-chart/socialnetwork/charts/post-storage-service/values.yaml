@@ -6,7 +6,7 @@ ports:
 
 container:
   command: PostStorageService
-  image: yg397/social-network-microservices
+  image: deathstarbench/social-network-microservices
   name: post-storage-service
   ports: 
   - containerPort: 9090
