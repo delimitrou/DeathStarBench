@@ -371,3 +371,15 @@ STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 ```
+
+## Redis - deployment options ##
+The are two ways to deploy redis:
+
+1. **Default setup** (standalone) - single replica of redis is deployed for each service (similar to mongoDB). Scaling is not possible. 
+
+2. **Sharded version** - services instead of connecting to standalone redis instances, they connect to a redis cluster with one master node and N slaves. The data is sharded across multiple nodes. Currently reading and writing datta is handled by the master. To improve the avaialability by writing only via master and reading via  replicas, changes need to be applied to the source code.
+
+### Usage:
+```bash
+helm install RELEASE_NAME HELM_CHART_REPO_PATH --set global.redis.cluster.enabled=true,global.redis.standalone.enabled=false --timeout 10m0s
+```
