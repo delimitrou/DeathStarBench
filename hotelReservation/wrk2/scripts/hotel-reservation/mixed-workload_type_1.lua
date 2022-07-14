@@ -34,7 +34,7 @@ local function search_hotel()
   local lon = -122.095 + (math.random(0, 325) - 157.0)/1000.0
 
   local method = "GET"
-  local path = "http://localhost:5000/hotels?inDate=" .. in_date_str .. 
+  local path = url .. "/hotels?inDate=" .. in_date_str .. 
     "&outDate=" .. out_date_str .. "&lat=" .. tostring(lat) .. "&lon=" .. tostring(lon)
 
   local headers = {}
@@ -57,7 +57,7 @@ local function recommend()
   local lon = -122.095 + (math.random(0, 325) - 157.0)/1000.0
 
   local method = "GET"
-  local path = "http://localhost:5000/recommendations?require=" .. req_param .. 
+  local path = url .. "/recommendations?require=" .. req_param .. 
     "&lat=" .. tostring(lat) .. "&lon=" .. tostring(lon)
   local headers = {}
   -- headers["Content-Type"] = "application/x-www-form-urlencoded"
@@ -89,7 +89,7 @@ local function reserve()
   local num_room = "1"
 
   local method = "POST"
-  local path = "http://localhost:5000/reservation?inDate=" .. in_date_str .. 
+  local path = url .. "/reservation?inDate=" .. in_date_str .. 
     "&outDate=" .. out_date_str .. "&lat=" .. tostring(lat) .. "&lon=" .. tostring(lon) ..
     "&hotelId=" .. hotel_id .. "&customerName=" .. cust_name .. "&username=" .. user_id ..
     "&password=" .. password .. "&number=" .. num_room
@@ -100,8 +100,8 @@ end
 
 local function user_login()
   local user_name, password = get_user()
-  local method = "GET"
-  local path = "http://localhost:5000/user?username=" .. user_name .. "&password=" .. password
+  local method = "POST"
+  local path = url .. "/user?username=" .. user_name .. "&password=" .. password
   local headers = {}
   -- headers["Content-Type"] = "application/x-www-form-urlencoded"
   return wrk.format(method, path, headers, nil)
@@ -116,12 +116,12 @@ request = function()
 
   local coin = math.random()
   if coin < search_ratio then
-    return search_hotel()
+    return search_hotel(url)
   elseif coin < search_ratio + recommend_ratio then
-    return recommend()
+    return recommend(url)
   elseif coin < search_ratio + recommend_ratio + user_ratio then
-    return user_login()
+    return user_login(url)
   else 
-    return reserve()
+    return reserve(url)
   end
 end

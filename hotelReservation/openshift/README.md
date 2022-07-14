@@ -4,6 +4,7 @@
 
 - A running OpenShift cluster is needed.
 - The user should be authenticated to this cluster e.g., `oc login`
+- The cluster should have a namespace `hotel-res`, if not create using `oc create namespace hotel-res`
 - Pre-requirements mentioned [here](https://github.com/delimitrou/DeathStarBench/blob/master/hotelReservation/README.md) should be met.
 
 ## Running the Hotel Reservation application
@@ -24,11 +25,11 @@ and wait for `oc -n hotel-res get pod` to show all pods with status `Running`.
 
 ### Prepare HTTP workload generator
 
-- Review the URL's embedded in `wrk2_lua_scripts/mixed-workload_type_1.lua` to be sure they are correct for your environment.
-  The current value of `http://frontend.hotel-res.svc.cluster.local:5000` is valid for a typical "on-cluster" configuration.
+- Review the URL's embedded in `wrk2/scripts/hotel-reservation/mixed-workload_type_1.lua` to be sure they are correct for your environment.
+  The current value of `http://frontend.hotel-res.svc.cluster.local:5000` or `http://localhost:5000` is valid for a typical "on-cluster" configuration.
 - To use an "on-cluster" client, copy the necessary files to `hr-client`, and then log into `hr-client` to continue:
   - `hrclient=$(oc get pod | grep hr-client- | cut -f 1 -d " ")`
-  - `oc cp <path-of-repo> hotel-res/"${hrclient}":<path-of-repo>`
+  - `oc cp <path-of-repo-in-local> hotel-res/"${hrclient}":<path-of-repo>`
     - e.g., `oc cp /root/DeathStarBench hotel-res/"${hrclient}":/root`
   - `oc rsh deployment/hr-client`
 
@@ -36,14 +37,18 @@ and wait for `oc -n hotel-res get pod` to show all pods with status `Running`.
 
 ##### Template
 ```bash
-cd <path-of-repo>/hotelReservation
-./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./wrk2_lua_scripts/mixed-workload_type_1.lua http://frontend.hotel-res.svc.cluster.local:5000 -R <reqs-per-sec>
+cd <path-of-repo>/hotelReservation/wrk2
+make clean
+make
+./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/hotel-reservation/mixed-workload_type_1.lua http://frontend.hotel-res.svc.cluster.local:5000 -R <reqs-per-sec>
 ```
 
 ##### Example
 ```bash
-cd /root/DeathStarBench/hotelReservation
-./wrk -D exp -t 2 -c 2 -d 30 -L -s ./wrk2_lua_scripts/mixed-workload_type_1.lua http://frontend.hotel-res.svc.cluster.local:5000 -R 2 
+cd /root/DeathStarBench/hotelReservation/wrk2
+make clean
+make
+./wrk -D exp -t 2 -c 2 -d 30 -L -s ./scripts/hotel-reservation/mixed-workload_type_1.lua http://frontend.hotel-res.svc.cluster.local:5000 -R 2
 ```
 
 
@@ -53,7 +58,9 @@ Use `oc -n hotel-res get ep | grep jaeger-out` to get the location of jaeger ser
 
 View Jaeger traces by accessing:
 - `http://<jaeger-ip-address>:<jaeger-port>`  (off cluster)
-- `http://jaeger.hotel-res.svc.cluster.local:6831`  (on cluster)
+- `oc expose service jaeger-out` (on cluster)
+- `oc get route` (on cluster)
+- `http://<jeager-route-url>`  (on cluster)
 
 
 ### Tips
