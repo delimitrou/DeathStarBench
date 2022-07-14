@@ -72,6 +72,8 @@ lua_State *script_create(char *file, char *url, char **headers) {
     };
 
     lua_getglobal(L, "wrk");
+    lua_pushstring(L, url);
+    lua_setglobal(L, "url");
 
     set_field(L, 4, "scheme", push_url_part(L, url, &parts, UF_SCHEMA));
     set_field(L, 4, "host",   push_url_part(L, url, &parts, UF_HOST));
