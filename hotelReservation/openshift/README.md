@@ -11,7 +11,7 @@
 
 ### Before you start
 
-- Ensure that the necessary local images have been made.
+- Ensure that the necessary local images have been made. Before executing this script make sure already existing images related to this application are deleted both on cluster and your local environment using podman.
   - `<path-of-repo>/hotelReservation/openshift/scripts/build-docker-img.sh`
 - If necessary, update the addresses in `<path-of-repo>/hotelReservation/openshift/configmaps/config.json`
   - Currently the addresses are in a fairly generic form supported by on-cluster DNS. As long as
@@ -24,9 +24,6 @@ and wait for `oc -n hotel-res get pod` to show all pods with status `Running`.
 
 
 ### Prepare HTTP workload generator
-
-- Review the URL's embedded in `wrk2/scripts/hotel-reservation/mixed-workload_type_1.lua` to be sure they are correct for your environment.
-  The current value of `http://frontend.hotel-res.svc.cluster.local:5000` or `http://localhost:5000` is valid for a typical "on-cluster" configuration.
 - To use an "on-cluster" client, copy the necessary files to `hr-client`, and then log into `hr-client` to continue:
   - `hrclient=$(oc get pod | grep hr-client- | cut -f 1 -d " ")`
   - `oc cp <path-of-repo-in-local> hotel-res/"${hrclient}":<path-of-repo>`
