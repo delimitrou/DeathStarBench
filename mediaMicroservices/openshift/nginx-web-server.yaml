@@ -1,4 +1,19 @@
 ---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nginx-web-server-route
+  namespace: media-microsvc
+  labels:
+    death-star-project: media-microsvc
+    app: nginx-web-server
+spec:
+  port:
+    targetPort: 8080
+  to:
+    kind: Service
+    name: nginx-web-server
+---
 apiVersion: v1
 kind: Service
 metadata:
