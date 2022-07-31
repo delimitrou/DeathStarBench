@@ -32,10 +32,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["ComposePostService"]
     hostname: compose-post-service
     image: deathstarbench/social-network-microservices:latest
@@ -62,10 +58,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["HomeTimelineService"]
     hostname: home-timeline-service
     image: deathstarbench/social-network-microservices:latest
@@ -81,10 +73,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     hostname: media-frontend
     image: yg397/media-frontend:xenial
     ports:
@@ -126,10 +114,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["MediaService"]
     hostname: media-service
     image: deathstarbench/social-network-microservices:latest
@@ -145,10 +129,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "4"
-          memory: 4G
     hostname: nginx-web-server
     image: yg397/openresty-thrift:xenial
     ports:
@@ -195,10 +175,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["PostStorageService"]
     hostname: post-storage-service
     image: deathstarbench/social-network-microservices:latest
@@ -238,10 +214,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["SocialGraphService"]
     hostname: social-graph-service
     image: deathstarbench/social-network-microservices:latest
@@ -257,10 +229,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["TextService"]
     hostname: text-service
     image: deathstarbench/social-network-microservices:latest
@@ -276,10 +244,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["UniqueIdService"]
     hostname: unique-id-service
     image: deathstarbench/social-network-microservices:latest
@@ -320,10 +284,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["UrlShortenService"]
     hostname: url-shorten-service
     image: deathstarbench/social-network-microservices:latest
@@ -351,10 +311,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["UserMentionService"]
     hostname: user-mention-service
     image: deathstarbench/social-network-microservices:latest
@@ -383,10 +339,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["UserService"]
     hostname: user-service
     image: deathstarbench/social-network-microservices:latest
@@ -425,10 +377,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-      resources:
-        limits:
-          cpus: "1"
-          memory: 1G
     command: ["UserTimelineService"]
     hostname: user-timeline-service
     image: deathstarbench/social-network-microservices:latest
