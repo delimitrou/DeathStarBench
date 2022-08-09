@@ -6,9 +6,8 @@
   {{ .Release.Name }}-mcrouter
 {{- end }}
 
-# this needs to be extended with redis-replicas to spread reads across all instances, requires code changes on the service level
 {{- define "redis-cluster.connection" }}
-  {{ .Release.Name }}-redis-master
+  {{ .Release.Name }}-redis-cluster
 {{- end}}
 
 {{- define "socialnetwork.templates.other.service-config.json"  }}
@@ -33,7 +32,8 @@
       "port": 6379,
       "connections": 512,
       "timeout_ms": 10000,
-      "keepalive_ms": 10000
+      "keepalive_ms": 10000,
+      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}}
     },
     "write-home-timeline-service": {
       "addr": "write-home-timeline-service",
@@ -55,7 +55,8 @@
       "port": 6379,
       "connections": 512,
       "timeout_ms": 10000,
-      "keepalive_ms": 10000
+      "keepalive_ms": 10000,
+      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}}
     },
     "compose-post-service": {
       "addr": "compose-post-service",
@@ -69,7 +70,8 @@
       "port": 6379,
       "connections": 512,
       "timeout_ms": 10000,
-      "keepalive_ms": 10000
+      "keepalive_ms": 10000,
+      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}}
     },
     "user-timeline-service": {
       "addr": "user-timeline-service",
@@ -90,7 +92,8 @@
       "port": 6379,
       "connections": 512,
       "timeout_ms": 10000,
-      "keepalive_ms": 10000
+      "keepalive_ms": 10000,
+      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}}
     },
     "post-storage-service": {
       "addr": "post-storage-service",
@@ -112,7 +115,7 @@
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000,
-      "binary_protocol": {{ ternary 0 1 .Values.global.memcached.cluster.enabled}}
+      "binary_protocol": {{ ternary 1 0 .Values.global.memcached.cluster.enabled}}
     },
     "unique-id-service": {
       "addr": "unique-id-service",

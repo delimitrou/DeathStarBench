@@ -42,14 +42,16 @@
     "addr": "user-timeline-redis",
     "timeout_ms": 10000,
     "port": 6379,
-    "connections": 512
+    "connections": 512,
+    "use_cluster": 0
   },
   "social-graph-redis": {
     "keepalive_ms": 10000,
     "addr": "social-graph-redis",
     "timeout_ms": 10000,
     "port": 6379,
-    "connections": 512
+    "connections": 512,
+    "use_cluster": 0
   },
   "post-storage-service": {
     "keepalive_ms": 10000,
@@ -63,7 +65,8 @@
     "addr": "compose-post-redis",
     "timeout_ms": 10000,
     "port": 6379,
-    "connections": 512
+    "connections": 512,
+    "use_cluster": 0
   },
   "user-timeline-mongodb": {
     "keepalive_ms": 10000,
@@ -114,7 +117,8 @@
     "addr": "home-timeline-redis",
     "timeout_ms": 10000,
     "port": 6379,
-    "connections": 512
+    "connections": 512,
+    "use_cluster": 0
   },
   "compose-post-service": {
     "keepalive_ms": 10000,

@@ -51,20 +51,12 @@ mcrouter:
     replicaCount: 3
   mcrouterCommandParams.port: *memcached-cluster-port
 
-redis:
-  auth:
-    enabled: false
-  architecture: replication
-  replica:
-    replicaCount: 5
-    persistence:
+redis-cluster:
+  usePassword: false
+  redis:
+    # default readiness / liveness probes are causing issues, rising timeouts/delays might help
+    # cluster health check will be handled by post-commit hook
+    readinessProbe:
       enabled: false
-  master:
-    persistence:
-      enabled: false
-    startupProbe:
-      initialDelaySeconds: 60
-      timeoutSeconds: 30
     livenessProbe:
-      initialDelaySeconds: 60
-      timeoutSeconds: 30
+      enabled: false
