@@ -81,7 +81,7 @@ dependencies:
     version: 0.3.0
     condition: global.memcached.cluster.enabled
     repository: https://evryfs.github.io/helm-charts/
-  - name: redis
-    version: 16.12.2
+  - name: redis-cluster
+    version: 7.6.3
     condition: global.redis.cluster.enabled
     repository: https://charts.bitnami.com/bitnami

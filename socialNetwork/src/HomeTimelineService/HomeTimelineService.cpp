@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
   }
 
   int port = config_json["home-timeline-service"]["port"];
-
+  int redis_cluster_config_flag = config_json["home-timeline-redis"]["use_cluster"];
   int post_storage_port = config_json["post-storage-service"]["port"];
   std::string post_storage_addr = config_json["post-storage-service"]["addr"];
   int post_storage_conns = config_json["post-storage-service"]["connections"];
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
   std::shared_ptr<TServerSocket> server_socket =
       get_server_socket(config_json, "0.0.0.0", port);
 
-  if (redis_cluster_flag) {
+  if (redis_cluster_flag || redis_cluster_config_flag) {
     RedisCluster redis_cluster_client_pool =
         init_redis_cluster_client_pool(config_json, "home-timeline");
     TThreadedServer server(
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
         server_socket, std::make_shared<TFramedTransportFactory>(),
         std::make_shared<TBinaryProtocolFactory>());
 
-    LOG(info) << "Starting the home-timeline-service server...";
+    LOG(info) << "Starting the home-timeline-service server with Redis Cluster support...";
     server.serve();
   } else {
     Redis redis_client_pool =

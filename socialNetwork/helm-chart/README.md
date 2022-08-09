@@ -308,7 +308,7 @@ Detailed mcrouter overview can be found [here](https://engineering.fb.com/2014/0
 ### mcrouter configuration:
 Mcrouter configuration is stored in dedicated `ConfigMap` - default installation generates broken config file - MemcacheD server list is not matching actual MemcacheD pods. To overcome this issue dedicated `post-install` hook was developed to fix setup and also give an option to customize mcrouter behaviour.
 
-Implementation of the hook and mcrouter config template can be found in `templates/mcrouter` folder.
+Implementation of the hook and mcrouter config template can be found in `templates/hooks/mcrouter` folder.
 
 Mcrouter config template - default configuration enables replication for single MemcacheD pool:
 ```json
@@ -377,9 +377,58 @@ The are two ways to deploy redis:
 
 1. **Default setup** (standalone) - single replica of redis is deployed for each service (similar to mongoDB). Scaling is not possible. 
 
-2. **Sharded version** - services instead of connecting to standalone redis instances, they connect to a redis cluster with one master node and N slaves. The data is sharded across multiple nodes. Currently reading and writing datta is handled by the master. To improve the avaialability by writing only via master and reading via  replicas, changes need to be applied to the source code.
+2. **Clustered version** - multi-master setup improving read/write performance, it requires PV provisioner to be present in the cluster. More details and documentation can be found in [Redis Cluster helm chart documentation](https://github.com/bitnami/charts/tree/master/bitnami/redis-cluster)
+
+![Redis Cluster deployment](https://raw.githubusercontent.com/bitnami/charts/master/bitnami/redis-cluster/img/redis-cluster-topology.png "Redis Cluster deployment")
+
+Helm install output:
+```bash
+helm install dsb socialnetwork --timeout 10m0s
+Pod redis-cluster-readiness-hook pending
+Pod redis-cluster-readiness-hook pending
+Pod redis-cluster-readiness-hook pending
+Pod redis-cluster-readiness-hook running
+Pod redis-cluster-readiness-hook succeeded
+NAME: dsb
+LAST DEPLOYED: Tue Aug  9 11:03:20 2022
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
+
+After helm chart installation dedicated post-install hook starts and observes Redis Cluster deployment and waits until it's fully configured:
+
+```bash
+2022-08-09 09:06:03,599 [ERROR] Could not connect to Redis Cluster. Sleeping for 5 seconds
+Traceback (most recent call last):
+  File "/tmp/redis_readiness_check.py", line 16, in <module>
+    redis_cluster_connection = RedisCluster(host=redis_cluster_uri)
+  File "/usr/local/lib/python3.10/site-packages/redis/cluster.py", line 560, in __init__
+    self.nodes_manager = NodesManager(
+  File "/usr/local/lib/python3.10/site-packages/redis/cluster.py", line 1267, in __init__
+    self.initialize()
+  File "/usr/local/lib/python3.10/site-packages/redis/cluster.py", line 1558, in initialize
+    raise RedisClusterException(
+redis.exceptions.RedisClusterException: Redis Cluster cannot be connected. Please provide at least one reachable node.
+2022-08-09 09:06:08,659 [INFO] cluster 10.250.228.147:6379 -> cluster state: ok
+2022-08-09 09:06:08,660 [INFO] cluster 10.250.228.137:6379 -> cluster state: ok
+2022-08-09 09:06:08,660 [INFO] cluster 10.250.230.194:6379 -> cluster state: ok
+2022-08-09 09:06:08,660 [INFO] cluster 10.250.230.234:6379 -> cluster state: ok
+2022-08-09 09:06:08,660 [INFO] cluster 10.250.230.191:6379 -> cluster state: ok
+2022-08-09 09:06:08,660 [INFO] cluster 10.250.224.88:6379 -> cluster state: ok
+2022-08-09 09:06:13,665 [INFO] Redis Cluster is configured and ready to use!
+```
+
+Implementation of the hook can be found in `templates/hooks/redis-cluster` folder.
 
 ### Usage:
 ```bash
 helm install RELEASE_NAME HELM_CHART_REPO_PATH --set global.redis.cluster.enabled=true,global.redis.standalone.enabled=false --timeout 10m0s
+```
+
+### Persistance:
+After uninstalling helm chart, PVCs created by Redis Cluster installation won't be removed. This can be removed manually by running following shell script:
+```bash
+for p in $(kubectl get pvc -o name -l app.kubernetes.io/name=redis-cluster); do kubectl delete $p; done
 ```

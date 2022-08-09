@@ -67,6 +67,8 @@ int main(int argc, char *argv[]) {
   int user_timeout = config_json["user-service"]["timeout_ms"];
   int user_keepalive = config_json["user-service"]["keepalive_ms"];
 
+  int redis_cluster_config_flag = config_json["social-graph-redis"]["use_cluster"];
+
   mongoc_client_pool_t *mongodb_client_pool =
       init_mongodb_client_pool(config_json, "social-graph", mongodb_conns);
 
@@ -96,7 +98,7 @@ int main(int argc, char *argv[]) {
   std::shared_ptr<TServerSocket> server_socket =
       get_server_socket(config_json, "0.0.0.0", port);
 
-  if (redis_cluster_flag) {
+  if (redis_cluster_flag || redis_cluster_config_flag) {
     RedisCluster redis_cluster_client_pool =
         init_redis_cluster_client_pool(config_json, "social-graph");
     TThreadedServer server(
@@ -106,7 +108,7 @@ int main(int argc, char *argv[]) {
                                                  &user_client_pool)),
         server_socket, std::make_shared<TFramedTransportFactory>(),
         std::make_shared<TBinaryProtocolFactory>());
-    LOG(info) << "Starting the social-graph-service server with Resis cluster...";
+    LOG(info) << "Starting the social-graph-service server with Resis Cluster support...";
     server.serve();
   } else {
     Redis redis_client_pool =
