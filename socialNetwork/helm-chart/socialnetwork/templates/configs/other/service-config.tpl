@@ -115,7 +115,7 @@
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000,
-      "binary_protocol": {{ ternary 1 0 .Values.global.memcached.cluster.enabled}}
+      "binary_protocol": {{ ternary 0 1 .Values.global.memcached.cluster.enabled}}
     },
     "unique-id-service": {
       "addr": "unique-id-service",
