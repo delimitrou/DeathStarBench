@@ -74,7 +74,7 @@ dependencies:
   - name: user-timeline-service
     version: 0.1.0
   - name: mongodb-sharded
-    version: 4.0.11
+    version: 6.0.1
     condition: global.mongodb.sharding.enabled
     repository: https://charts.bitnami.com/bitnami
   - name: mcrouter
@@ -82,6 +82,6 @@ dependencies:
     condition: global.memcached.cluster.enabled
     repository: https://evryfs.github.io/helm-charts/
   - name: redis-cluster
-    version: 7.6.3
+    version: 8.1.4
     condition: global.redis.cluster.enabled
     repository: https://charts.bitnami.com/bitnami

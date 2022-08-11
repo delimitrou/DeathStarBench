@@ -39,11 +39,12 @@ global:
 
 mongodb-sharded:
   fullnameOverride: mongodb-sharded
+  auth:
+    rootPassword: *mongodb-sharded-password
   shards: 3
-  mongodbRootPassword: *mongodb-sharded-password
   shardsvr:
     dataNode:
-      replicas: 3
+      replicaCount: 3
 
 mcrouter:
   controller: statefulset
