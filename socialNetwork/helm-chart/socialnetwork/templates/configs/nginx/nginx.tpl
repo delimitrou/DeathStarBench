@@ -4,7 +4,7 @@ load_module modules/ngx_http_opentracing_module.so;
 
 # Checklist: Make sure that worker_processes == #cores you gave to
 # nginx process
-worker_processes  4;
+worker_processes  auto;
 
 # error_log  logs/error.log;
 
