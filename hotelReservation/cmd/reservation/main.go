@@ -43,7 +43,7 @@ func main() {
 
 	log.Info().Msgf("Read profile memcashed address: %v", result["ReserveMemcAddress"])
 	log.Info().Msg("Initializing Memcashed client...")
-	memc_client := tune.NewMemCClient(result["ReserveMemcAddress"])
+	memc_client := tune.NewMemCClient2(result["ReserveMemcAddress"])
 	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["ReservePort"])
