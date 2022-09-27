@@ -95,18 +95,18 @@ if __name__ == '__main__':
     type=str, default="../datasets/tmdb/casts.json")
   parser.add_argument("-m", "--movie", action="store", dest="movie_filename",
     type=str, default="../datasets/tmdb/movies.json")
+  parser.add_argument("--server_address", action="store", dest="server_addr",
+    type=str, default="http://127.0.0.1:8080")
   args = parser.parse_args()
 
   with open(args.cast_filename, 'r') as cast_file:
     raw_casts = json.load(cast_file)
-  addr = "http://127.0.0.1:8080"
   loop = asyncio.get_event_loop()
-  future = asyncio.ensure_future(write_cast_info(addr, raw_casts))
+  future = asyncio.ensure_future(write_cast_info(args.server_addr, raw_casts))
   loop.run_until_complete(future)
 
   with open(args.movie_filename, 'r') as movie_file:
     raw_movies = json.load(movie_file)
-    addr = "http://127.0.0.1:8080"
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(write_movie_info(addr, raw_movies))
+    future = asyncio.ensure_future(write_movie_info(args.server_addr, raw_movies))
     loop.run_until_complete(future)
