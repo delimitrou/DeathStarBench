@@ -1,4 +1,8 @@
 local _M = {}
+local k8s_suffix = os.getenv("fqdn_suffix")
+if (k8s_suffix == nil) then
+  k8s_suffix = ""
+end
 
 local function _StrIsEmpty(s)
   return s == nil or s == ''
@@ -8,7 +12,7 @@ local function _UploadUserId(req_id, post, carrier)
   local GenericObjectPool = require "GenericObjectPool"
   local UserServiceClient = require 'media_service_UserService'
   local user_client = GenericObjectPool:connection(
-    UserServiceClient,"user-service",9090)
+    UserServiceClient,"user-service" .. k8s_suffix,9090)
   user_client:UploadUserWithUsername(req_id, post.username, carrier)
   GenericObjectPool:returnConnection(user_client)
 end
@@ -17,7 +21,7 @@ local function _UploadText(req_id, post, carrier)
   local GenericObjectPool = require "GenericObjectPool"
   local TextServiceClient = require 'media_service_TextService'
   local text_client = GenericObjectPool:connection(
-    TextServiceClient,"text-service",9090)
+    TextServiceClient,"text-service" .. k8s_suffix ,9090)
   text_client:UploadText(req_id, post.text, carrier)
   GenericObjectPool:returnConnection(text_client)
 end
@@ -26,7 +30,7 @@ local function _UploadMovieId(req_id, post, carrier)
   local GenericObjectPool = require "GenericObjectPool"
   local MovieIdServiceClient = require 'media_service_MovieIdService'
   local movie_id_client = GenericObjectPool:connection(
-    MovieIdServiceClient,"movie-id-service",9090)
+    MovieIdServiceClient,"movie-id-service" .. k8s_suffix ,9090)
   movie_id_client:UploadMovieId(req_id, post.title, tonumber(post.rating), carrier)
   GenericObjectPool:returnConnection(movie_id_client)
 end
@@ -35,7 +39,7 @@ local function _UploadUniqueId(req_id, carrier)
   local GenericObjectPool = require "GenericObjectPool"
   local UniqueIdServiceClient = require 'media_service_UniqueIdService'
   local unique_id_client = GenericObjectPool:connection(
-    UniqueIdServiceClient,"unique-id-service",9090)
+    UniqueIdServiceClient,"unique-id-service" .. k8s_suffix ,9090)
   unique_id_client:UploadUniqueId(req_id, carrier)
   GenericObjectPool:returnConnection(unique_id_client)
 end
@@ -79,7 +83,7 @@ function _M.ComposeReview()
   end
   span:finish()
   ngx.exit(status)
-  
+
 end
 
 return _M
