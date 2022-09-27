@@ -1,0 +1,6 @@
+apiVersion: v2
+name: plot-mongodb
+description: plot-mongodb microservice in MediaMicroservices
+type: application
+version: 0.1.0
+appVersion: 4.4.6

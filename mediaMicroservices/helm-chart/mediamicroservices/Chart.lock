@@ -1,0 +1,9 @@
+dependencies:
+- name: nginx-web-server
+  repository: ""
+  version: 0.1.0
+- name: jaeger
+  repository: ""
+  version: 0.1.0
+digest: sha256:ffd4c49cbc89863810abaa9abf5a8ccf58dd6a115afe9732cf75ef379ba1af59
+generated: "2022-09-02T21:19:32.883931877Z"

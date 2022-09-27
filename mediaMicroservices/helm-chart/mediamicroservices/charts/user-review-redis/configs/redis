@@ -1,0 +1,1 @@
+{{ include "mediamicroservices.templates.redis.redis.conf"  . }}

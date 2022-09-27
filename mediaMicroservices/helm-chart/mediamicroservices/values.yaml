@@ -1,0 +1,17 @@
+global:
+  replicas: 1
+  imagePullPolicy: "IfNotPresent"
+  restartPolicy: Always
+  serviceType: ClusterIP
+  dockerRegistry: docker.io
+  defaultImageVersion: latest
+  nginx:
+    resolverName: kube-dns.kube-system.svc.cluster.local
+  jaeger:
+    localAgentHostPort: jaeger:6831
+    queueSize: 1000000
+    bufferFlushInterval: 10
+    samplerType: probabilistic
+    samplerParam: 0.01
+    disabled: false
+    logSpans: false

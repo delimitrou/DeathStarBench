@@ -1,0 +1,1 @@
+{{ include "mediamicroservices.templates.mongo.mongod.conf"  . }}

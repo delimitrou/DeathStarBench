@@ -1,0 +1,6 @@
+apiVersion: v2
+name: text-service
+description: text-service service in MediaMicroservices
+type: application
+version: 0.1.0
+appVersion: "1.16.0"

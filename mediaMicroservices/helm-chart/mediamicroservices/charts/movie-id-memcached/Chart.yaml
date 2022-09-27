@@ -1,0 +1,6 @@
+apiVersion: v2
+name: movie-id-memcached
+description: movie-id-memcached microservice in MediaMicroservices
+type: application
+version: 0.1.0
+appVersion: 1.6.7
