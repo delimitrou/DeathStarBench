@@ -1,6 +1,6 @@
 .vscode
 .DS_Store
 build
-*/wrk2/deps
-*/wrk2/obj
+*/wrk2/deps/
+*/wrk2/obj/
 */wrk2/wrk

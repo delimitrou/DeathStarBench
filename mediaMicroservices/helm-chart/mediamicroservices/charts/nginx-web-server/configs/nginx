@@ -1,0 +1,1 @@
+{{ include "mediamicroservices.templates.nginx.nginx.conf"  . }}

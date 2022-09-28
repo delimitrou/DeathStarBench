@@ -1,4 +1,8 @@
 local _M = {}
+local k8s_suffix = os.getenv("fqdn_suffix")
+if (k8s_suffix == nil) then
+  k8s_suffix = ""
+end
 
 function _M.WriteCastInfo()
   local bridge_tracer = require "opentracing_bridge_tracer"
@@ -33,7 +37,7 @@ function _M.WriteCastInfo()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
-  local client = GenericObjectPool:connection(CastInfoServiceClient, "cast-info-service", 9090)
+  local client = GenericObjectPool:connection(CastInfoServiceClient, "cast-info-service" .. k8s_suffix, 9090)
   client:WriteCastInfo(req_id, cast_info["cast_info_id"], cast_info["name"],
       cast_info["gender"], cast_info["intro"],  carrier)
   GenericObjectPool:returnConnection(client)

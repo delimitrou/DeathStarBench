@@ -1,4 +1,8 @@
 local _M = {}
+local k8s_suffix = os.getenv("fqdn_suffix")
+if (k8s_suffix == nil) then
+  k8s_suffix = ""
+end
 
 local function _StrIsEmpty(s)
   return s == nil or s == ''
@@ -27,7 +31,7 @@ function _M.RegisterMovie()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
-  local client = GenericObjectPool:connection(MovieIdServiceClient,"movie-id-service",9090)
+  local client = GenericObjectPool:connection(MovieIdServiceClient,"movie-id-service" .. k8s_suffix ,9090)
 
   client:RegisterMovieId(req_id, post.title, tostring(post.movie_id), carrier)
   GenericObjectPool:returnConnection(client)
