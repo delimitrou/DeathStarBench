@@ -1,5 +1,8 @@
 # Media Microservices
 
+## Workload architecture
+![Media microservices architecture diagram](assets/media_microservices_architecture.png)
+
 ## Dependencies
 - thrift C++ library
 - mongo-c-driver
