@@ -1,0 +1,19 @@
+name: rating-redis
+
+ports:
+  - port: 6379
+    targetPort: 6379
+
+container:
+  args:
+    - /media-microservices/config/redis.conf
+  image: library/redis
+  imageVersion: 6.2.4
+  name: rating-redis
+  ports:
+    - containerPort: 6379
+
+configMaps:
+  - name: redis.conf
+    mountPath: /media-microservices/config/redis.conf
+    value: redis

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: user-review-mongodb
+description: user-review-mongodb microservice in MediaMicroservices
+type: application
+version: 0.1.0
+appVersion: 4.4.6

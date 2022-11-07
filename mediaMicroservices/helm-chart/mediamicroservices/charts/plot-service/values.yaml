@@ -1,0 +1,21 @@
+name: plot-service
+
+ports:
+  - port: 9090
+    targetPort: 9090
+
+container:
+  command: PlotService
+  image: yg397/media-microservices
+  name: plot-service
+  ports:
+    - containerPort: 9090
+
+configMaps:
+  - name: jaeger-config.yml
+    mountPath: /media-microservices/config/jaeger-config.yml
+    value: jaeger-config
+
+  - name: service-config.json
+    mountPath: /media-microservices/config/service-config.json
+    value: service-config

@@ -1,0 +1,21 @@
+name: cast-info-mongodb
+
+ports:
+  - port: 27017
+    targetPort: 27017
+
+container:
+  args:
+    - --config
+    - /media-microservices/config/mongod.conf
+  image: library/mongo
+  imageVersion: 4.4.6
+  name: cast-info-mongodb
+  ports:
+    - containerPort: 27017
+
+configMaps:
+  - name: mongod.conf
+    mountPath: /media-microservices/config/mongod.conf
+    subPath: mongod.conf
+    value: mongod

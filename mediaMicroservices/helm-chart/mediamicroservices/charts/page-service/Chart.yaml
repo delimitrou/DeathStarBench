@@ -1,0 +1,6 @@
+apiVersion: v2
+name: page-service
+description: page-service in MediaMicroservices
+type: application
+version: 0.1.0
+appVersion: "1.16.0"

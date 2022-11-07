@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cast-info-memcached
+description: cast-info-memcached microservice in MediaMicroservices
+type: application
+version: 0.1.0
+appVersion: 1.6.7

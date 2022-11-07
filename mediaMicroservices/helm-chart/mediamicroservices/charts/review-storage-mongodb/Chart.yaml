@@ -1,0 +1,6 @@
+apiVersion: v2
+name: review-storage-mongodb
+description: review-storage-mongodb microservice in MediaMicroservices
+type: application
+version: 0.1.0
+appVersion: 4.4.6

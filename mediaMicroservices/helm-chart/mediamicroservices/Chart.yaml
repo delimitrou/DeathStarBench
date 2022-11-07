@@ -1,0 +1,72 @@
+apiVersion: v2
+name: media-microservices
+description: A Helm chart for MediaMicroservices in DeathStarBench
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+
+dependencies:
+  - name: nginx-web-server
+    version: 0.1.0
+  - name: jaeger
+    version: 0.1.0
+  - name: unique-id-service
+    version: 0.1.0
+  - name: movie-id-service
+    version: 0.1.0
+  - name: movie-id-mongodb
+    version: 0.1.0
+  - name: movie-id-memcached
+    version: 0.1.0
+  - name: text-service
+    version: 0.1.0
+  - name: rating-service
+    version: 0.1.0
+  - name: rating-redis
+    version: 0.1.0
+  - name: user-service
+    version: 0.1.0
+  - name: user-mongodb
+    version: 0.1.0
+  - name: user-memcached
+    version: 0.1.0
+  - name: compose-review-service
+    version: 0.1.0
+  - name: compose-review-memcached
+    version: 0.1.0
+  - name: review-storage-service
+    version: 0.1.0
+  - name: review-storage-mongodb
+    version: 0.1.0
+  - name: user-review-service
+    version: 0.1.0
+  - name: user-review-mongodb
+    version: 0.1.0
+  - name: user-review-redis
+    version: 0.1.0
+  - name: movie-review-service
+    version: 0.1.0
+  - name: movie-review-mongodb
+    version: 0.1.0
+  - name: movie-review-redis
+    version: 0.1.0
+  - name: cast-info-service
+    version: 0.1.0
+  - name: cast-info-mongodb
+    version: 0.1.0
+  - name: cast-info-memcached
+    version: 0.1.0
+  - name: page-service
+    version: 0.1.0
+  - name: plot-service
+    version: 0.1.0
+  - name: plot-mongodb
+    version: 0.1.0
+  - name: plot-memcached
+    version: 0.1.0
+  - name: movie-info-service
+    version: 0.1.0
+  - name: movie-info-mongodb
+    version: 0.1.0
+  - name: movie-info-memcached
+    version: 0.1.0

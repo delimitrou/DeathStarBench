@@ -1,0 +1,50 @@
+name: nginx-web-server
+
+ports:
+  - port: 8080
+    targetPort: 8080
+
+container:
+  image: yg397/openresty-thrift
+  imageVersion: xenial
+  name: nginx-web-server
+  ports:
+    - containerPort: 8080
+  env:
+    - name: fqdn_suffix
+      value: ".{{ .Release.Namespace }}.svc.cluster.local"
+  volumeMounts:
+    - name: lua-scripts
+      mountPath: /usr/local/openresty/nginx/lua-scripts
+    - name: gen-lua
+      mountPath: /gen-lua
+
+initContainer:
+  image: alpine/git
+  imageVersion: latest
+  name: alpine-container
+  volumeMounts:
+    - name: lua-scripts
+      mountPath: /lua-scripts
+    - name: gen-lua
+      mountPath: /gen-lua
+  command: "/bin/sh"
+  args: [
+      "-c",
+      "git clone https://github.com/delimitrou/DeathStarBench.git /DeathStarBench &&
+      cp -r /DeathStarBench/mediaMicroservices/gen-lua/* /gen-lua/ &&
+      cp -r /DeathStarBench/mediaMicroservices/nginx-web-server/lua-scripts/* /lua-scripts/",
+    ]
+
+volumes:
+  - name: lua-scripts
+  - name: gen-lua
+
+configMaps:
+  - name: jaeger-config.json
+    mountPath: /usr/local/openresty/nginx/jaeger-config.json
+    value: jaeger-config
+
+  - name: nginx.conf
+    mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+    value: nginx
