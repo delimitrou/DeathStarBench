@@ -19,11 +19,11 @@ jobs:
       with:
         ref: master
         fetch-depth: 0
-        #- name: Login to ACR
-        #uses: docker/login-action@v1
-        #with:
-        #username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
-        #password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+    - name: Login to ACR
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     - name: Build docker image
       run: docker build -f "${{ env.REPO_PATH }}/Dockerfile" -t ${{ env.IMAGE_BASE_NAME }} ${{ env.REPO_PATH }}
     - name: Calculate new version
@@ -49,9 +49,9 @@ jobs:
       run: echo "IMAGE_ID=${{ env.IMAGE_BASE_NAME }}:${{ env.VERSION_NUMBER }}" >> $GITHUB_ENV
     - name: Tag image
       run: docker tag ${{ env.IMAGE_BASE_NAME }} ${{ env.IMAGE_ID }}
-      #- name: Push docker image
-      #run: docker push ${{ env.IMAGE_ID }}
+    - name: Push docker image
+      run: docker push ${{ env.IMAGE_ID }}
     - name: Tag image as latest
       run: docker tag ${{ env.IMAGE_BASE_NAME }} ${{ env.IMAGE_BASE_NAME }}:latest
-      #- name: Push latest
-      #run: docker push ${{ env.IMAGE_BASE_NAME }}:latest
+    - name: Push latest
+      run: docker push ${{ env.IMAGE_BASE_NAME }}:latest
