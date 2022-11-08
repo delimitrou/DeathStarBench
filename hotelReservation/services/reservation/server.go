@@ -42,6 +42,7 @@ type Server struct {
 }
 
 // Run starts the server
+// test action
 func (s *Server) Run() error {
 	if s.Port == 0 {
 		return fmt.Errorf("server port must be set")
