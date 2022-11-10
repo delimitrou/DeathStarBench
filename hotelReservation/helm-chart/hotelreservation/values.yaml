@@ -1,0 +1,25 @@
+global:
+  replicas: 1
+  imagePullPolicy: "IfNotPresent"
+  restartPolicy: Always
+  serviceType: ClusterIP
+  dockerRegistry: docker.io
+  defaultImageVersion: latest
+  serviceDnsDomain: "cluster.local"
+  services:
+    environments:
+      logLevel: "INFO"
+      jaegerSampleRatio: "0.01"
+  memcached:
+    environments:
+      cacheSize: "128"
+      threads: "2"
+  mongodb:
+    persistentVolume:               # use hostPath or pvprovisioner
+      size: "1Gi"
+      hostPath:
+        enabled: true
+        path: /tmp
+      pvprovisioner:
+        enabled: false
+        storageClassName: ceph-fs   # optional

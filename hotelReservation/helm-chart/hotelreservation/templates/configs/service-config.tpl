@@ -1,0 +1,31 @@
+{{- define "hotelreservation.templates.service-config.json" }}
+{
+    "consulAddress": "consul.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:8500",
+    "jaegerAddress": "jaeger.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:6831",
+    "FrontendIP": "frontend.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}",
+    "FrontendPort": "5000",
+    "GeoIP": "geo.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}",
+    "GeoPort": "8083",
+    "GeoMongoAddress": "mongodb-geo:27018",
+    "ProfileIP": "profile.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}",
+    "ProfilePort": "8081",
+    "ProfileMongoAddress": "mongodb-profile:27019",
+    "ProfileMemcAddress": "memcached-profile:11213",
+    "RateIP": "rate.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}",
+    "RatePort": "8084",
+    "RateMongoAddress": "mongodb-rate:27020",
+    "RateMemcAddress": "memcached-rate:11212",
+    "RecommendIP": "recommendation.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}",
+    "RecommendPort": "8085",
+    "RecommendMongoAddress": "mongodb-recommendation:27021",
+    "ReserveIP": "reservation.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}",
+    "ReservePort": "8087",
+    "ReserveMongoAddress": "mongodb-reservation:27022",
+    "ReserveMemcAddress": "memcached-reserve:11214",
+    "SearchIP": "search.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}",
+    "SearchPort": "8082",
+    "UserIP": "user.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}",
+    "UserPort": "8086",
+    "UserMongoAddress": "mongodb-user:27023"
+}
+{{- end }}
