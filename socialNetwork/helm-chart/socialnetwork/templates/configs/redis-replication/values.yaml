@@ -1,0 +1,12 @@
+redis:
+  useConfigmap: true
+  registry: docker.io
+  image: redis
+  tag: latest
+  pullPolicy: IfNotPresent
+  primary:
+    name: redis-primary
+  replica:
+    name: redis-replica
+    count: 6
+    useTopologySpreadConstraint: false

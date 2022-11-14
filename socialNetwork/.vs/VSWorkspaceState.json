@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\cmake",
+    "\\src",
+    "\\src\\SocialGraphService",
+    "\\src\\UserService",
+    "\\wrk2"
+  ],
+  "SelectedNode": "\\src\\RedisClient.h",
+  "PreviewInSolutionExplorer": false
+}
