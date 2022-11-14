@@ -1,0 +1,17 @@
+name: search
+
+ports:
+  - port: 8082
+    targetPort: 8082
+ 
+container:
+  command: search
+  image: igorrudyk1/hotelreservation
+  name: hotel-reserv-search
+  ports:
+  - containerPort: 8082
+
+configMaps:
+  - name: service-config.json
+    mountPath: /go/src/github.com/harlow/go-micro-services/config.json
+    value: service-config
