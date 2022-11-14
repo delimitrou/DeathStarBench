@@ -77,8 +77,7 @@ int main(int argc, char *argv[]) {
       config_json["social-graph-service"]["keepalive_ms"];
 
   if (redis_replica_config_flag && (redis_cluster_config_flag || redis_cluster_flag)) {
-      LOG(error) << "Cannot start with ";
-
+      LOG(error) << "Cannot start with enabled redis cluster and redis replica flags both";
       exit(EXIT_FAILURE);
   }
 

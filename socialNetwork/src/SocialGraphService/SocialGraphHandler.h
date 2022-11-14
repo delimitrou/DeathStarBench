@@ -31,6 +31,8 @@ class SocialGraphHandler : public SocialGraphServiceIf {
  public:
   SocialGraphHandler(mongoc_client_pool_t *, Redis *,
                      ClientPool<ThriftClient<UserServiceClient>> *);
+  SocialGraphHandler(mongoc_client_pool_t*, Redis*, Redis*,
+      ClientPool<ThriftClient<UserServiceClient>>*);
   SocialGraphHandler(mongoc_client_pool_t *, RedisCluster *,
                      ClientPool<ThriftClient<UserServiceClient>> *);
   ~SocialGraphHandler() override = default;
@@ -53,6 +55,8 @@ class SocialGraphHandler : public SocialGraphServiceIf {
  private:
   mongoc_client_pool_t *_mongodb_client_pool;
   Redis *_redis_client_pool;
+  Redis* _redis_replica_client_pool;
+  Redis* _redis_primary_client_pool;
   RedisCluster *_redis_cluster_client_pool;
   ClientPool<ThriftClient<UserServiceClient>> *_user_service_client_pool;
 };
@@ -62,8 +66,21 @@ SocialGraphHandler::SocialGraphHandler(
     ClientPool<ThriftClient<UserServiceClient>> *user_service_client_pool) {
   _mongodb_client_pool = mongodb_client_pool;
   _redis_client_pool = redis_client_pool;
+  _redis_replica_client_pool = nullptr;
+  _redis_primary_client_pool = nullptr;
   _redis_cluster_client_pool = nullptr;
   _user_service_client_pool = user_service_client_pool;
+}
+
+SocialGraphHandler::SocialGraphHandler(
+    mongoc_client_pool_t* mongodb_client_pool, Redis* redis_replica_client_pool, Redis* redis_primary_client_pool,
+    ClientPool<ThriftClient<UserServiceClient>>* user_service_client_pool) {
+    _mongodb_client_pool = mongodb_client_pool;
+    _redis_client_pool = nullptr;
+    _redis_replica_client_pool = redis_replica_client_pool;
+    _redis_primary_client_pool = redis_primary_client_pool;
+        _redis_cluster_client_pool = nullptr;
+    _user_service_client_pool = user_service_client_pool;
 }
 
 SocialGraphHandler::SocialGraphHandler(
@@ -72,6 +89,8 @@ SocialGraphHandler::SocialGraphHandler(
     ClientPool<ThriftClient<UserServiceClient>> *user_service_client_pool) {
   _mongodb_client_pool = mongodb_client_pool;
   _redis_client_pool = nullptr;
+  _redis_replica_client_pool = nullptr;
+  _redis_primary_client_pool = nullptr;
   _redis_cluster_client_pool = redis_cluster_client_pool;
   _user_service_client_pool = user_service_client_pool;
 }
@@ -224,7 +243,22 @@ void SocialGraphHandler::Follow(
           LOG(error) << err.what();
           throw err;
         }
-      } else {
+      }
+      else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+          auto pipe = _redis_primary_client_pool->pipeline(false);
+          pipe.zadd(std::to_string(user_id) + ":followees",
+              std::to_string(followee_id), timestamp, UpdateType::NOT_EXIST)
+              .zadd(std::to_string(followee_id) + ":followers",
+                  std::to_string(user_id), timestamp, UpdateType::NOT_EXIST);
+          try {
+              auto replies = pipe.exec();
+          }
+          catch (const Error& err) {
+              LOG(error) << err.what();
+              throw err;
+          }
+      }
+      else {
         // TODO: Redis++ currently does not support pipeline with multiple
         //       hashtags in cluster mode.
         //       Currently, we send one request for each follower, which may
@@ -399,7 +433,23 @@ void SocialGraphHandler::Unfollow(
           LOG(error) << err.what();
           throw err;
         }
-      } else {
+      } 
+      else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+          auto pipe = _redis_primary_client_pool->pipeline(false);
+          std::string followee_key = std::to_string(user_id) + ":followees";
+          std::string follower_key = std::to_string(followee_id) + ":followers";
+          pipe.zrem(followee_key, std::to_string(followee_id))
+              .zrem(follower_key, std::to_string(user_id));
+
+          try {
+              auto replies = pipe.exec();
+          }
+          catch (const Error& err) {
+              LOG(error) << err.what();
+              throw err;
+          }
+      }
+      else {
         std::string followee_key = std::to_string(user_id) + ":followees";
         std::string follower_key = std::to_string(followee_id) + ":followers";
         try {
@@ -448,7 +498,11 @@ void SocialGraphHandler::GetFollowers(
   try {
     if (_redis_client_pool) {
       _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followers_str));
-    } else {
+    } 
+    else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+        _redis_replica_client_pool->zrange(key, 0, -1, std::back_inserter(followers_str));
+    }
+    else {
       _redis_cluster_client_pool->zrange(key, 0, -1,
                                          std::back_inserter(followers_str));
     }
@@ -536,7 +590,11 @@ void SocialGraphHandler::GetFollowers(
       try {
         if (_redis_client_pool) {
           _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
-        } else {
+        } 
+        else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+            _redis_primary_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
+        }
+        else {
           _redis_cluster_client_pool->zadd(key, redis_zset.begin(),
                                            redis_zset.end());
         }
@@ -578,7 +636,11 @@ void SocialGraphHandler::GetFollowees(
   try {
     if (_redis_client_pool) {
       _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followees_str));
-    } else {
+    }
+    else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+        _redis_replica_client_pool->zrange(key, 0, -1, std::back_inserter(followees_str));
+    }
+    else {
       _redis_cluster_client_pool->zrange(key, 0, -1,
                                          std::back_inserter(followees_str));
     }
@@ -680,7 +742,11 @@ void SocialGraphHandler::GetFollowees(
       try {
         if (_redis_client_pool) {
           _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
-        } else {
+        } 
+        else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+            _redis_primary_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
+        }
+        else {
           _redis_cluster_client_pool->zadd(key, redis_zset.begin(),
                                            redis_zset.end());
         }
