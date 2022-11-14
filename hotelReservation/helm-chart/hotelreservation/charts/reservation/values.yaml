@@ -1,0 +1,17 @@
+name: reservation
+
+ports:
+  - port: 8087
+    targetPort: 8087
+ 
+container:
+  command: reservation
+  image: igorrudyk1/hotelreservation
+  name: hotel-reserv-reservation
+  ports:
+  - containerPort: 8087
+
+configMaps:
+  - name: service-config.json
+    mountPath: /go/src/github.com/harlow/go-micro-services/config.json
+    value: service-config

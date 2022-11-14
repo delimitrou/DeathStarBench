@@ -1,0 +1,17 @@
+name: geo
+
+ports:
+  - port: 8083
+    targetPort: 8083
+ 
+container:
+  command: geo
+  image: igorrudyk1/hotelreservation
+  name: hotel-reserv-geo
+  ports:
+  - containerPort: 8083
+
+configMaps:
+  - name: service-config.json
+    mountPath: /go/src/github.com/harlow/go-micro-services/config.json
+    value: service-config

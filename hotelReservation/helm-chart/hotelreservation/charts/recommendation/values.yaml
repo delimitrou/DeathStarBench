@@ -1,0 +1,17 @@
+name: recommendation
+
+ports:
+  - port: 8085
+    targetPort: 8085
+ 
+container:
+  command: recommendation
+  image: igorrudyk1/hotelreservation
+  name: hotel-reserv-recommendation
+  ports:
+  - containerPort: 8085
+
+configMaps:
+  - name: service-config.json
+    mountPath: /go/src/github.com/harlow/go-micro-services/config.json
+    value: service-config
