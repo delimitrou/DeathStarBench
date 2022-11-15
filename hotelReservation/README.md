@@ -17,7 +17,7 @@ Supported actions:
 - luarocks (apt-get install luarocks)
 - luasocket (luarocks install luasocket)
 
-## Running the social network application
+## Running the hotel reservation application
 ### Before you start
 - Install Docker and Docker Compose.
 - Make sure exposed ports in docker-compose files are available
