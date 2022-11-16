@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
     LOG(info) << "Starting the user-timeline-service server with replicated Redis support...";
     server.serve();
   }
-  else if (init_redis_replica_client_pool) {
+  else if (redis_replica_config_flag) {
       Redis redis_replica_client_pool = init_redis_replica_client_pool(config_json, "redis_replica");
       Redis redis_primary_client_pool = init_redis_replica_client_pool(config_json, "redis-primary");
       TThreadedServer server(std::make_shared<UserTimelineServiceProcessor>(
