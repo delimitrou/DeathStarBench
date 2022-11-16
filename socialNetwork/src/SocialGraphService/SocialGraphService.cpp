@@ -118,8 +118,8 @@ int main(int argc, char *argv[]) {
   }
   
   else if (redis_replica_config_flag) {
-      Redis redis_replica_client_pool = init_redis_replica_client_pool(config_json, "redis_replica");
-      Redis redis_primary_client_pool = init_redis_replica_client_pool(config_json, "redis_primary");
+      Redis redis_replica_client_pool = init_redis_replica_client_pool(config_json, "redis-replica");
+      Redis redis_primary_client_pool = init_redis_replica_client_pool(config_json, "redis-primary");
 
       TThreadedServer server(
           std::make_shared<SocialGraphServiceProcessor>(
