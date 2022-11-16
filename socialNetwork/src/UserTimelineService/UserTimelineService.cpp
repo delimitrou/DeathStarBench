@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
                            server_socket,
                            std::make_shared<TFramedTransportFactory>(),
                            std::make_shared<TBinaryProtocolFactory>());
-    LOG(info) << "Starting the user-timeline-service server with Redis Cluster support...";
+    LOG(info) << "Starting the user-timeline-service server with replicated Redis support...";
     server.serve();
   }
   else if (init_redis_replica_client_pool) {

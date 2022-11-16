@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
                                                  &user_client_pool)),
         server_socket, std::make_shared<TFramedTransportFactory>(),
         std::make_shared<TBinaryProtocolFactory>());
-    LOG(info) << "Starting the social-graph-service server with Resis Cluster support...";
+    LOG(info) << "Starting the social-graph-service server with replicated Redis support...";
     server.serve();
   }
   

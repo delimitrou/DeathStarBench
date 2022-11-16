@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
               server_socket, std::make_shared<TFramedTransportFactory>(),
               std::make_shared<TBinaryProtocolFactory>());
 
-          LOG(info) << "Starting the home-timeline-service server with Redis Replica support...";
+          LOG(info) << "Starting the home-timeline-service server with replicated Redis support...";
           server.serve();
 
       
