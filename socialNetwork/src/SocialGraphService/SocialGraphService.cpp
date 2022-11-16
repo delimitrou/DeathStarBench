@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (redis_replica_config_flag && (redis_cluster_config_flag || redis_cluster_flag)) {
-      LOG(error) << "Cannot start with enabled redis cluster and redis replica flags both";
+      LOG(error) << "Can't start service when Redis Cluster and Redis Replica are enabled at the same time";
       exit(EXIT_FAILURE);
   }
 
