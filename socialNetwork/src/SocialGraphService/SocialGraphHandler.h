@@ -244,7 +244,7 @@ void SocialGraphHandler::Follow(
           throw err;
         }
       }
-      else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+      else if (_redis_primary_client_pool) {
           auto pipe = _redis_primary_client_pool->pipeline(false);
           pipe.zadd(std::to_string(user_id) + ":followees",
               std::to_string(followee_id), timestamp, UpdateType::NOT_EXIST)
@@ -434,7 +434,7 @@ void SocialGraphHandler::Unfollow(
           throw err;
         }
       } 
-      else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+      else if (_redis_primary_client_pool) {
           auto pipe = _redis_primary_client_pool->pipeline(false);
           std::string followee_key = std::to_string(user_id) + ":followees";
           std::string follower_key = std::to_string(followee_id) + ":followers";
@@ -499,7 +499,7 @@ void SocialGraphHandler::GetFollowers(
     if (_redis_client_pool) {
       _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followers_str));
     } 
-    else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+    else if (_redis_replica_client_pool) {
         _redis_replica_client_pool->zrange(key, 0, -1, std::back_inserter(followers_str));
     }
     else {
@@ -591,7 +591,7 @@ void SocialGraphHandler::GetFollowers(
         if (_redis_client_pool) {
           _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
         } 
-        else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+        else if (_redis_primary_client_pool) {
             _redis_primary_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
         }
         else {
@@ -637,7 +637,7 @@ void SocialGraphHandler::GetFollowees(
     if (_redis_client_pool) {
       _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followees_str));
     }
-    else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+    else if (_redis_replica_client_pool) {
         _redis_replica_client_pool->zrange(key, 0, -1, std::back_inserter(followees_str));
     }
     else {
@@ -743,7 +743,7 @@ void SocialGraphHandler::GetFollowees(
         if (_redis_client_pool) {
           _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
         } 
-        else if (_redis_replica_client_pool && _redis_primary_client_pool) {
+        else if (_redis_primary_client_pool) {
             _redis_primary_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
         }
         else {

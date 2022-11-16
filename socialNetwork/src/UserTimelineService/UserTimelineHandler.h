@@ -161,7 +161,7 @@ void UserTimelineHandler::WriteUserTimeline(
     if (_redis_client_pool)
       _redis_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
-    else if (_redis_primary_pool && _redis_replica_pool) {
+    else if (_redis_primary_pool) {
         _redis_primary_pool->zadd(std::to_string(user_id), std::to_string(post_id),
             timestamp, UpdateType::NOT_EXIST);
     }
@@ -202,7 +202,7 @@ void UserTimelineHandler::ReadUserTimeline(
     if (_redis_client_pool)
       _redis_client_pool->zrevrange(std::to_string(user_id), start, stop - 1,
                                   std::back_inserter(post_ids_str));
-    else if (_redis_replica_pool && _redis_primary_pool) {
+    else if (_redis_replica_pool) {
         _redis_replica_pool->zrevrange(std::to_string(user_id), start, stop - 1,
             std::back_inserter(post_ids_str));
     }
@@ -326,7 +326,7 @@ void UserTimelineHandler::ReadUserTimeline(
         _redis_client_pool->zadd(std::to_string(user_id),
                                redis_update_map.begin(),
                                redis_update_map.end());
-      else if (_redis_replica_pool && _redis_primary_pool) {
+      else if (_redis_primary_pool) {
           _redis_primary_pool->zadd(std::to_string(user_id),
               redis_update_map.begin(),
               redis_update_map.end());

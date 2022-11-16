@@ -152,7 +152,7 @@ void HomeTimelineHandler::WriteHomeTimeline(
       }
     }
     
-    else if (_redis_primary_pool && _redis_replica_pool) {
+    else if (_redis_primary_pool) {
         auto pipe = _redis_primary_pool->pipeline(false);
         for (auto& follower_id : followers_id_set) {
             pipe.zadd(std::to_string(follower_id), post_id_str, timestamp,
@@ -231,7 +231,7 @@ void HomeTimelineHandler::ReadHomeTimeline(
                                     stop_idx - 1,
                                     std::back_inserter(post_ids_str));
     }
-    else if (_redis_primary_pool && _redis_replica_pool) {
+    else if (_redis_replica_pool) {
         _redis_replica_pool->zrevrange(std::to_string(user_id), start_idx,
             stop_idx - 1,
             std::back_inserter(post_ids_str));
