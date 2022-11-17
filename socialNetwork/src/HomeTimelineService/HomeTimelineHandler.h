@@ -24,7 +24,7 @@ class HomeTimelineHandler : public HomeTimelineServiceIf {
                       ClientPool<ThriftClient<SocialGraphServiceClient>> *);
 
 
-  HomeTimelineHandler(Redis*,Redis*,
+  HomeTimelineHandler(Redis *,Redis *,
       ClientPool<ThriftClient<PostStorageServiceClient>>*,
       ClientPool<ThriftClient<SocialGraphServiceClient>>*);
 
@@ -42,8 +42,8 @@ class HomeTimelineHandler : public HomeTimelineServiceIf {
                          const std::map<std::string, std::string> &) override;
 
  private:
-     Redis* _redis_replica_pool;
-     Redis* _redis_primary_pool;
+     Redis *_redis_replica_pool;
+     Redis *_redis_primary_pool;
      Redis *_redis_client_pool;
      RedisCluster *_redis_cluster_client_pool;
      ClientPool<ThriftClient<PostStorageServiceClient>> *_post_client_pool;
@@ -77,8 +77,8 @@ HomeTimelineHandler::HomeTimelineHandler(
 }
 
 HomeTimelineHandler::HomeTimelineHandler(
-    Redis* redis_replica_pool,
-    Redis* redis_primary_pool,
+    Redis *redis_replica_pool,
+    Redis *redis_primary_pool,
     ClientPool<ThriftClient<PostStorageServiceClient>>* post_client_pool,
     ClientPool<ThriftClient<SocialGraphServiceClient>>
     * social_graph_client_pool) {
@@ -233,8 +233,8 @@ void HomeTimelineHandler::ReadHomeTimeline(
     }
     else if (_redis_replica_pool) {
         _redis_replica_pool->zrevrange(std::to_string(user_id), start_idx,
-            stop_idx - 1,
-            std::back_inserter(post_ids_str));
+                                       stop_idx - 1,
+                                       std::back_inserter(post_ids_str));
     }
     
     else {

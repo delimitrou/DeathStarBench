@@ -1,6 +1,0 @@
-apiVersion: v2
-name: redis-replication
-description: Helm chart to deploy replicated Redis instance, supporting x86 & arm64 architecture.
-type: application
-version: 0.1.0
-appVersion: 1.16.0

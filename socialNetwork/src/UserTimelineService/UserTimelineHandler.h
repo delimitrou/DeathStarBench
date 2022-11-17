@@ -25,8 +25,8 @@ class UserTimelineHandler : public UserTimelineServiceIf {
   UserTimelineHandler(Redis *, mongoc_client_pool_t *,
                       ClientPool<ThriftClient<PostStorageServiceClient>> *);
 
-  UserTimelineHandler(Redis*, Redis*, mongoc_client_pool_t*,
-      ClientPool<ThriftClient<PostStorageServiceClient>>*);
+  UserTimelineHandler(Redis *, Redis *, mongoc_client_pool_t *,
+      ClientPool<ThriftClient<PostStorageServiceClient>> *);
 
   UserTimelineHandler(RedisCluster *, mongoc_client_pool_t *,
                       ClientPool<ThriftClient<PostStorageServiceClient>> *);
@@ -40,12 +40,12 @@ class UserTimelineHandler : public UserTimelineServiceIf {
                         const std::map<std::string, std::string> &) override;
 
  private:
-  Redis* _redis_client_pool;
-  Redis* _redis_replica_pool;
-  Redis* _redis_primary_pool;
-  RedisCluster* _redis_cluster_client_pool;
-  mongoc_client_pool_t* _mongodb_client_pool;
-  ClientPool<ThriftClient<PostStorageServiceClient>>* _post_client_pool;
+  Redis *_redis_client_pool;
+  Redis *_redis_replica_pool;
+  Redis *_redis_primary_pool;
+  RedisCluster *_redis_cluster_client_pool;
+  mongoc_client_pool_t *_mongodb_client_pool;
+  ClientPool<ThriftClient<PostStorageServiceClient>> *_post_client_pool;
 };
 
 UserTimelineHandler::UserTimelineHandler(
@@ -163,7 +163,7 @@ void UserTimelineHandler::WriteUserTimeline(
                               timestamp, UpdateType::NOT_EXIST);
     else if (_redis_primary_pool) {
         _redis_primary_pool->zadd(std::to_string(user_id), std::to_string(post_id),
-            timestamp, UpdateType::NOT_EXIST);
+                              timestamp, UpdateType::NOT_EXIST);
     }
     else
       _redis_cluster_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),

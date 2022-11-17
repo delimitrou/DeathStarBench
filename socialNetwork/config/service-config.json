@@ -44,7 +44,7 @@
     "port": 6379,
     "connections": 512,
     "use_cluster": 0,
-    "use_replica": 1
+    "use_replica": 0
   },
   "social-graph-redis": {
     "keepalive_ms": 10000,
@@ -53,7 +53,7 @@
     "port": 6379,
     "connections": 512,
     "use_cluster": 0,
-    "use_replica": 1
+    "use_replica": 0
   },
   "post-storage-service": {
     "keepalive_ms": 10000,
@@ -121,7 +121,7 @@
     "port": 6379,
     "connections": 512,
     "use_cluster": 0,
-    "use_replica": 1
+    "use_replica": 0
 
   },
   "compose-post-service": {

@@ -31,7 +31,7 @@ class SocialGraphHandler : public SocialGraphServiceIf {
  public:
   SocialGraphHandler(mongoc_client_pool_t *, Redis *,
                      ClientPool<ThriftClient<UserServiceClient>> *);
-  SocialGraphHandler(mongoc_client_pool_t*, Redis*, Redis*,
+  SocialGraphHandler(mongoc_client_pool_t *, Redis *, Redis *,
       ClientPool<ThriftClient<UserServiceClient>>*);
   SocialGraphHandler(mongoc_client_pool_t *, RedisCluster *,
                      ClientPool<ThriftClient<UserServiceClient>> *);
@@ -55,8 +55,8 @@ class SocialGraphHandler : public SocialGraphServiceIf {
  private:
   mongoc_client_pool_t *_mongodb_client_pool;
   Redis *_redis_client_pool;
-  Redis* _redis_replica_client_pool;
-  Redis* _redis_primary_client_pool;
+  Redis *_redis_replica_client_pool;
+  Redis *_redis_primary_client_pool;
   RedisCluster *_redis_cluster_client_pool;
   ClientPool<ThriftClient<UserServiceClient>> *_user_service_client_pool;
 };
@@ -79,7 +79,7 @@ SocialGraphHandler::SocialGraphHandler(
     _redis_client_pool = nullptr;
     _redis_replica_client_pool = redis_replica_client_pool;
     _redis_primary_client_pool = redis_primary_client_pool;
-        _redis_cluster_client_pool = nullptr;
+    _redis_cluster_client_pool = nullptr;
     _user_service_client_pool = user_service_client_pool;
 }
 
