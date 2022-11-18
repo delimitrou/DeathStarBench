@@ -34,6 +34,8 @@ class HomeTimelineHandler : public HomeTimelineServiceIf {
                       ClientPool<ThriftClient<SocialGraphServiceClient>> *);
   ~HomeTimelineHandler() override = default;
 
+  bool IsRedisReplicationEnabled();
+
   void ReadHomeTimeline(std::vector<Post> &, int64_t, int64_t, int, int,
                         const std::map<std::string, std::string> &) override;
 
@@ -88,6 +90,10 @@ HomeTimelineHandler::HomeTimelineHandler(
     _redis_cluster_client_pool = nullptr;
     _post_client_pool = post_client_pool;
     _social_graph_client_pool = social_graph_client_pool;
+}
+
+bool HomeTimelineHandler::IsRedisReplicationEnabled() {
+    return (_redis_primary_pool || _redis_replica_pool);
 }
 
 void HomeTimelineHandler::WriteHomeTimeline(
@@ -152,7 +158,7 @@ void HomeTimelineHandler::WriteHomeTimeline(
       }
     }
     
-    else if (_redis_primary_pool) {
+    else if (IsRedisReplicationEnabled()) {
         auto pipe = _redis_primary_pool->pipeline(false);
         for (auto& follower_id : followers_id_set) {
             pipe.zadd(std::to_string(follower_id), post_id_str, timestamp,
@@ -204,6 +210,11 @@ void HomeTimelineHandler::WriteHomeTimeline(
   redis_span->Finish();
 }
 
+inline bool HomeTimelineHandler::IsRedisReplicationEnabled()
+{
+    return false;
+}
+
 void HomeTimelineHandler::ReadHomeTimeline(
     std::vector<Post> &_return, int64_t req_id, int64_t user_id, int start_idx,
     int stop_idx, const std::map<std::string, std::string> &carrier) {
@@ -231,7 +242,7 @@ void HomeTimelineHandler::ReadHomeTimeline(
                                     stop_idx - 1,
                                     std::back_inserter(post_ids_str));
     }
-    else if (_redis_replica_pool) {
+    else if (IsRedisReplicationEnabled()) {
         _redis_replica_pool->zrevrange(std::to_string(user_id), start_idx,
                                        stop_idx - 1,
                                        std::back_inserter(post_ids_str));

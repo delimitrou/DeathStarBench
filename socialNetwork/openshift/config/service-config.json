@@ -108,7 +108,4 @@
     "addr": "redis-replica",
     "port": 6379
   }
-
-
-
 }
