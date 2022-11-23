@@ -210,10 +210,6 @@ void HomeTimelineHandler::WriteHomeTimeline(
   redis_span->Finish();
 }
 
-inline bool HomeTimelineHandler::IsRedisReplicationEnabled()
-{
-    return false;
-}
 
 void HomeTimelineHandler::ReadHomeTimeline(
     std::vector<Post> &_return, int64_t req_id, int64_t user_id, int start_idx,
