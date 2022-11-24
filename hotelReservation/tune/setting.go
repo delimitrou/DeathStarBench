@@ -2,6 +2,7 @@ package tune
 
 import (
 	"os"
+	"runtime/debug"
 	"strconv"
 	"time"
 
@@ -11,10 +12,22 @@ import (
 )
 
 var (
+	defaultGCPercent int = 100
 	defaultMemCTimeout int = 2
 	defaultMemCMaxIdleConns int = 512
 	defaultLogLevel string = "info"
 )
+
+
+func setGCPercent()  {
+	ratio := defaultGCPercent
+	if val, ok := os.LookupEnv("GC"); ok {
+		ratio, _ = strconv.Atoi(val)
+	}
+
+	debug.SetGCPercent(ratio)
+	log.Info().Msgf("Tune: setGCPercent to %d", ratio)
+}
 
 func setLogLevel()  {
 	logLevel := defaultLogLevel
@@ -66,4 +79,5 @@ func NewMemCClient(server ...string) (*memcache.Client) {
 
 func Init() {
 	setLogLevel()
+	setGCPercent()
 }

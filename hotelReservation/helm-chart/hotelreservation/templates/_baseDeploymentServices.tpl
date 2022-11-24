@@ -32,6 +32,8 @@ spec:
             value: {{ $.Values.global.services.environments.jaegerSampleRatio | quote }}
           - name: MEMC_TIMEOUT
             value: {{ $.Values.global.services.environments.memcachedTimeout | quote }}
+          - name: GC
+            value: {{ $.Values.global.services.environments.gcPercent | quote }}
         {{- if .command}}
         command:
         - {{ .command }}
