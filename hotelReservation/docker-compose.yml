@@ -28,6 +28,7 @@ services:
     environment:
       - TLS
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_profile_single_node
@@ -72,6 +73,7 @@ services:
     environment:
       - TLS
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_rate_single_node
@@ -115,6 +117,7 @@ services:
     environment:
       - TLS
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_rsv_single_node

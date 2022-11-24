@@ -30,6 +30,8 @@ spec:
             value: {{ $.Values.global.services.environments.logLevel | quote }}
           - name: JAEGER_SAMPLE_RATIO
             value: {{ $.Values.global.services.environments.jaegerSampleRatio | quote }}
+          - name: MEMC_TIMEOUT
+            value: {{ $.Values.global.services.environments.memcachedTimeout | quote }}
         {{- if .command}}
         command:
         - {{ .command }}
