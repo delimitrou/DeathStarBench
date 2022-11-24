@@ -48,11 +48,9 @@ var (
         */
 
         // TLS 1.3 cipher suites.
-        /* Not supported by golang v1.9
         "TLS_AES_128_GCM_SHA256": tls.TLS_AES_128_GCM_SHA256,
         "TLS_AES_256_GCM_SHA384": tls.TLS_AES_256_GCM_SHA384,
         "TLS_CHACHA20_POLY1305_SHA256": tls.TLS_CHACHA20_POLY1305_SHA256,
-        */
     }
 )
 
@@ -103,6 +101,10 @@ func init() {
 	    log.Info().Msgf("TLS enabled cipher suite %s", cipher)
             config.CipherSuites = append(config.CipherSuites, cipherSuites[cipher])
             httpsopt.CipherSuites = append(httpsopt.CipherSuites, cipherSuites[cipher])
+            switch cipher {
+                case "TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256":
+                    httpsopt.MinVersion = tls.VersionTLS13
+            }
         } else {
 	    log.Info().Msgf("TLS enabled without specified cipher suite")
         }
