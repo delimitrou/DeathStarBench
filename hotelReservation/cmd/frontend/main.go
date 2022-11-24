@@ -43,7 +43,7 @@ func main() {
 		jaegeraddr = flag.String("jaegeraddr", result["jaegerAddress"], "Jaeger address")
 		consuladdr = flag.String("consuladdr", result["consulAddress"], "Consul address")
 	)
-
+	flag.Parse()
 	log.Info().Msgf("Initializing jaeger agent [service name: %v | host: %v]...", "frontend", *jaegeraddr)
 	tracer, err := tracing.Init("frontend", *jaegeraddr)
 	if err != nil {
