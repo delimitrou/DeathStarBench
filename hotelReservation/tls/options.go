@@ -3,14 +3,13 @@ package tls
 import  (
     "crypto/tls"
     "crypto/x509"
-    "fmt"
     "io/ioutil"
-    "log"
     "os"
     "strings"
 
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials"
+    "github.com/rs/zerolog/log"
 )
 
 
@@ -49,11 +48,9 @@ var (
         */
 
         // TLS 1.3 cipher suites.
-        /* Not supported by golang v1.9
         "TLS_AES_128_GCM_SHA256": tls.TLS_AES_128_GCM_SHA256,
         "TLS_AES_256_GCM_SHA384": tls.TLS_AES_256_GCM_SHA384,
         "TLS_CHACHA20_POLY1305_SHA256": tls.TLS_CHACHA20_POLY1305_SHA256,
-        */
     }
 )
 
@@ -69,12 +66,12 @@ func checkTLS() (bool, string) {
         if _, ok := cipherSuites[val]; ok {
             return true, val
         } else {
-            log.Printf("WARNING: specified TLS cipher suite %s is invalid or unimplemented.\n", val)
+	    log.Warn().Msgf("specified TLS cipher suite %v is invalid or unimplemented.", val)
             validCiphers := make([]string, 0, len(cipherSuites))
             for k := range(cipherSuites) {
                 validCiphers = append(validCiphers, k)
             }
-            log.Printf("WARNING: Please use the supported TLS cipher suite %s\n", validCiphers)
+	    log.Warn().Msgf("Please use the supported TLS cipher suite %v.", validCiphers)
             return false, ""
         }
     }
@@ -86,11 +83,11 @@ func init() {
     if (needTLS) {
         b, err := ioutil.ReadFile("x509/ca_cert.pem")
 	    if err != nil {
-		    panic(err)
+	            log.Panic().Msgf("failed to read credentials: %v", err)
 	    }
 	    cp := x509.NewCertPool()
 	    if !cp.AppendCertsFromPEM(b) {
-		    panic(fmt.Errorf("credentials: failed to append certificates"))
+		    log.Panic().Msgf("credentials: failed to append certificates")
         }
         config := tls.Config{
             ServerName: "x.test.example.com",
@@ -101,11 +98,15 @@ func init() {
             RootCAs: cp,
         }
         if cipher != "" {
-            log.Printf("TLS enabled cipher suite %s\n", cipher)
+	    log.Info().Msgf("TLS enabled cipher suite %s", cipher)
             config.CipherSuites = append(config.CipherSuites, cipherSuites[cipher])
             httpsopt.CipherSuites = append(httpsopt.CipherSuites, cipherSuites[cipher])
+            switch cipher {
+                case "TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256":
+                    httpsopt.MinVersion = tls.VersionTLS13
+            }
         } else {
-            log.Println("TLS enabled without specified cipher suite")
+	    log.Info().Msgf("TLS enabled without specified cipher suite")
         }
 
         var creds credentials.TransportCredentials
@@ -114,11 +115,11 @@ func init() {
 
         creds, err = credentials.NewServerTLSFromFile("x509/server_cert.pem", "x509/server_key.pem")
         if err != nil {
-            panic(fmt.Sprintf("failed to create credentials: %v", err))
+	    log.Panic().Msgf("failed to create credentials: %v", err)
         }
         serveropt = grpc.Creds(creds)
     } else {
-        log.Println("TLS disabled")
+	log.Info().Msgf("TLS disabled.")
         dialopt = nil
         serveropt = nil
     }

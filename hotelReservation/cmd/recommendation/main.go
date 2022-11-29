@@ -15,7 +15,6 @@ import (
 	"github.com/harlow/go-micro-services/tune"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	// "github.com/bradfitz/gomemcache/memcache"
 )
 
 func main() {

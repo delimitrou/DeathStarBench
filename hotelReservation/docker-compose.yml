@@ -12,6 +12,7 @@ services:
   frontend:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -27,7 +28,9 @@ services:
   profile:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_profile_single_node
@@ -49,6 +52,7 @@ services:
     restart: always
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
       # - GRPC_GO_LOG_VERBOSITY_LEVEL=2
@@ -57,6 +61,7 @@ services:
   geo:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -71,7 +76,9 @@ services:
   rate:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_rate_single_node
@@ -86,6 +93,7 @@ services:
   recommendation:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -100,6 +108,7 @@ services:
   user:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -114,7 +123,9 @@ services:
   reservation:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_rsv_single_node

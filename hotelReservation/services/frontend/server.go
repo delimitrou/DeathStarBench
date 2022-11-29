@@ -178,7 +178,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Trace().Msg("starts searchHandler querying downstream")
 
-	log.Info().Msgf(" SEARCH [lat: %v, lon: %v, inDate: %v, outDate: %v", lat, lon, inDate, outDate)
+	log.Trace().Msgf("SEARCH [lat: %v, lon: %v, inDate: %v, outDate: %v", lat, lon, inDate, outDate)
 	// search for best hotels
 	searchResp, err := s.searchClient.Nearby(ctx, &search.NearbyRequest{
 		Lat:     lat,
@@ -191,10 +191,10 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info().Msg("SearchHandler gets searchResp")
-	for _, hid := range searchResp.HotelIds {
-		log.Info().Msgf("Search Handler hotelId = %s", hid)
-	}
+	log.Trace().Msg("SearchHandler gets searchResp")
+	//for _, hid := range searchResp.HotelIds {
+	//	log.Trace().Msgf("Search Handler hotelId = %s", hid)
+	//}
 
 	// grab locale from query params or default to en
 	locale := r.URL.Query().Get("locale")
@@ -215,8 +215,8 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info().Msgf("searchHandler gets reserveResp")
-	log.Info().Msgf("searchHandler gets reserveResp.HotelId = %s", reservationResp.HotelId)
+	log.Trace().Msgf("searchHandler gets reserveResp")
+	log.Trace().Msgf("searchHandler gets reserveResp.HotelId = %s", reservationResp.HotelId)
 
 	// hotel profiles
 	profileResp, err := s.profileClient.GetProfiles(ctx, &profile.Request{
@@ -229,7 +229,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info().Msg("searchHandler gets profileResp")
+	log.Trace().Msg("searchHandler gets profileResp")
 
 	json.NewEncoder(w).Encode(geoJSONResponse(profileResp.Hotels))
 }

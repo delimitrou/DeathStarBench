@@ -10,6 +10,8 @@ global:
     environments:
       logLevel: "INFO"
       jaegerSampleRatio: "0.01"
+      memcachedTimeout: "2"
+      gcPercent: "100"
   memcached:
     environments:
       cacheSize: "128"
