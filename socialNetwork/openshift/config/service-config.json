@@ -99,5 +99,13 @@
   "home-timeline-service": {
     "addr": "home-timeline-service",
     "port": 9090
+  },
+  "redis-primary": {
+    "addr": "redis-primary",
+    "port": 6379
+  },
+  "redis-replica": {
+    "addr": "redis-replica",
+    "port": 6379
   }
 }

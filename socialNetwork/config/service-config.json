@@ -43,7 +43,8 @@
     "timeout_ms": 10000,
     "port": 6379,
     "connections": 512,
-    "use_cluster": 0
+    "use_cluster": 0,
+    "use_replica": 0
   },
   "social-graph-redis": {
     "keepalive_ms": 10000,
@@ -51,7 +52,8 @@
     "timeout_ms": 10000,
     "port": 6379,
     "connections": 512,
-    "use_cluster": 0
+    "use_cluster": 0,
+    "use_replica": 0
   },
   "post-storage-service": {
     "keepalive_ms": 10000,
@@ -118,7 +120,9 @@
     "timeout_ms": 10000,
     "port": 6379,
     "connections": 512,
-    "use_cluster": 0
+    "use_cluster": 0,
+    "use_replica": 0
+
   },
   "compose-post-service": {
     "keepalive_ms": 10000,
@@ -191,5 +195,20 @@
     "timeout_ms": 10000,
     "port": 9090,
     "connections": 512
+  },
+  "redis-primary": {
+    "keepalive_ms": 10000,
+    "addr": "redis-primary",
+    "timeout_ms": 10000,
+    "port": 6379,
+    "connections": 512
+  },
+  "redis-replica": {
+    "keepalive_ms": 10000,
+    "addr": "redis-replica",
+    "timeout_ms": 10000,
+    "port": 6379,
+    "connections": 512
   }
+
 }

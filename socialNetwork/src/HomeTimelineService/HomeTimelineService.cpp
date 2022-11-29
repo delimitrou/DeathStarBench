@@ -59,6 +59,9 @@ int main(int argc, char *argv[]) {
 
   int port = config_json["home-timeline-service"]["port"];
   int redis_cluster_config_flag = config_json["home-timeline-redis"]["use_cluster"];
+
+  int redis_replica_config_flag = config_json["home-timeline-redis"]["use_replica"];
+
   int post_storage_port = config_json["post-storage-service"]["port"];
   std::string post_storage_addr = config_json["post-storage-service"]["addr"];
   int post_storage_conns = config_json["post-storage-service"]["connections"];
@@ -73,6 +76,11 @@ int main(int argc, char *argv[]) {
   int social_graph_keepalive =
       config_json["social-graph-service"]["keepalive_ms"];
 
+  if (redis_replica_config_flag && (redis_cluster_config_flag || redis_cluster_flag)) {
+      LOG(error) << "Can't start service when Redis Cluster and Redis Replica are enabled at the same time";
+      exit(EXIT_FAILURE);
+  }
+
   ClientPool<ThriftClient<PostStorageServiceClient>> post_storage_client_pool(
       "post-storage-client", post_storage_addr, post_storage_port, 0,
       post_storage_conns, post_storage_timeout, post_storage_keepalive,
@@ -86,7 +94,27 @@ int main(int argc, char *argv[]) {
   std::shared_ptr<TServerSocket> server_socket =
       get_server_socket(config_json, "0.0.0.0", port);
 
-  if (redis_cluster_flag || redis_cluster_config_flag) {
+
+  if (redis_replica_config_flag) {
+          Redis redis_replica_client_pool = init_redis_replica_client_pool(config_json, "redis-replica");
+          Redis redis_primary_client_pool = init_redis_replica_client_pool(config_json, "redis-primary");
+
+          TThreadedServer server(
+              std::make_shared<HomeTimelineServiceProcessor>(
+                  std::make_shared<HomeTimelineHandler>(&redis_replica_client_pool,
+                      &redis_primary_client_pool,
+                      &post_storage_client_pool,
+                      &social_graph_client_pool)),
+              server_socket, std::make_shared<TFramedTransportFactory>(),
+              std::make_shared<TBinaryProtocolFactory>());
+
+          LOG(info) << "Starting the home-timeline-service server with replicated Redis support...";
+          server.serve();
+
+      
+  }
+
+  else if (redis_cluster_flag || redis_cluster_config_flag) {
     RedisCluster redis_cluster_client_pool =
         init_redis_cluster_client_pool(config_json, "home-timeline");
     TThreadedServer server(

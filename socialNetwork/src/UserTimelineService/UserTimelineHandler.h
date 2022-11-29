@@ -24,9 +24,15 @@ class UserTimelineHandler : public UserTimelineServiceIf {
  public:
   UserTimelineHandler(Redis *, mongoc_client_pool_t *,
                       ClientPool<ThriftClient<PostStorageServiceClient>> *);
+
+  UserTimelineHandler(Redis *, Redis *, mongoc_client_pool_t *,
+      ClientPool<ThriftClient<PostStorageServiceClient>> *);
+
   UserTimelineHandler(RedisCluster *, mongoc_client_pool_t *,
                       ClientPool<ThriftClient<PostStorageServiceClient>> *);
   ~UserTimelineHandler() override = default;
+
+  bool IsRedisReplicationEnabled();
 
   void WriteUserTimeline(
       int64_t req_id, int64_t post_id, int64_t user_id, int64_t timestamp,
@@ -37,6 +43,8 @@ class UserTimelineHandler : public UserTimelineServiceIf {
 
  private:
   Redis *_redis_client_pool;
+  Redis *_redis_replica_pool;
+  Redis *_redis_primary_pool;
   RedisCluster *_redis_cluster_client_pool;
   mongoc_client_pool_t *_mongodb_client_pool;
   ClientPool<ThriftClient<PostStorageServiceClient>> *_post_client_pool;
@@ -46,18 +54,37 @@ UserTimelineHandler::UserTimelineHandler(
     Redis *redis_pool, mongoc_client_pool_t *mongodb_pool,
     ClientPool<ThriftClient<PostStorageServiceClient>> *post_client_pool) {
   _redis_client_pool = redis_pool;
+  _redis_replica_pool = nullptr;
+  _redis_primary_pool = nullptr;
   _redis_cluster_client_pool = nullptr;
   _mongodb_client_pool = mongodb_pool;
   _post_client_pool = post_client_pool;
 }
 
 UserTimelineHandler::UserTimelineHandler(
+    Redis* redis_replica_pool, Redis* redis_primary_pool, mongoc_client_pool_t* mongodb_pool,
+    ClientPool<ThriftClient<PostStorageServiceClient>>* post_client_pool) {
+    _redis_client_pool = nullptr;
+    _redis_replica_pool = redis_replica_pool;
+    _redis_primary_pool = redis_primary_pool;
+    _redis_cluster_client_pool = nullptr;
+    _mongodb_client_pool = mongodb_pool;
+    _post_client_pool = post_client_pool;
+}
+
+UserTimelineHandler::UserTimelineHandler(
     RedisCluster *redis_pool, mongoc_client_pool_t *mongodb_pool,
     ClientPool<ThriftClient<PostStorageServiceClient>> *post_client_pool) {
   _redis_cluster_client_pool = redis_pool;
+  _redis_replica_pool = nullptr;
+  _redis_primary_pool = nullptr;
   _redis_client_pool = nullptr;
   _mongodb_client_pool = mongodb_pool;
   _post_client_pool = post_client_pool;
+}
+
+UserTimelineHandler::IsRedisReplicationEnabled() {
+    return (_redis_primary_pool || _redis_replica_pool);
 }
 
 void UserTimelineHandler::WriteUserTimeline(
@@ -140,6 +167,10 @@ void UserTimelineHandler::WriteUserTimeline(
     if (_redis_client_pool)
       _redis_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
+    else if (IsRedisReplicationEnabled()) {
+        _redis_primary_pool->zadd(std::to_string(user_id), std::to_string(post_id),
+                              timestamp, UpdateType::NOT_EXIST);
+    }
     else
       _redis_cluster_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
@@ -177,6 +208,10 @@ void UserTimelineHandler::ReadUserTimeline(
     if (_redis_client_pool)
       _redis_client_pool->zrevrange(std::to_string(user_id), start, stop - 1,
                                   std::back_inserter(post_ids_str));
+    else if (IsRedisReplicationEnabled()) {
+        _redis_replica_pool->zrevrange(std::to_string(user_id), start, stop - 1,
+            std::back_inserter(post_ids_str));
+    }
     else
       _redis_cluster_client_pool->zrevrange(std::to_string(user_id), start, stop - 1,
                                   std::back_inserter(post_ids_str));
@@ -297,6 +332,11 @@ void UserTimelineHandler::ReadUserTimeline(
         _redis_client_pool->zadd(std::to_string(user_id),
                                redis_update_map.begin(),
                                redis_update_map.end());
+      else if (IsRedisReplicationEnabled()) {
+          _redis_primary_pool->zadd(std::to_string(user_id),
+              redis_update_map.begin(),
+              redis_update_map.end());
+      }
       else
         _redis_cluster_client_pool->zadd(std::to_string(user_id),
                                redis_update_map.begin(),

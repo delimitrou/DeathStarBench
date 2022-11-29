@@ -68,12 +68,17 @@ int main(int argc, char *argv[]) {
   int user_keepalive = config_json["user-service"]["keepalive_ms"];
 
   int redis_cluster_config_flag = config_json["social-graph-redis"]["use_cluster"];
-
+  int redis_replica_config_flag = config_json["social-graph-redis"]["use_replica"];
   mongoc_client_pool_t *mongodb_client_pool =
       init_mongodb_client_pool(config_json, "social-graph", mongodb_conns);
 
   if (mongodb_client_pool == nullptr) {
     return EXIT_FAILURE;
+  }
+
+  if (redis_replica_config_flag && (redis_cluster_config_flag || redis_cluster_flag)) {
+      LOG(error) << "Can't start service when Redis Cluster and Redis Replica are enabled at the same time";
+      exit(EXIT_FAILURE);
   }
 
   ClientPool<ThriftClient<UserServiceClient>> user_client_pool(
@@ -108,9 +113,25 @@ int main(int argc, char *argv[]) {
                                                  &user_client_pool)),
         server_socket, std::make_shared<TFramedTransportFactory>(),
         std::make_shared<TBinaryProtocolFactory>());
-    LOG(info) << "Starting the social-graph-service server with Resis Cluster support...";
+    LOG(info) << "Starting the social-graph-service server with Redis Cluster support...";
     server.serve();
-  } else {
+  }
+  
+  else if (redis_replica_config_flag) {
+      Redis redis_replica_client_pool = init_redis_replica_client_pool(config_json, "redis-replica");
+      Redis redis_primary_client_pool = init_redis_replica_client_pool(config_json, "redis-primary");
+
+      TThreadedServer server(
+          std::make_shared<SocialGraphServiceProcessor>(
+              std::make_shared<SocialGraphHandler>(
+                  mongodb_client_pool, &redis_replica_client_pool, &redis_primary_client_pool, &user_client_pool)),
+          server_socket, std::make_shared<TFramedTransportFactory>(),
+          std::make_shared<TBinaryProtocolFactory>());
+      LOG(info) << "Starting the social-graph-service server with Redis replica support";
+      server.serve();
+  }
+
+  else {
     Redis redis_client_pool =
         init_redis_client_pool(config_json, "social-graph");
     TThreadedServer server(

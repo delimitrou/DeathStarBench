@@ -10,6 +10,10 @@ global:
       enabled: false
     standalone:
       enabled: true
+    replication:
+      primary: redis-primary
+      replica: redis-replica
+      enabled: false
   memcached:
     cluster:
       enabled: false

@@ -33,7 +33,8 @@
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000,
-      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}}
+      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}},
+      "use_replica": {{ ternary 1 0 .Values.global.redis.replication.enabled}}
     },
     "write-home-timeline-service": {
       "addr": "write-home-timeline-service",
@@ -56,7 +57,8 @@
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000,
-      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}}
+      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}},
+      "use_replica": {{ ternary 1 0 .Values.global.redis.replication.enabled}}
     },
     "compose-post-service": {
       "addr": "compose-post-service",
@@ -71,7 +73,8 @@
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000,
-      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}}
+      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}},
+      "use_replica": {{ ternary 1 0 .Values.global.redis.replication.enabled}}
     },
     "user-timeline-service": {
       "addr": "user-timeline-service",
@@ -93,7 +96,8 @@
       "connections": 512,
       "timeout_ms": 10000,
       "keepalive_ms": 10000,
-      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}}
+      "use_cluster": {{ ternary 1 0 .Values.global.redis.cluster.enabled}},
+      "use_replica": {{ ternary 1 0 .Values.global.redis.replication.enabled}}
     },
     "post-storage-service": {
       "addr": "post-storage-service",
@@ -226,6 +230,20 @@
       "ciphers": "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH",
       "serverKeyPath": "/keys/server.key",
       "serverCertPath": "/keys/server.crt"
+    },
+    "redis-primary": {
+      "keepalive_ms": 10000,
+      "addr": {{ .Values.global.redis.replication.primary | quote }},
+      "timeout_ms": 10000,
+      "port": 6379,
+      "connections": 512
+    },
+    "redis-replica": {
+      "keepalive_ms": 10000,
+      "addr": {{ .Values.global.redis.replication.replica | quote }},
+      "timeout_ms": 10000,
+      "port": 6379,
+      "connections": 512
     }
   }
   {{- end }}
