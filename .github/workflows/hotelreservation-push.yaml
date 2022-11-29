@@ -7,7 +7,7 @@ on:
       - 'hotelReservation/**'
 
 env:
-  IMAGE_BASE_NAME: 'deathstarbench/hotelreservation'
+  IMAGE_BASE_NAME: 'deathstarbench/hotel-reservation'
   REPO_PATH: 'hotelReservation'
   TAG_PREFIX: 'hotelReservation'
 
