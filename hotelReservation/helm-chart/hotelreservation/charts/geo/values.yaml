@@ -6,7 +6,7 @@ ports:
  
 container:
   command: geo
-  image: igorrudyk1/hotelreservation
+  image: deathstarbench/hotel-reservation
   name: hotel-reserv-geo
   ports:
   - containerPort: 8083

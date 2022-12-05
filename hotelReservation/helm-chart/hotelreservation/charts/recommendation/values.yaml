@@ -6,7 +6,7 @@ ports:
  
 container:
   command: recommendation
-  image: igorrudyk1/hotelreservation
+  image: deathstarbench/hotel-reservation
   name: hotel-reserv-recommendation
   ports:
   - containerPort: 8085

@@ -6,7 +6,7 @@ ports:
  
 container:
   command: profile
-  image: igorrudyk1/hotelreservation
+  image: deathstarbench/hotel-reservation
   name: hotel-reserv-profile
   ports:
   - containerPort: 8081

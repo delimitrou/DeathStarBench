@@ -6,7 +6,7 @@ ports:
  
 container:
   command: user
-  image: igorrudyk1/hotelreservation
+  image: deathstarbench/hotel-reservation
   name: hotel-reserv-user
   ports:
   - containerPort: 8086

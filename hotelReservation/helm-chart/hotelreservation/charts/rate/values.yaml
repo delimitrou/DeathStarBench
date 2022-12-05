@@ -6,7 +6,7 @@ ports:
  
 container:
   command: rate
-  image: igorrudyk1/hotelreservation
+  image: deathstarbench/hotel-reservation
   name: hotel-reserv-rate
   ports:
   - containerPort: 8084

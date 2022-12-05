@@ -6,7 +6,7 @@ ports:
 
 container:
   command: frontend
-  image: igorrudyk1/hotelreservation
+  image: deathstarbench/hotel-reservation
   name: hotel-reserv-frontend
   ports:
   - containerPort: 5000
