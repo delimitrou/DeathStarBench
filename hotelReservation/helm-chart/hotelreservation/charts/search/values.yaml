@@ -6,7 +6,7 @@ ports:
  
 container:
   command: search
-  image: igorrudyk1/hotelreservation
+  image: deathstarbench/hotel-reservation
   name: hotel-reserv-search
   ports:
   - containerPort: 8082
