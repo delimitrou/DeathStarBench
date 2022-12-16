@@ -26,7 +26,7 @@
 #define TIMEOUT_INTERVAL_MS 2000
 
 #define MAXL 1000000
-#define MAXO 16383
+#define MAXO 65535
 #define MAXTHREADS 40
 
 
@@ -39,6 +39,7 @@ typedef struct {
     uint64_t tid;
     uint64_t stop_at;
     uint64_t complete;
+    uint64_t sent;
     uint64_t requests;
     uint64_t monitored;
     uint64_t target;
