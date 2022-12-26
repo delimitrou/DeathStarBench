@@ -32,11 +32,12 @@ type Server struct {
 	geoClient  geo.GeoClient
 	rateClient rate.RateClient
 
-	Tracer   opentracing.Tracer
-	Port     int
-	IpAddr   string
-	Registry *registry.Client
-	uuid     string
+	Tracer     opentracing.Tracer
+	Port       int
+	IpAddr     string
+	KnativeDns string
+	Registry   *registry.Client
+	uuid       string
 }
 
 // Run starts the server
@@ -107,11 +108,7 @@ func (s *Server) Shutdown() {
 }
 
 func (s *Server) initGeoClient(name string) error {
-	conn, err := dialer.Dial(
-		name,
-		dialer.WithTracer(s.Tracer),
-		dialer.WithBalancer(s.Registry.Client),
-	)
+	conn, err := s.getGprcConn(name)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
@@ -120,16 +117,26 @@ func (s *Server) initGeoClient(name string) error {
 }
 
 func (s *Server) initRateClient(name string) error {
-	conn, err := dialer.Dial(
-		name,
-		dialer.WithTracer(s.Tracer),
-		dialer.WithBalancer(s.Registry.Client),
-	)
+	conn, err := s.getGprcConn(name)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
 	s.rateClient = rate.NewRateClient(conn)
 	return nil
+}
+
+func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
+	if s.KnativeDns != "" {
+		return dialer.Dial(
+			fmt.Sprintf("%s.%s", name, s.KnativeDns),
+			dialer.WithTracer(s.Tracer))
+	} else {
+		return dialer.Dial(
+			name,
+			dialer.WithTracer(s.Tracer),
+			dialer.WithBalancer(s.Registry.Client),
+		)
+	}
 }
 
 // Nearby returns ids of nearby hotels ordered by ranking algo
