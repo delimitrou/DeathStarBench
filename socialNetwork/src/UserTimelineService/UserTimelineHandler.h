@@ -83,7 +83,7 @@ UserTimelineHandler::UserTimelineHandler(
   _post_client_pool = post_client_pool;
 }
 
-UserTimelineHandler::IsRedisReplicationEnabled() {
+bool UserTimelineHandler::IsRedisReplicationEnabled() {
     return (_redis_primary_pool || _redis_replica_pool);
 }
 
