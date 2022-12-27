@@ -36,14 +36,17 @@ python3 scripts/write_movie_info.py -c <path-to-casts.json> -m <path-to-movies.j
 ### Running HTTP workload generator
 #### Make
 ```bash
-cd wrk2
+cd ../wrk2
 make
+```
+back to mediaMicroservices
+```bash
+cd ../mediaMicroservices
 ```
 
 #### Compose reviews
 ```bash
-cd wrk2
-./wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./scripts/media-microservices/compose-review.lua http://localhost:8080/wrk2-api/review/compose -R <reqs-per-sec>
+../wrk2/wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./wrk2/scripts/media-microservices/compose-review.lua http://localhost:8080/wrk2-api/review/compose -R <reqs-per-sec>
 ```
 
 #### View Jaeger traces
