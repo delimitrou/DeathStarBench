@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"google.golang.org/grpc"
+
 	recommendation "github.com/harlow/go-micro-services/services/recommendation/proto"
 	reservation "github.com/harlow/go-micro-services/services/reservation/proto"
 	user "github.com/harlow/go-micro-services/services/user/proto"
@@ -27,6 +29,7 @@ type Server struct {
 	recommendationClient recommendation.RecommendationClient
 	userClient           user.UserClient
 	reservationClient    reservation.ReservationClient
+	KnativeDns           string
 	IpAddr               string
 	Port                 int
 	Tracer               opentracing.Tracer
@@ -81,17 +84,13 @@ func (s *Server) Run() error {
 		srv.TLSConfig = tlsconfig
 		return srv.ListenAndServeTLS("x509/server_cert.pem", "x509/server_key.pem")
 	} else {
-		log.Info().Msg("Serving https")
+		log.Info().Msg("Serving http")
 		return srv.ListenAndServe()
 	}
 }
 
 func (s *Server) initSearchClient(name string) error {
-	conn, err := dialer.Dial(
-		name,
-		dialer.WithTracer(s.Tracer),
-		dialer.WithBalancer(s.Registry.Client),
-	)
+	conn, err := s.getGprcConn(name)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
@@ -100,11 +99,7 @@ func (s *Server) initSearchClient(name string) error {
 }
 
 func (s *Server) initProfileClient(name string) error {
-	conn, err := dialer.Dial(
-		name,
-		dialer.WithTracer(s.Tracer),
-		dialer.WithBalancer(s.Registry.Client),
-	)
+	conn, err := s.getGprcConn(name)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
@@ -113,11 +108,7 @@ func (s *Server) initProfileClient(name string) error {
 }
 
 func (s *Server) initRecommendationClient(name string) error {
-	conn, err := dialer.Dial(
-		name,
-		dialer.WithTracer(s.Tracer),
-		dialer.WithBalancer(s.Registry.Client),
-	)
+	conn, err := s.getGprcConn(name)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
@@ -126,11 +117,7 @@ func (s *Server) initRecommendationClient(name string) error {
 }
 
 func (s *Server) initUserClient(name string) error {
-	conn, err := dialer.Dial(
-		name,
-		dialer.WithTracer(s.Tracer),
-		dialer.WithBalancer(s.Registry.Client),
-	)
+	conn, err := s.getGprcConn(name)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
@@ -139,16 +126,29 @@ func (s *Server) initUserClient(name string) error {
 }
 
 func (s *Server) initReservation(name string) error {
-	conn, err := dialer.Dial(
-		name,
-		dialer.WithTracer(s.Tracer),
-		dialer.WithBalancer(s.Registry.Client),
-	)
+	conn, err := s.getGprcConn(name)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
 	s.reservationClient = reservation.NewReservationClient(conn)
 	return nil
+}
+
+func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
+	log.Info().Msg("get Grpc conn is :")
+	log.Info().Msg(s.KnativeDns)
+	log.Info().Msg(fmt.Sprintf("%s.%s", name, s.KnativeDns))
+	if s.KnativeDns != "" {
+		return dialer.Dial(
+			fmt.Sprintf("%s.%s", name, s.KnativeDns),
+			dialer.WithTracer(s.Tracer))
+	} else {
+		return dialer.Dial(
+			name,
+			dialer.WithTracer(s.Tracer),
+			dialer.WithBalancer(s.Registry.Client),
+		)
+	}
 }
 
 func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {

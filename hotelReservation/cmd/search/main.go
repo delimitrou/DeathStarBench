@@ -36,6 +36,7 @@ func main() {
 
 	serv_port, _ := strconv.Atoi(result["SearchPort"])
 	serv_ip := result["SearchIP"]
+	knative_dns := result["KnativeDomainName"]
 	log.Info().Msgf("Read target port: %v", serv_port)
 	log.Info().Msgf("Read consul address: %v", result["consulAddress"])
 	log.Info().Msgf("Read jaeger address: %v", result["jaegerAddress"])
@@ -64,9 +65,10 @@ func main() {
 	srv := &search.Server{
 		Tracer: tracer,
 		// Port:     *port,
-		Port:     serv_port,
-		IpAddr:   serv_ip,
-		Registry: registry,
+		Port:       serv_port,
+		IpAddr:     serv_ip,
+		KnativeDns: knative_dns,
+		Registry:   registry,
 	}
 
 	log.Info().Msg("Starting server...")
