@@ -96,7 +96,7 @@ SocialGraphHandler::SocialGraphHandler(
   _user_service_client_pool = user_service_client_pool;
 }
 
-SocialGraphHandler::IsRedisReplicationEnabled() {
+bool SocialGraphHandler::IsRedisReplicationEnabled() {
     return (_redis_primary_client_pool || _redis_replica_client_pool);
 }
 
