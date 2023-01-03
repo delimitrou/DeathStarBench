@@ -9,13 +9,11 @@ domainName=.sslip.io:80
 
 
 if [ `grep -c "KnativeDomainName" "config.json"` -ne '0' ];then
-    echo "Append config: KnativeDomainName"
+    echo "Update config: KnativeDomainName"
     sed -i '/"KnativeDomainName"/c\  \"KnativeDomainName\": \"'$namespace$istioIngress$domainName'\"'  config.json
     exit 0
 fi
 
+echo "Append config: KnativeDomainName"
 sed -i '/"UserMongoAddress"/ s/$/&,/' config.json
 sed -i '$i\  "KnativeDomainName\": \"'$namespace$istioIngress$domainName'\"'  config.json
-
-
-

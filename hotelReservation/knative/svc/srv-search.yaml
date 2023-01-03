@@ -16,7 +16,7 @@ spec:
         name: hotel-reserv-search
         ports:
           - name: h2c
-            containerPort: 8086
+            containerPort: 8082
         resources:
           requests:
             cpu: 100m
