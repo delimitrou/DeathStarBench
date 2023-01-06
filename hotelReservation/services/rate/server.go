@@ -114,54 +114,56 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 
 	ratePlans := make(RatePlans, 0)
 
+	hotelIds := []string{}
+	rateMap := make(map[string]struct{})
 	for _, hotelID := range req.HotelIds {
-		// first check memcached
-		item, err := s.MemcClient.Get(hotelID)
-		if err == nil {
-			// memcached hit
-			rate_strs := strings.Split(string(item.Value), "\n")
+		hotelIds = append(hotelIds, hotelID)
+		rateMap[hotelID] = struct{}{}
+	}
+	// first check memcached(get-multi)
+	resMap, err := s.MemcClient.GetMulti(hotelIds)
+	if err != nil && err != memcache.ErrCacheMiss {
+		log.Panic().Msgf("Memmcached error while trying to get hotel [id: %v]= %s", hotelIds, err)
+	} else {
+		for hotelId, item := range resMap {
+			rateStrs := strings.Split(string(item.Value), "\n")
+			log.Trace().Msgf("memc hit, hotelId = %s,rate strings: %v", hotelId, rateStrs)
 
-			log.Trace().Msgf("memc hit, hotelId = %s,rate strings: %v", hotelID, rate_strs)
-
-			for _, rate_str := range rate_strs {
-				if len(rate_str) != 0 {
-					rate_p := new(pb.RatePlan)
-					json.Unmarshal([]byte(rate_str), rate_p)
-					ratePlans = append(ratePlans, rate_p)
+			for _, rateStr := range rateStrs {
+				if len(rateStr) != 0 {
+					rateP := new(pb.RatePlan)
+					json.Unmarshal([]byte(rateStr), rateP)
+					ratePlans = append(ratePlans, rateP)
 				}
 			}
-		} else if err == memcache.ErrCacheMiss {
+			delete(rateMap, hotelId)
+		}
+		for hotelId := range rateMap {
+			func(id string) {
+				log.Trace().Msgf("memc miss, hotelId = %s", id)
+				log.Trace().Msg("memcached miss, set up mongo connection")
 
-			log.Trace().Msgf("memc miss, hotelId = %s", hotelID)
-
-			log.Trace().Msg("memcached miss, set up mongo connection")
-			// memcached miss, set up mongo connection
-			session := s.MongoSession.Copy()
-			defer session.Close()
-			c := session.DB("rate-db").C("inventory")
-
-			memc_str := ""
-
-			tmpRatePlans := make(RatePlans, 0)
-			err := c.Find(&bson.M{"hotelId": hotelID}).All(&tmpRatePlans)
-			if err != nil {
-				log.Panic().Msgf("Tried to find hotelId [%v], but got error", hotelID, err.Error())
-			} else {
-				for _, r := range tmpRatePlans {
-					ratePlans = append(ratePlans, r)
-					rate_json, err := json.Marshal(r)
-					if err != nil {
-						log.Error().Msgf("Failed to marshal plan [Code: %v] with error: %s", r.Code, err)
+				// memcached miss, set up mongo connection
+				session := s.MongoSession.Copy()
+				defer session.Close()
+				c := session.DB("rate-db").C("inventory")
+				memcStr := ""
+				tmpRatePlans := make(RatePlans, 0)
+				err := c.Find(&bson.M{"hotelId": id}).All(&tmpRatePlans)
+				if err != nil {
+					log.Panic().Msgf("Tried to find hotelId [%v], but got error", id, err.Error())
+				} else {
+					for _, r := range tmpRatePlans {
+						ratePlans = append(ratePlans, r)
+						rateJson, err := json.Marshal(r)
+						if err != nil {
+							log.Error().Msgf("Failed to marshal plan [Code: %v] with error: %s", r.Code, err)
+						}
+						memcStr = memcStr + string(rateJson) + "\n"
 					}
-					memc_str = memc_str + string(rate_json) + "\n"
 				}
-			}
-
-			// write to memcached
-			s.MemcClient.Set(&memcache.Item{Key: hotelID, Value: []byte(memc_str)})
-
-		} else {
-			log.Panic().Msgf("Memmcached error while trying to get hotel [id: %v]= %s", hotelID, err)
+				s.MemcClient.Set(&memcache.Item{Key: id, Value: []byte(memcStr)})
+			}(hotelId)
 		}
 	}
 

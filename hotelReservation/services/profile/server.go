@@ -117,48 +117,50 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 	hotels := make([]*pb.Hotel, 0)
 
 	// one hotel should only have one profile
+	hotelIds := make([]string, 0)
+	profileMap := make(map[string]struct{})
+	for _, hotelId := range req.HotelIds {
+		hotelIds = append(hotelIds, hotelId)
+		profileMap[hotelId] = struct{}{}
+	}
+	resMap, err := s.MemcClient.GetMulti(hotelIds)
+	if err != nil && err != memcache.ErrCacheMiss {
+		log.Panic().Msgf("Tried to get hotelIds [%v], but got memmcached error = %s", hotelIds, err)
+	} else {
+		for hotelId, item := range resMap {
+			profileStr := string(item.Value)
+			log.Trace().Msgf("memc hit with %v", profileStr)
 
-	for _, i := range req.HotelIds {
-		// first check memcached
-		item, err := s.MemcClient.Get(i)
-		if err == nil {
-			// memcached hit
-			profile_str := string(item.Value)
-			log.Trace().Msgf("memc hit with %v", profile_str)
+			hotelProf := new(pb.Hotel)
+			json.Unmarshal(item.Value, hotelProf)
+			hotels = append(hotels, hotelProf)
+			delete(profileMap, hotelId)
+		}
 
-			hotel_prof := new(pb.Hotel)
-			json.Unmarshal(item.Value, hotel_prof)
-			hotels = append(hotels, hotel_prof)
+		for hotelId := range profileMap {
+			func(hotelId string) {
+				session := s.MongoSession.Copy()
+				defer session.Close()
+				c := session.DB("profile-db").C("hotels")
 
-		} else if err == memcache.ErrCacheMiss {
-			// memcached miss, set up mongo connection
-			session := s.MongoSession.Copy()
-			defer session.Close()
-			c := session.DB("profile-db").C("hotels")
+				hotelProf := new(pb.Hotel)
+				err := c.Find(bson.M{"id": hotelId}).One(&hotelProf)
 
-			hotel_prof := new(pb.Hotel)
-			err := c.Find(bson.M{"id": i}).One(&hotel_prof)
+				if err != nil {
+					log.Error().Msgf("Failed get hotels data: ", err)
+				}
 
-			if err != nil {
-				log.Error().Msgf("Failed get hotels data: ", err)
-			}
+				hotels = append(hotels, hotelProf)
 
-			// for _, h := range hotels {
-			// 	res.Hotels = append(res.Hotels, h)
-			// }
-			hotels = append(hotels, hotel_prof)
+				profJson, err := json.Marshal(hotelProf)
+				if err != nil {
+					log.Error().Msgf("Failed to marshal hotel [id: %v] with err:", hotelProf.Id, err)
+				}
+				memcStr := string(profJson)
 
-			prof_json, err := json.Marshal(hotel_prof)
-			if err != nil {
-				log.Error().Msgf("Failed to marshal hotel [id: %v] with err:", hotel_prof.Id, err)
-			}
-			memc_str := string(prof_json)
-
-			// write to memcached
-			s.MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
-
-		} else {
-			log.Panic().Msgf("Tried to get hotelId [%v], but got memmcached error = %s", i, err)
+				// write to memcached
+				s.MemcClient.Set(&memcache.Item{Key: hotelId, Value: []byte(memcStr)})
+			}(hotelId)
 		}
 	}
 
