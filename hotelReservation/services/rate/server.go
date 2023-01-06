@@ -12,6 +12,7 @@ import (
 	// "os"
 	"sort"
 	"time"
+	"sync"
 
 	"github.com/rs/zerolog/log"
 
@@ -122,6 +123,8 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 	}
 	// first check memcached(get-multi)
 	resMap, err := s.MemcClient.GetMulti(hotelIds)
+	var wg sync.WaitGroup
+	var mutex sync.Mutex
 	if err != nil && err != memcache.ErrCacheMiss {
 		log.Panic().Msgf("Memmcached error while trying to get hotel [id: %v]= %s", hotelIds, err)
 	} else {
@@ -138,8 +141,9 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 			}
 			delete(rateMap, hotelId)
 		}
+		wg.Add(len(rateMap))
 		for hotelId := range rateMap {
-			func(id string) {
+			go func(id string) {
 				log.Trace().Msgf("memc miss, hotelId = %s", id)
 				log.Trace().Msg("memcached miss, set up mongo connection")
 
@@ -154,7 +158,9 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 					log.Panic().Msgf("Tried to find hotelId [%v], but got error", id, err.Error())
 				} else {
 					for _, r := range tmpRatePlans {
+						mutex.Lock()
 						ratePlans = append(ratePlans, r)
+						mutex.Unlock()
 						rateJson, err := json.Marshal(r)
 						if err != nil {
 							log.Error().Msgf("Failed to marshal plan [Code: %v] with error: %s", r.Code, err)
@@ -162,10 +168,13 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 						memcStr = memcStr + string(rateJson) + "\n"
 					}
 				}
-				s.MemcClient.Set(&memcache.Item{Key: id, Value: []byte(memcStr)})
+				go s.MemcClient.Set(&memcache.Item{Key: id, Value: []byte(memcStr)})
+
+				defer wg.Done()
 			}(hotelId)
 		}
 	}
+	wg.Wait()
 
 	sort.Sort(ratePlans)
 	res.RatePlans = ratePlans

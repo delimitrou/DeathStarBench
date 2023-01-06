@@ -11,6 +11,7 @@ import (
 	"net"
 	// "os"
 	"time"
+	"sync"
 
 	"github.com/rs/zerolog/log"
 
@@ -115,6 +116,8 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 
 	res := new(pb.Result)
 	hotels := make([]*pb.Hotel, 0)
+	var wg sync.WaitGroup
+	var mutex sync.Mutex
 
 	// one hotel should only have one profile
 	hotelIds := make([]string, 0)
@@ -137,8 +140,9 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 			delete(profileMap, hotelId)
 		}
 
+		wg.Add(len(profileMap))
 		for hotelId := range profileMap {
-			func(hotelId string) {
+			go func(hotelId string) {
 				session := s.MongoSession.Copy()
 				defer session.Close()
 				c := session.DB("profile-db").C("hotels")
@@ -150,7 +154,9 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 					log.Error().Msgf("Failed get hotels data: ", err)
 				}
 
+				mutex.Lock()
 				hotels = append(hotels, hotelProf)
+				mutex.Unlock()
 
 				profJson, err := json.Marshal(hotelProf)
 				if err != nil {
@@ -159,10 +165,12 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 				memcStr := string(profJson)
 
 				// write to memcached
-				s.MemcClient.Set(&memcache.Item{Key: hotelId, Value: []byte(memcStr)})
+				go s.MemcClient.Set(&memcache.Item{Key: hotelId, Value: []byte(memcStr)})
+				defer wg.Done()
 			}(hotelId)
 		}
 	}
+	wg.Wait()
 
 	res.Hotels = hotels
 	log.Trace().Msgf("In GetProfiles after getting resp")

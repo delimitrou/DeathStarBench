@@ -26,6 +26,7 @@ import (
 
 	"strings"
 	"strconv"
+	"sync"
 )
 
 const name = "srv-reservation"
@@ -281,7 +282,7 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		for _, num := range nums {
 			cacheCap[num.HotelId] = num.Number
 			// we don't care set successfully or not
-			s.MemcClient.Set(&memcache.Item{Key: num.HotelId + "_cap", Value: []byte(strconv.Itoa(num.Number))})
+			go s.MemcClient.Set(&memcache.Item{Key: num.HotelId + "_cap", Value: []byte(strconv.Itoa(num.Number))})
 		}
 	}
 
@@ -313,30 +314,44 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		hotelId  string
 		checkRes bool
 	}
+	ch := make(chan taskRes)
 	// check capacity in memcached and mongodb
 	if itemsMap, err := s.MemcClient.GetMulti(reqCommand); err != nil && err != memcache.ErrCacheMiss {
 		log.Panic().Msgf("Tried to get memc_key [%v], but got memmcached error = %s", reqCommand, err)
 	} else {
 		// go through reservation count from memcached
-		for k, v := range itemsMap {
-			id := strings.Split(k, "_")[0]
-			val, _ := strconv.Atoi(string(v.Value))
-			var res bool
-			if val+int(req.RoomNumber) <= cacheCap[id] {
-				res = true
+		go func() {
+			for k, v := range itemsMap {
+				id := strings.Split(k, "_")[0]
+				val, _ := strconv.Atoi(string(v.Value))
+				var res bool
+				if val+int(req.RoomNumber) <= cacheCap[id] {
+					res = true
+				}
+				ch <- taskRes{
+					hotelId:  id,
+					checkRes: res,
+				}
 			}
-			if !res {
-				resMap[id] = false
+			if err == nil {
+				close(ch)
 			}
-		}
+		}()
 		// use miss reservation to get data from mongo
 		// rever string to indata and outdate
 		if err == memcache.ErrCacheMiss {
+			var wg sync.WaitGroup
 			for k := range itemsMap {
 				delete(queryMap, k)
 			}
+			wg.Add(len(queryMap))
+			go func() {
+				wg.Wait()
+				close(ch)
+			}()
 			for command := range queryMap {
-				func(comm string) {
+				go func(comm string) {
+					defer wg.Done()
 					reserve := []reservation{}
 					tmpSess := s.MongoSession.Copy()
 					queryItem := queryMap[comm]
@@ -353,19 +368,25 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 						count += r.Number
 					}
 					// update memcached
-					s.MemcClient.Set(&memcache.Item{Key: comm, Value: []byte(strconv.Itoa(count))})
+					go s.MemcClient.Set(&memcache.Item{Key: comm, Value: []byte(strconv.Itoa(count))})
 					var res bool
 					if count+int(req.RoomNumber) <= cacheCap[queryItem["hotelId"]] {
 						res = true
 					}
-					if !res {
-						resMap[queryItem["hotelId"]] = false
+					ch <- taskRes{
+						hotelId:  queryItem["hotelId"],
+						checkRes: res,
 					}
 				}(command)
 			}
 		}
 	}
 
+	for task := range ch {
+		if !task.checkRes {
+			resMap[task.hotelId] = false
+		}
+	}
 	for k, v := range resMap {
 		if v {
 			res.HotelId = append(res.HotelId, k)
