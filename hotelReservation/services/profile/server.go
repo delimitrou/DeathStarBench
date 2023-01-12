@@ -44,6 +44,8 @@ type Server struct {
 
 // Run starts the server
 func (s *Server) Run() error {
+	opentracing.SetGlobalTracer(s.Tracer)
+
 	if s.Port == 0 {
 		return fmt.Errorf("server port must be set")
 	}
@@ -126,7 +128,10 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 		hotelIds = append(hotelIds, hotelId)
 		profileMap[hotelId] = struct{}{}
 	}
+	memSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_get_profile")
+	memSpan.SetTag("span.kind", "client")
 	resMap, err := s.MemcClient.GetMulti(hotelIds)
+	memSpan.Finish()
 	if err != nil && err != memcache.ErrCacheMiss {
 		log.Panic().Msgf("Tried to get hotelIds [%v], but got memmcached error = %s", hotelIds, err)
 	} else {
@@ -148,7 +153,10 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 				c := session.DB("profile-db").C("hotels")
 
 				hotelProf := new(pb.Hotel)
+				mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_profile")
+				mongoSpan.SetTag("span.kind", "client")
 				err := c.Find(bson.M{"id": hotelId}).One(&hotelProf)
+				mongoSpan.Finish()
 
 				if err != nil {
 					log.Error().Msgf("Failed get hotels data: ", err)

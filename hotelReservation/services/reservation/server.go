@@ -44,6 +44,8 @@ type Server struct {
 
 // Run starts the server
 func (s *Server) Run() error {
+	opentracing.SetGlobalTracer(s.Tracer)
+
 	if s.Port == 0 {
 		return fmt.Errorf("server port must be set")
 	}
@@ -252,7 +254,10 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		resMap[hotelId] = true
 		keysMap[hotelId+"_cap"] = struct{}{}
 	}
+	capMemSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_capacity_get_multi_number")
+	capMemSpan.SetTag("span.kind", "client")
 	cacheMemRes, err := s.MemcClient.GetMulti(hotelMemKeys)
+	capMemSpan.Finish()
 	misKeys := []string{}
 	// gather cache miss key to query in mongodb
 	if err == memcache.ErrCacheMiss {
@@ -276,7 +281,11 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 			queryMissKeys = append(queryMissKeys, strings.Split(k, "_")[0])
 		}
 		nums := []number{}
-		if err := c1.Find(bson.M{"hotelId": bson.M{"$in": queryMissKeys}}).All(&nums); err != nil {
+		capMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number")
+		capMongoSpan.SetTag("span.kind", "client")
+		err = c1.Find(bson.M{"hotelId": bson.M{"$in": queryMissKeys}}).All(&nums) 
+		capMongoSpan.Finish()
+		if err != nil {
 			log.Panic().Msgf("Tried to find hotelId [%v], but got error", misKeys, err.Error())
 		}
 		for _, num := range nums {
@@ -314,11 +323,15 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		hotelId  string
 		checkRes bool
 	}
+	reserveMemSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_reserve_get_multi_number")
 	ch := make(chan taskRes)
+	reserveMemSpan.SetTag("span.kind", "client")
 	// check capacity in memcached and mongodb
 	if itemsMap, err := s.MemcClient.GetMulti(reqCommand); err != nil && err != memcache.ErrCacheMiss {
+		reserveMemSpan.Finish()
 		log.Panic().Msgf("Tried to get memc_key [%v], but got memmcached error = %s", reqCommand, err)
 	} else {
+		reserveMemSpan.Finish()
 		// go through reservation count from memcached
 		go func() {
 			for k, v := range itemsMap {
@@ -354,10 +367,13 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 					defer wg.Done()
 					reserve := []reservation{}
 					tmpSess := s.MongoSession.Copy()
+					defer tmpSess.Close()
 					queryItem := queryMap[comm]
 					c := tmpSess.DB("reservation-db").C("reservation")
+					reserveMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number"+comm)
+					reserveMongoSpan.SetTag("span.kind", "client")
 					err := c.Find(&bson.M{"hotelId": queryItem["hotelId"], "inDate": queryItem["startDate"], "outDate": queryItem["endDate"]}).All(&reserve)
-					defer tmpSess.Close()
+					reserveMongoSpan.Finish()
 					if err != nil {
 						log.Panic().Msgf("Tried to find hotelId [%v] from date [%v] to date [%v], but got error",
 							queryItem["hotelId"], queryItem["startDate"], queryItem["endDate"], err.Error())

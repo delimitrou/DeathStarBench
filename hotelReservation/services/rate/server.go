@@ -46,6 +46,8 @@ type Server struct {
 
 // Run starts the server
 func (s *Server) Run() error {
+	opentracing.SetGlobalTracer(s.Tracer)
+
 	if s.Port == 0 {
 		return fmt.Errorf("server port must be set")
 	}
@@ -122,7 +124,10 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 		rateMap[hotelID] = struct{}{}
 	}
 	// first check memcached(get-multi)
+	memSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_get_multi_rate")
+	memSpan.SetTag("span.kind", "client")
 	resMap, err := s.MemcClient.GetMulti(hotelIds)
+	memSpan.Finish()
 	var wg sync.WaitGroup
 	var mutex sync.Mutex
 	if err != nil && err != memcache.ErrCacheMiss {
@@ -153,7 +158,10 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 				c := session.DB("rate-db").C("inventory")
 				memcStr := ""
 				tmpRatePlans := make(RatePlans, 0)
+				mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_rate")
+				mongoSpan.SetTag("span.kind", "client")
 				err := c.Find(&bson.M{"hotelId": id}).All(&tmpRatePlans)
+				mongoSpan.Finish()
 				if err != nil {
 					log.Panic().Msgf("Tried to find hotelId [%v], but got error", id, err.Error())
 				} else {
