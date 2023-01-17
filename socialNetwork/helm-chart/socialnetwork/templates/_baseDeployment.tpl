@@ -15,7 +15,10 @@ spec:
       labels:
         service: {{ .Values.name }}
         app: {{ .Values.name }}
-    spec: 
+    spec:
+      {{- if .Values.nodeName}}
+      nodeName: {{ .Values.nodeName }}
+      {{ end }}
       containers:
       {{- with .Values.container }}
       - name: "{{ .name }}"
