@@ -85,3 +85,7 @@ dependencies:
     version: 8.1.4
     condition: global.redis.cluster.enabled
     repository: https://charts.bitnami.com/bitnami
+  - name: redis
+    version: 17.3.7
+    condition: global.redis.replication.enabled
+    repository: https://charts.bitnami.com/bitnami

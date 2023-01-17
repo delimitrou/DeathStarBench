@@ -375,15 +375,24 @@ TEST SUITE: None
 ## Redis - deployment options ##
 The are two ways to deploy redis:
 
-1. **Default setup** (standalone) - single replica of redis is deployed for each service (similar to mongoDB). Scaling is not possible. 
+1. **Default setup** (standalone) - single replica of Redis is deployed for each service (similar to MongoDB). Scaling is not possible.
 
-2. **Clustered version** - multi-master setup improving read/write performance, it requires PV provisioner to be present in the cluster. More details and documentation can be found in [Redis Cluster helm chart documentation](https://github.com/bitnami/charts/tree/master/bitnami/redis-cluster)
+2. **Replicated setup** - single master and multiple replicas are deployed. It allows scaling read operations - in this scenario we can spread the load across all replicas. Scaling inserts/updates is not possible since we run only single Redis master. Application is ready to handle both services and route `read` operations to dedicated Redis service (`redis-replicas`) and all `insert` and `update` operations to `redis-master`. For detailed documentation refer to official [Redis helm chart repository](https://github.com/bitnami/charts/tree/main/bitnami/redis/#bitnami-package-for-redisr). Settings can be overriden in global `values.yaml` - see `redis` section. Also additional `--set` flags can be provided during installation to change default settings.
+
+![Redis Replicated deployment](https://raw.githubusercontent.com/bitnami/charts/main/bitnami/redis/img/redis-topology.png)
+
+### Usage:
+```bash
+helm install RELEASE_NAME HELM_CHART_REPO_PATH --set global.redis.replication.enabled=true,global.redis.standalone.enabled=false
+```
+
+3. **Clustered setup** - multi-master setup improving read/write performance, it requires PV provisioner to be present in the cluster. More details and documentation can be found in [Redis Cluster helm chart documentation](https://github.com/bitnami/charts/tree/master/bitnami/redis-cluster)
 
 ![Redis Cluster deployment](https://raw.githubusercontent.com/bitnami/charts/master/bitnami/redis-cluster/img/redis-cluster-topology.png "Redis Cluster deployment")
 
 Helm install output:
 ```bash
-helm install dsb socialnetwork --timeout 10m0s
+helm install dsb socialnetwork --set global.redis.cluster.enabled=true,global.redis.standalone.enabled=false --timeout 10m0s
 Pod redis-cluster-readiness-hook pending
 Pod redis-cluster-readiness-hook pending
 Pod redis-cluster-readiness-hook pending
