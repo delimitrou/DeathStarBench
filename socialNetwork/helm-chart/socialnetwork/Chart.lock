@@ -89,5 +89,8 @@ dependencies:
 - name: redis-cluster
   repository: https://charts.bitnami.com/bitnami
   version: 8.1.4
-digest: sha256:3840de0d678f690cc237484846c8a4c1a3e454de84408318c7e5695e65017526
-generated: "2022-08-11T14:04:43.000297+02:00"
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 17.3.7
+digest: sha256:ae28f9578ffe74dc4b53bb0acd57c6e2e69c55f1118ed446e16ceb8a98ace498
+generated: "2023-01-17T14:10:40.338928+01:00"
