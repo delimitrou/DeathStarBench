@@ -30,10 +30,10 @@ spec:
             value: {{ $.Values.global.memcached.environments.cacheSize | quote }}
           - name: MEMCACHED_THREADS
             value: {{ $.Values.global.memcached.environments.threads | quote }}
-        {{- if .command}}
         command:
-        - {{ .command }}
-        {{- end -}}
+          - "memcached"
+          - "-c"
+          - "65536"
         {{- if .args}}
         args:
         {{- range $arg := .args}}
