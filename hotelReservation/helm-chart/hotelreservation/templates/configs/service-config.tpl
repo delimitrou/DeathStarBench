@@ -4,20 +4,21 @@
     "jaegerAddress": "jaeger.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:6831",
     "FrontendPort": "5000",
     "GeoPort": "8083",
-    "GeoMongoAddress": "mongodb-geo:27018",
+    "GeoMongoAddress": "mongodb-geo.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:27018",
     "ProfilePort": "8081",
-    "ProfileMongoAddress": "mongodb-profile:27019",
-    "ProfileMemcAddress": "memcached-profile:11213",
+    "ProfileMongoAddress": "mongodb-profile.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:27019",
+    "ProfileMemcAddress": "memcached-profile.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:11213",
     "RatePort": "8084",
-    "RateMongoAddress": "mongodb-rate:27020",
-    "RateMemcAddress": "memcached-rate:11212",
+    "RateMongoAddress": "mongodb-rate.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:27020",
+    "RateMemcAddress": "memcached-rate.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:11212",
     "RecommendPort": "8085",
-    "RecommendMongoAddress": "mongodb-recommendation:27021",
+    "RecommendMongoAddress": "mongodb-recommendation.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:27021",
     "ReservePort": "8087",
-    "ReserveMongoAddress": "mongodb-reservation:27022",
-    "ReserveMemcAddress": "memcached-reserve:11214",
+    "ReserveMongoAddress": "mongodb-reservation.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:27022",
+    "ReserveMemcAddress": "memcached-reserve.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:11214",
     "SearchPort": "8082",
     "UserPort": "8086",
-    "UserMongoAddress": "mongodb-user:27023"
+    "UserMongoAddress": "mongodb-user.{{ .Release.Namespace }}.svc.{{ .Values.global.serviceDnsDomain }}:27023"
 }
 {{- end }}
+
