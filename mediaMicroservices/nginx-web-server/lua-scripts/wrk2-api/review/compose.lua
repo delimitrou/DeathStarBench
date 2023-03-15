@@ -67,6 +67,10 @@ function _M.ComposeReview()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
+  if (not _StrIsEmpty(post.limit)) then
+    io.write(post.limit, "\n")
+  end
+
   local threads = {
     ngx.thread.spawn(_UploadUserId, req_id, post, carrier),
     ngx.thread.spawn(_UploadMovieId, req_id, post, carrier),
