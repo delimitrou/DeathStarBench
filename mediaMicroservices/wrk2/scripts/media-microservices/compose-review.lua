@@ -1040,7 +1040,7 @@ request = function()
   counter = counter + 1
   if counter >= limit then
     io.write("End of queries\n")
-    body = body .. "&limit=" .. "End of queries"
+    body = body .. "&print=" .. "End of queries"
     counter = 0
   end
   

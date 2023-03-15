@@ -75,6 +75,9 @@ function _M.ReadHomeTimeline()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
+  if (not _StrIsEmpty(args.print)) then
+    ngx.log(ngx.STDERR, args.print .. "\n")
+  end
 
   local client = GenericObjectPool:connection(
       HomeTimelineServiceClient, "home-timeline-service" .. k8s_suffix, 9090)

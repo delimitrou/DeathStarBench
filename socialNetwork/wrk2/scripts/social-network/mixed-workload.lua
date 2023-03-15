@@ -1,3 +1,7 @@
+counter = 0
+limit = 50
+
+
 local socket = require("socket")
 local time = socket.gettime()*1000
 math.randomseed(time)
@@ -79,6 +83,13 @@ local function compose_post()
         "&text=" .. text .. "&media_ids=" .. "&post_type=0"
   end
 
+  counter = counter + 1
+  if counter >= limit then
+    io.write("End of queries\n")
+    body = body .. "&print=" .. "End of queries"
+    counter = 0
+  end
+
   return wrk.format(method, path, headers, body)
 end
 
@@ -91,6 +102,14 @@ local function read_user_timeline()
   local method = "GET"
   local headers = {}
   headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+  counter = counter + 1
+  if counter >= limit then
+    io.write("End of queries\n")
+    args = args .. "&print=" .. "End of queries"
+    counter = 0
+  end
+
   local path = "http://localhost:8080/wrk2-api/user-timeline/read?" .. args
   return wrk.format(method, path, headers, nil)
 end
@@ -104,6 +123,14 @@ local function read_home_timeline()
     local method = "GET"
     local headers = {}
     headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    counter = counter + 1
+    if counter >= limit then
+      io.write("End of queries\n")
+      args = args .. "&print=" .. "End of queries"
+      counter = 0
+    end
+  
     local path = "http://localhost:8080/wrk2-api/home-timeline/read?" .. args
     return wrk.format(method, path, headers, nil)
   end

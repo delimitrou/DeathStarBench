@@ -35,6 +35,10 @@ function _M.ComposePost()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
+  if (not _StrIsEmpty(post.print)) then
+    ngx.log(ngx.STDERR, post.print .. "\n")
+  end
+
   local status, ret
 
   local client = GenericObjectPool:connection(

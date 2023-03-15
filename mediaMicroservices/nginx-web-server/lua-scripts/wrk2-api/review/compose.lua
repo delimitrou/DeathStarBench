@@ -67,8 +67,8 @@ function _M.ComposeReview()
     ngx.exit(ngx.HTTP_BAD_REQUEST)
   end
 
-  if (not _StrIsEmpty(post.limit)) then
-    io.write(post.limit, "\n")
+  if (not _StrIsEmpty(post.print)) then
+    ngx.log(ngx.STDERR, post.print .. "\n")
   end
 
   local threads = {
