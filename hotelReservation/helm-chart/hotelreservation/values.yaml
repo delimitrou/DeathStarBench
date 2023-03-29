@@ -6,12 +6,21 @@ global:
   dockerRegistry: docker.io
   defaultImageVersion: latest
   serviceDnsDomain: "cluster.local"
+  # resources:
+  #   requests:
+  #     cpu: "500m"
+  #     memory: "256MiB"
+  #   limits:
+  #     cpu: "1"
+  #     memory: "256MiB"
   services:
     environments:
       logLevel: "INFO"
       jaegerSampleRatio: "0.01"
       memcachedTimeout: "2"
       gcPercent: "100"
+  affinity: {}
+  tolerations: []
   memcached:
     environments:
       cacheSize: "128"

@@ -23,3 +23,10 @@ container:
   - containerPort: 8500
   - containerPort: 53
     protocol: UDP
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "256Mi"

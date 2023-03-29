@@ -37,10 +37,10 @@ spec:
         {{- end }}
         {{- if .resources }}
         resources:
-          {{ tpl .resources $ | nindent 6 | trim }}
+          {{ tpl .resources $ | nindent 10 | trim }}
         {{- else if hasKey $.Values.global "resources" }}
         resources:
-          {{ tpl $.Values.global.resources $ | nindent 6 | trim }}
+          {{ tpl $.Values.global.resources $ | nindent 10 | trim }}
         {{- end }}
 	{{- if $.Values.global.mongodb.persistentVolume.hostPath.enabled }}
         volumeMounts:
@@ -61,4 +61,14 @@ spec:
       {{- end }}
       hostname: {{ $.Values.name }}
       restartPolicy: {{ .Values.restartPolicy | default .Values.global.restartPolicy}}
+      {{- if .Values.affinity }}
+      affinity: {{- toYaml .Values.affinity | nindent 8 }}
+      {{- else if hasKey $.Values.global "affinity" }}
+      affinity: {{- toYaml .Values.global.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- else if hasKey $.Values.global "tolerations" }}
+      tolerations: {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
 {{- end}}
