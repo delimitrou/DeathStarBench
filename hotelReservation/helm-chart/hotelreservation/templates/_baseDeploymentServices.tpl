@@ -30,6 +30,8 @@ spec:
         - containerPort: {{ $cport.containerPort -}}
         {{ end }}
         env:
+          - name: TLS
+            value: {{ $.Values.global.services.environments.tls | quote }}
           - name: LOG_LEVEL
             value: {{ $.Values.global.services.environments.logLevel | quote }}
           - name: JAEGER_SAMPLE_RATIO
@@ -88,5 +90,10 @@ spec:
       tolerations: {{- toYaml .Values.tolerations | nindent 8 }}
       {{- else if hasKey $.Values.global "tolerations" }}
       tolerations: {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- else if hasKey $.Values.global "nodeSelector" }}
+      nodeSelector: {{- toYaml .Values.global.nodeSelector | nindent 8 }}
       {{- end }}
 {{- end}}

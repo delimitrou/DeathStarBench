@@ -71,4 +71,9 @@ spec:
       {{- else if hasKey $.Values.global "tolerations" }}
       tolerations: {{- toYaml .Values.global.tolerations | nindent 8 }}
       {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- else if hasKey $.Values.global "nodeSelector" }}
+      nodeSelector: {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
 {{- end}}
