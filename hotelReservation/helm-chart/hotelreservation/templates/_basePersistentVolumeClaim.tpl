@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.name }}-pvc
+  name: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}-pvc
 spec:
   {{- if .Values.global.mongodb.persistentVolume.pvprovisioner.enabled }}
   {{- if .Values.global.mongodb.persistentVolume.pvprovisioner.storageClassName }}

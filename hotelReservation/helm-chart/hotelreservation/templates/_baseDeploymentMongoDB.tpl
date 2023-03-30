@@ -3,18 +3,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: {{ .Values.name }}
-  name: {{ .Values.name }}
+    {{- include "hotel-reservation.labels" . | nindent 4 }}
+    service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+  name: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
 spec:
   replicas: {{ .Values.replicas | default .Values.global.replicas }}
   selector:
     matchLabels:
-      service: {{ .Values.name }}
+      {{- include "hotel-reservation.selectorLabels" . | nindent 6 }}
+      service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+      app: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
   template:
     metadata:
       labels:
-        service: {{ .Values.name }}
-        app: {{ .Values.name }}
+        {{- include "hotel-reservation.labels" . | nindent 8 }}
+        service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+        app: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
     spec:
       containers:
       {{- with .Values.container }}
@@ -45,13 +49,13 @@ spec:
 	{{- if $.Values.global.mongodb.persistentVolume.hostPath.enabled }}
         volumeMounts:
         - mountPath: /data/db
-          name: {{ $.Values.name }}-path
+          name: {{ $.Values.name }}-{{ include "hotel-reservation.fullname" $ }}-path
         {{- end }}
       {{- end }}
       volumes:
-      - name: {{ .Values.name }}-path
+      - name: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}-path
         persistentVolumeClaim:
-          claimName: {{ .Values.name }}-pvc
+          claimName: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}-pvc
       {{- if hasKey .Values "topologySpreadConstraints" }}
       topologySpreadConstraints:
         {{ tpl .Values.topologySpreadConstraints . | nindent 6 | trim }}
@@ -59,7 +63,7 @@ spec:
       topologySpreadConstraints:
         {{ tpl $.Values.global.topologySpreadConstraints . | nindent 6 | trim }}
       {{- end }}
-      hostname: {{ $.Values.name }}
+      hostname: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
       restartPolicy: {{ .Values.restartPolicy | default .Values.global.restartPolicy}}
       {{- if .Values.affinity }}
       affinity: {{- toYaml .Values.affinity | nindent 8 }}

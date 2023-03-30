@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.name }}
+  name: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
 spec:
   type: {{ .Values.serviceType | default .Values.global.serviceType }}
   ports:
@@ -15,5 +15,6 @@ spec:
     targetPort: {{ .targetPort }}
   {{- end }}
   selector:
-    service: {{ .Values.name }}
+    {{- include "hotel-reservation.selectorLabels" . | nindent 4 }}
+    service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
 {{- end }}
