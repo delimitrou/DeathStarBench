@@ -45,3 +45,8 @@ Disable smt:
 # Tune the benchmark
 SLO is 10x 99% tail latency
 
+# ARM
+cd docker/openresty-thrift
+sudo docker build -t yg397/openresty-thrift:xenial -f xenial/Dockerfile .
+docker/thrift-microservice-deps/cpp
+sudo docker build -t yg397/thrift-microservice-deps:xenial .
