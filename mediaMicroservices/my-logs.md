@@ -1,4 +1,5 @@
 # Initial setup
+
 sudo apt install python3-pip
 
 pip3 install aiohttp, asyncio
@@ -11,7 +12,7 @@ sudo apt-get install luarocks
 
 sudo luarocks install luasocket
 
-sudo apt  install docker-compose
+sudo apt install docker-compose
 
 cd wrk2
 
@@ -22,11 +23,12 @@ cd ../mediaMicroservices
 sudo docker-compose up -d
 
 # Setting env
+
 Update docker-compose file: prev -> new
 
       dns-media:                                dns-media:
         image: defreitas/dns-proxy-server           image: defreitas/dns-proxy-server
-        volumes:                                    cpuset: "1"                                 
+        volumes:                                    cpuset: "1"
                                                     volumes:
 
 isolate cpu with:
@@ -43,10 +45,17 @@ Disable smt:
     echo off | sudo tee /sys/devices/system/cpu/smt/control
 
 # Tune the benchmark
+
 SLO is 10x 99% tail latency
 
 # ARM
-cd docker/openresty-thrift
-sudo docker build -t yg397/openresty-thrift:xenial -f xenial/Dockerfile .
-docker/thrift-microservice-deps/cpp
-sudo docker build -t yg397/thrift-microservice-deps:xenial .
+
+change all yg397 to abdu1998a in docker-compose.yml
+if you get an error:
+
+    cd docker/openresty-thrift
+    sudo docker build -t yg397/openresty-thrift:xenial -f xenial/Dockerfile .
+    cd docker/thrift-microservice-deps/cpp
+    sudo docker build -t yg397/thrift-microservice-deps:xenial .
+    cd .
+    sudo docker build -t yg397/media-microservices .
