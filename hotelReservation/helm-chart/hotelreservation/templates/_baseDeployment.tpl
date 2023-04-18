@@ -3,18 +3,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: {{ .Values.name }}
-  name: {{ .Values.name }}
+    {{- include "hotel-reservation.labels" . | nindent 4 }}
+    service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+  name: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
 spec:
   replicas: {{ .Values.replicas | default .Values.global.replicas }}
   selector:
     matchLabels:
-      service: {{ .Values.name }}
+      {{- include "hotel-reservation.selectorLabels" . | nindent 6 }}
+      service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+      app: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
   template:
     metadata:
       labels:
-        service: {{ .Values.name }}
-        app: {{ .Values.name }}
+        {{- include "hotel-reservation.labels" . | nindent 8 }}
+        service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+        app: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
     spec:
       containers:
       {{- with .Values.container }}
@@ -44,10 +48,10 @@ spec:
         {{- end }}
         {{- if .resources }}
         resources:
-          {{ tpl .resources $ | nindent 6 | trim }}
+          {{ tpl .resources $ | nindent 10 | trim }}
         {{- else if hasKey $.Values.global "resources" }}
         resources:
-          {{ tpl $.Values.global.resources $ | nindent 6 | trim }}
+          {{ tpl $.Values.global.resources $ | nindent 10 | trim }}
         {{- end }}
       {{- end -}}
       {{- if hasKey .Values "topologySpreadConstraints" }}
@@ -57,6 +61,21 @@ spec:
       topologySpreadConstraints:
         {{ tpl $.Values.global.topologySpreadConstraints . | nindent 6 | trim }}
       {{- end }}
-      hostname: {{ $.Values.name }}
+      hostname: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
       restartPolicy: {{ .Values.restartPolicy | default .Values.global.restartPolicy}}
+      {{- if .Values.affinity }}
+      affinity: {{- toYaml .Values.affinity | nindent 8 }}
+      {{- else if hasKey $.Values.global "affinity" }}
+      affinity: {{- toYaml .Values.global.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- else if hasKey $.Values.global "tolerations" }}
+      tolerations: {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- else if hasKey $.Values.global "nodeSelector" }}
+      nodeSelector: {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
 {{- end}}
