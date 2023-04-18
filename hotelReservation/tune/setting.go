@@ -4,6 +4,7 @@ import (
 	"os"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -65,6 +66,22 @@ func GetMemCTimeout() int {
 func NewMemCClient(server ...string) (*memcache.Client) {
 	ss := new(memcache.ServerList)
 	err := ss.SetServers(server...)
+	if err != nil {
+		// Hack: panic early to avoid pod restart during running
+		panic(err)
+		//return nil, err
+	} else {
+		memc_client := memcache.NewFromSelector(ss)
+		memc_client.Timeout = time.Second * time.Duration(GetMemCTimeout())
+		memc_client.MaxIdleConns = defaultMemCMaxIdleConns
+		return memc_client
+	}
+}
+
+func NewMemCClient2(servers string) (*memcache.Client) {
+	ss := new(memcache.ServerList)
+	server_list := strings.Split(servers, ",")
+	err := ss.SetServers(server_list...)
 	if err != nil {
 		// Hack: panic early to avoid pod restart during running
 		panic(err)
