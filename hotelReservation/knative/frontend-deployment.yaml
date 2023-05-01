@@ -28,7 +28,7 @@ spec:
       containers:
         - command:
             - frontend
-          image: teresaliuchang/hotel_demo:v1.7
+          image: vhiveease/hotel_demo
           name: hotel-reserv-frontend
           ports:
             - containerPort: 5000

@@ -12,7 +12,7 @@ spec:
         env:
         - name: DLOG
           value: DEBUG
-        image: teresaliuchang/hotel_demo:v1.7
+        image: vhiveease/hotel_demo
         name: hotel-reserv-recommendation
         ports:
           - name: h2c
