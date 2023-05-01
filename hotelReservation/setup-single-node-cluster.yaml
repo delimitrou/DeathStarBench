@@ -1,0 +1,115 @@
+# MIT License
+#
+# Copyright (c) 2021 Mert Bora Alper and EASE lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+---
+- name: Setup nodes
+  hosts: "masters"
+  vars:
+    remote_user: "{{ remote_user | required }}"
+  remote_user: "{{remote_user}}"
+  become_method: sudo
+  gather_facts: true
+  connection: ssh
+
+  tasks:
+    - name: Clone a github repository
+      ansible.builtin.git:
+        repo: https://github.com/vhive-serverless/vhive
+        dest: "{{ ansible_env.HOME }}/vhive"
+        clone: true
+
+    - name: Ansible create logs directory
+      ansible.builtin.file:
+        path: /tmp/vhive-logs
+        state: directory
+
+    - name: Change the working directory to vhive/ before executing the setup node command
+      ansible.builtin.command: ./scripts/cloudlab/setup_node.sh stock-only
+      become: true
+      args:
+        chdir: "{{ ansible_env.HOME }}/vhive"
+      register: setup_node_output
+
+    - name: Copy the output to a local file
+      ansible.builtin.copy:
+        content: "{{ setup_node_output.stdout }}"
+        dest: "/tmp/vhive-logs/setup_node.stdout"
+
+    - name: Copy stderr
+      ansible.builtin.copy:
+        content: "{{ setup_node_output.stderr }}"
+        dest: "/tmp/vhive-logs/setup_node.stderr"
+
+    - name: Start containerd
+      ansible.builtin.shell: screen -dmS containerd bash -c "containerd > >(tee -a /tmp/vhive-logs/containerd.stdout) 2> >(tee -a /tmp/vhive-logs/containerd.stderr >&2)"
+      become: true
+
+- name: Start single node cluster
+  hosts: masters
+  remote_user: "{{remote_user}}"
+  become_method: sudo
+  become_user: root
+  gather_facts: true
+  connection: ssh
+  tags: setup-master
+
+  tasks:
+    - name: Setup master node
+      ansible.builtin.command: ./scripts/cluster/create_one_node_cluster.sh stock-only
+      args:
+        chdir: "{{ ansible_env.HOME }}/vhive"
+      register: setup_master_node_output
+
+    - name: Copy the output to a local file
+      ansible.builtin.copy:
+        content: "{{ setup_master_node_output.stdout }}"
+        dest: "/tmp/vhive-logs/setup_master_node.stdout"
+
+    - name: Copy stderr
+      ansible.builtin.copy:
+        content: "{{ setup_master_node_output.stderr }}"
+        dest: "/tmp/vhive-logs/setup_master_node.stderr"
+
+    - name: Untaint master node to schedule pods
+      ansible.builtin.command: kubectl taint nodes --all node-role.kubernetes.io/master-
+    
+    - name: clone deathstar bench
+      ansible.builtin.git:
+        repo: https://github.com/dilinade/DeathStarBench
+        dest: "{{ ansible_env.HOME }}/deathStarBench"
+        clone: true
+    
+    - name: Setup master node
+      ansible.builtin.command: bash deploy-knative-svc.sh
+      args:
+        chdir: "{{ ansible_env.HOME }}/deathStarBench/hotelReservation/knative/scripts"
+      register: setup_hotel_reservation_output
+
+    - name: Copy the output to a local file
+      ansible.builtin.copy:
+        content: "{{ setup_hotel_reservation_output.stdout }}"
+        dest: "/tmp/vhive-logs/setup_hotel_reservation_output.stdout"
+
+    - name: Copy stderr
+      ansible.builtin.copy:
+        content: "{{ setup_hotel_reservation_output.stderr }}"
+        dest: "/tmp/vhive-logs/setup_hotel_reservation_output.stderr"
