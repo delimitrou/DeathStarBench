@@ -54,8 +54,12 @@ spec:
       {{- end }}
       volumes:
       - name: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}-path
+	{{- if $.Values.global.mongodb.persistentVolume.enabled }}
         persistentVolumeClaim:
           claimName: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}-pvc
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
       {{- if hasKey .Values "topologySpreadConstraints" }}
       topologySpreadConstraints:
         {{ tpl .Values.topologySpreadConstraints . | nindent 6 | trim }}

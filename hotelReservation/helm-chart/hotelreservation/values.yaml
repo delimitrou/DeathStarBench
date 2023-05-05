@@ -28,6 +28,7 @@ global:
       cacheSize: "128"
       threads: "2"
   mongodb:
+    enbaled: false
     persistentVolume:               # use hostPath or pvprovisioner
       size: "1Gi"
       hostPath:
