@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-test-video-scale
+  namespace: zyq-test
+  labels:
+    app: dapr-test-video-scale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-test-video-scale
+  template:
+    metadata:
+      labels:
+        app: dapr-test-video-scale
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-test-video-scale"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/http-max-request-size: "32"
+        # dapr.io/config: "tracing"
+        dapr.io/log-level: "debug"
+    spec:
+      containers:
+      - name: dapr-test-video-scale
+        image: sailresearch/dapr-test-video-scale:latest
+        imagePullPolicy: Always
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: "5005"
+      # nodeSelector:
+      #   cpu: beefy

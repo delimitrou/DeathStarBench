@@ -1,0 +1,1 @@
+Use the same pubsub & store component as video-scale test

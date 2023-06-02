@@ -1,0 +1,20 @@
+# helm install redis-thumb bitnami/redis -n yanqizhang --set global.storageClass=local-storage --set master.persistence.size=10Gi --set replica.persistence.size=10Gi --set global.redis.password=redisthumb
+# helm install redis-thumb bitnami/redis \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redisthumb
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: thumbnail-store
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-thumb-master:6379
+  - name: redisPassword
+    value: redisthumb
+  - name: keyPrefix
+    value: none

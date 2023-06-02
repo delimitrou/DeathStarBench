@@ -1,0 +1,21 @@
+# helm install redis-info bitnami/redis -n yanqizhang --set global.storageClass=local-storage --set master.persistence.size=10Gi --set replica.persistence.size=10Gi --set global.redis.password=redisinfo
+# helm install redis-info bitnami/redis -n yanqizhang \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redisinfo
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: info-store
+  namespace: yanqizhang
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-info-master:6379
+  - name: redisPassword
+    value: redisinfo
+  - name: keyPrefix
+    value: none

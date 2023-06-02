@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-video-thumbnail
+  namespace: zyq-test
+  labels:
+    app: dapr-video-thumbnail
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-video-thumbnail
+  template:
+    metadata:
+      labels:
+        app: dapr-video-thumbnail
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-video-thumbnail"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/http-max-request-size: "32"
+        # dapr.io/config: "tracing"
+        dapr.io/log-level: "debug"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8084"
+    spec:
+      containers:
+      - name: dapr-video-thumbnail
+        image: sailresearch/dapr-video-thumbnail:latest
+        imagePullPolicy: Always
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: "5005"
+        - name: PROM_ADDRESS
+          value: "8084"
+        - name: PUBSUB_NAME
+          value: "video-pubsub"
+        - name: TOPIC_NAME
+          value: "thumbnail"
+        - name: VIDEO_STORE
+          value: "video-store-test"
+        - name: WORKERS
+          value: "5"
+        - name: GRPC_POLL_STRATEGY
+          value: "poll"

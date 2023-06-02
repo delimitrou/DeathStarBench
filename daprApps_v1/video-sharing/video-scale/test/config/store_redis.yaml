@@ -1,0 +1,21 @@
+# helm install redis-video-store bitnami/redis -n zyq-test --set global.storageClass=local-storage --set master.persistence.enabled=false --set replica.persistence.enabled=false --set global.redis.password=redisstore
+# helm install redis-video-store bitnami/redis -n zyq-test \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redisstore
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: video-store-test
+  namespace: zyq-test
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-video-store-master:6379
+  - name: redisPassword
+    value: redisstore
+  - name: keyPrefix
+    value: none

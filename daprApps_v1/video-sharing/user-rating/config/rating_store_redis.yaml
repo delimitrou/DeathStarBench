@@ -1,0 +1,21 @@
+# helm install redis-rating bitnami/redis -n yanqizhang --set global.storageClass=local-storage --set master.persistence.size=10Gi  --set replica.persistence.size=10Gi --set global.redis.password=redisrating
+# helm install redis-rating bitnami/redis -n yanqizhang \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redisrating
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: user-rating-store
+  namespace: yanqizhang
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-rating-master:6379
+  - name: redisPassword
+    value: redisrating
+  - name: keyPrefix
+    value: none

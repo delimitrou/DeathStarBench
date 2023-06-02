@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-video-frontend
+  labels:
+    app: dapr-video-frontend
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: dapr-video-frontend
+  template:
+    metadata:
+      labels:
+        app: dapr-video-frontend
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-video-frontend"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        # dapr.io/app-port: "3500"
+        # dapr.io/app-protocol: "http"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/http-max-request-size: "64"
+        dapr.io/sidecar-image: "daprio/daprd:1.8.3"
+        # dapr.io/config: "tracing"
+        # dapr.io/log-level: "debug"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8084"
+    spec:
+      containers:
+      - name: dapr-video-frontend
+        image: sailresearch/dapr-video-frontend:latest
+        imagePullPolicy: Always
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: "5005"
+        - name: PROM_ADDRESS
+          value: "8084"
+        - name: VIDEO_PUBSUB
+          value: "video-pubsub"
+        - name: SCALE_TOPIC
+          value: "scale"
+        - name: THUMBNAIL_TOPIC
+          value: "thumbnail"
+        - name: VIDEO_STORE
+          value: "video-store"
+        - name: THUMBNAIL_STORE
+          value: "thumbnail-store"
+        - name: WORKERS
+          value: "20"
+        - name: GRPC_POLL_STRATEGY
+          value: "poll"

@@ -1,0 +1,22 @@
+# helm install redis-video bitnami/redis-cluster -n yanqizhang --set global.storageClass=local-storage --set persistence.size=20Gi --set global.redis.password=redisstore --set cluster.nodes=6
+# helm install redis-video bitnami/redis-cluster -n yanqizhang \
+# --set global.storageClass=local-storage \
+# --set persistence.size=20Gi \
+# --set global.redis.password=redisstore
+# --set cluster.nodes=6
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: video-store
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisType
+    value: cluster
+  - name: redisHost
+    value: redis-video-redis-cluster:6379
+  - name: redisPassword
+    value: redisstore
+  - name: keyPrefix
+    value: none
