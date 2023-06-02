@@ -1,0 +1,20 @@
+# helm install redis-date bitnami/redis -n yanqizhang --set global.storageClass=local-storage --set master.persistence.size=10Gi --set replica.persistence.size=10Gi --set global.redis.password=redisdate
+# helm install redis-date bitnami/redis \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redisdate
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: date-store
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-date-master:6379
+  - name: redisPassword
+    value: redisdate
+  - name: keyPrefix
+    value: none
