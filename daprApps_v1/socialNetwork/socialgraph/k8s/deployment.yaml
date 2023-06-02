@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-social-graph
+  labels:
+    app: dapr-social-graph
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dapr-social-graph
+  template:
+    metadata:
+      labels:
+        app: dapr-social-graph
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-social-graph"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/sidecar-image: "daprio/daprd:1.8.3"
+        # dapr.io/config: "tracing"
+        # dapr.io/log-level: "debug"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8084"
+    spec:
+      containers:
+      - name: dapr-social-graph
+        image: sailresearch/dapr-social-graph:latest
+        imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sleep
+              - "30"
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: ":5005"
+        - name: PROM_ADDRESS
+          value: ":8084"
+        - name: SOCIAL_GRAPH_STORE
+          value: social-graph-store
+      # affinity:
+      #     nodeAffinity:
+      #       requiredDuringSchedulingIgnoredDuringExecution:
+      #         nodeSelectorTerms:
+      #         - matchExpressions:
+      #           - key: cpu
+      #             operator: NotIn
+      #             values:
+      #             - beefy
