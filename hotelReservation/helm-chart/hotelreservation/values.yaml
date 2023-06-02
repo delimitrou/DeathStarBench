@@ -24,6 +24,7 @@ global:
   tolerations: []
   nodeSelector: {}
   memcached:
+    HACount: 1
     environments:
       cacheSize: "128"
       threads: "2"

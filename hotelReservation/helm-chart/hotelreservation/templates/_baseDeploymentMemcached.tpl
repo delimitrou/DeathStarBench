@@ -1,24 +1,29 @@
 {{- define "hotelreservation.templates.baseDeploymentMemcached" }}
+{{- $count :=  add .Values.global.memcached.HACount 1 | int }}
+{{- range $key, $item := untilStep 1 $count 1 }}
+{{- $rangeItem := $item -}}
+{{- with $ }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     {{- include "hotel-reservation.labels" . | nindent 4 }}
-    service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
-  name: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+    service: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
+  name: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
 spec:
   replicas: {{ .Values.replicas | default .Values.global.replicas }}
   selector:
     matchLabels:
       {{- include "hotel-reservation.selectorLabels" . | nindent 6 }}
-      service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
-      app: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+      service: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
+      app: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
   template:
     metadata:
       labels:
         {{- include "hotel-reservation.labels" . | nindent 8 }}
-        service: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
-        app: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
+        service: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
+        app: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
     spec:
       containers:
       {{- with .Values.container }}
@@ -76,4 +81,6 @@ spec:
       {{- else if hasKey $.Values.global "nodeSelector" }}
       nodeSelector: {{- toYaml .Values.global.nodeSelector | nindent 8 }}
       {{- end }}
+{{- end}}
+{{- end}}
 {{- end}}
