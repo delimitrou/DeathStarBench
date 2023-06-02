@@ -1,0 +1,20 @@
+# helm install vipipe-redis-image bitnami/redis -n yanqizhang --set global.storageClass=local-storage --set master.persistence.size=10Gi --set replica.persistence.size=10Gi --set global.redis.password=redisstore
+# helm install vipipe-redis-image bitnami/redis \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redisstore
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: vpipe-image-store
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: vipipe-redis-image-master:6379
+  - name: redisPassword
+    value: redisstore
+  - name: keyPrefix
+    value: none

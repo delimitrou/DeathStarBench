@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-vpipe-meta
+  labels:
+    app: dapr-vpipe-meta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-vpipe-meta
+  template:
+    metadata:
+      labels:
+        app: dapr-vpipe-meta
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-vpipe-meta"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        # dapr.io/app-port: "3500"
+        # dapr.io/app-protocol: "http"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/http-max-request-size: "32"
+        dapr.io/sidecar-image: "daprio/daprd:1.8.3"
+        # dapr.io/config: "tracing"
+        # dapr.io/log-level: "debug"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8084"
+    spec:
+      containers:
+      - name: dapr-vpipe-meta
+        image: sailresearch/dapr-vpipe-meta:latest
+        imagePullPolicy: Always
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: "5005"
+        - name: PROM_ADDRESS
+          value: "8084"
+        - name: VIDEO_PIPE_PUBSUB
+          value: "vpipe-events"
+        - name: META_TOPIC
+          value: "meta"
+        - name: SCENE_TOPIC
+          value: "scene"
+        - name: VIDEO_STORE
+          value: "vpipe-video-store"
+        - name: WORKERS
+          value: "10"
+        - name: PROMETHEUS_MULTIPROC_DIR
+          value: "/tmp/prom_multiproc"
+        - name: GRPC_POLL_STRATEGY
+          value: "poll"
+        - name: 'MAX_TIMEOUT'
+          value: '0.1'
+        - name: 'IDLE_TIME'
+          value: '0.001'
+        # - name: LOG_LEVEL
+        #   value: "debug"

@@ -1,0 +1,13 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: vpipe-events
+  namespace: tmp
+spec:
+  metadata:
+  - name: redisHost
+    value: redis-vpipe-pubsub-master:6379
+  - name: redisPassword
+    value: redispubsub
+  type: pubsub.redis
+  version: v1
