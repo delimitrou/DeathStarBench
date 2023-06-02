@@ -1,0 +1,22 @@
+# helm install redis-object-pubsub bitnami/redis -n yanqizhang --set global.storageClass=local-storage --set master.persistence.size=10Gi --set replica.persistence.size=10Gi --set global.redis.password=redispubsub
+# helm install redis-object-pubsub bitnami/redis \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redispubsub
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: object-detect-pubsub
+spec:
+  type: pubsub.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-object-pubsub-master:6379
+  - name: redisPassword
+    value: redispubsub
+  - name: redeliverInterval
+    value: "0"
+  # - name: queueDepth
+  #   value: 1000

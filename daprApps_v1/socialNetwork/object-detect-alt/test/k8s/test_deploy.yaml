@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-test-obj-detect
+  namespace: zyq-test
+  labels:
+    app: dapr-test-obj-detect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-test-obj-detect
+  template:
+    metadata:
+      labels:
+        app: dapr-test-obj-detect
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-test-obj-detect"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        # dapr.io/config: "tracing"
+        dapr.io/log-level: "debug"
+    spec:
+      containers:
+      - name: dapr-test-obj-detect
+        image: sailresearch/dapr-test-obj-detect:latest
+        imagePullPolicy: Always
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: "5005"
+      # nodeSelector:
+      #   cpu: beefy

@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-object-detect
+  labels:
+    app: dapr-object-detect
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: dapr-object-detect
+  template:
+    metadata:
+      labels:
+        app: dapr-object-detect
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-object-detect"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/http-max-request-size: "16"
+        dapr.io/sidecar-image: "daprio/daprd:1.8.3"
+        # dapr.io/config: "tracing"
+        # dapr.io/log-level: "debug"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8084"
+    spec:
+      containers:
+      - name: dapr-object-detect
+        image: sailresearch/dapr-object-detect:latest
+        imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sleep
+              - "30"
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: "5005"
+        - name: PROM_ADDRESS
+          value: "8084"
+        - name: PUBSUB_NAME
+          value: "object-detect-pubsub"
+        - name: TOPIC_NAME
+          value: "object-detect"
+        - name: IMAGE_STORE
+          value: "image-store"
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: cpu
+      #           operator: In
+      #           values:
+      #           - beefy
