@@ -1,0 +1,20 @@
+# helm install redis-img bitnami/redis -n yanqizhang --set global.storageClass=local-storage --set master.persistence.size=10Gi --set replica.persistence.size=10Gi --set global.redis.password=redisstore
+# helm install redis-img bitnami/redis -n yanqizhang \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redisstore
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: image-store
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-img-master:6379
+  - name: redisPassword
+    value: redisstore
+  - name: keyPrefix
+    value: none
