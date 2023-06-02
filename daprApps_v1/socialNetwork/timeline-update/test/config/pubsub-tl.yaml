@@ -1,0 +1,21 @@
+# helm install redis-tl-pubsub bitnami/redis -n zyq-test --set global.storageClass=local-storage --set master.persistence.enabled=false --set replica.persistence.enabled=false --set global.redis.password=redispubsub
+# helm install redis-tl-pubsub bitnami/redis -n zyq-test \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redispubsub
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: timeline-events
+  namespace: zyq-test
+spec:
+  type: pubsub.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-tl-pubsub-master:6379
+  - name: redisPassword
+    value: redispubsub
+  # - name: queueDepth
+  #   value: 1000

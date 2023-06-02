@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-timeline-update
+  labels:
+    app: dapr-timeline-update
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: dapr-timeline-update
+  template:
+    metadata:
+      labels:
+        app: dapr-timeline-update
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-timeline-update"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/sidecar-image: "daprio/daprd:1.8.3"
+        # dapr.io/config: "tracing"
+        # dapr.io/log-level: "debug"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8084"
+    spec:
+      containers:
+      - name: dapr-timeline-update
+        image: sailresearch/dapr-timeline-update:latest
+        imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sleep
+              - "30"
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: ":5005"
+        - name: PROM_ADDRESS
+          value: ":8084"
+        - name: TIMELINE_STORE
+          value: timeline-store
+        - name: PUBSUB_NAME
+          value: timeline-events
+        - name: TOPIC_NAME
+          value: timeline
+        - name: MAX_OUTSTAND
+          value: "1000"
+        - name: MAX_TRY
+          value: "100"
+        - name: WORKER
+          value: "500"
+        - name: MAX_TIMELINE_LEN
+          value: "200"
+      # affinity:
+      #     nodeAffinity:
+      #       requiredDuringSchedulingIgnoredDuringExecution:
+      #         nodeSelectorTerms:
+      #         - matchExpressions:
+      #           - key: cpu
+      #             operator: NotIn
+      #             values:
+      #             - beefy

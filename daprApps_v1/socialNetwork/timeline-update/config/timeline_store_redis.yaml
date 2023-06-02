@@ -1,0 +1,21 @@
+# helm install redis-timeline bitnami/redis -n yanqizhang --set global.storageClass=local-storage --set master.persistence.size=10Gi --set replica.persistence.size=10Gi --set global.redis.password=redistimeline
+# helm install redis-timeline bitnami/redis -n yanqizhang \
+# --set global.storageClass=local-storage \
+# --set master.persistence.size=10Gi \
+# --set replica.persistence.size=10Gi \
+# --set global.redis.password=redistimeline
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: timeline-store
+  namespace: yanqizhang
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-timeline-master:6379
+  - name: redisPassword
+    value: redistimeline
+  - name: keyPrefix
+    value: none

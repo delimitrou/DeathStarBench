@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-timeline-read
+  namespace: zyq-test
+  labels:
+    app: dapr-timeline-read
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dapr-timeline-read
+  template:
+    metadata:
+      labels:
+        app: dapr-timeline-read
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "dapr-timeline-read"
+        dapr.io/app-port: "5005"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        # dapr.io/config: "tracing"
+        dapr.io/log-level: "debug"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8084"
+    spec:
+      containers:
+      - name: dapr-timeline-read
+        image: sailresearch/dapr-timeline-read:latest
+        imagePullPolicy: Always
+        # ports:
+        # - containerPort: 5005
+        env:
+        - name: PORT
+          value: "5005"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: ADDRESS
+          value: ":5005"
+        - name: PROM_ADDRESS
+          value: ":8084"
+        - name: TIMELINE_STORE
+          value: timeline-store-test
