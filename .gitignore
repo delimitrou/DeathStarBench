@@ -8,3 +8,6 @@ build
 wrk2/obj/
 wrk2/wrk
 /wrk2/deps/
+*.log
+*.csv
+*.xlsx

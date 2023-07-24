@@ -51,3 +51,5 @@ cd ../mediaMicroservices
 
 #### View Jaeger traces
 View Jaeger traces by accessing `http://localhost:16686`
+
+0 load 11.4ms
