@@ -272,7 +272,7 @@ int main(int argc, char **argv) {
                 FILE* ff = fopen(filename, "w");
                 uint64_t nnum = MAXL;
                 if ((t->complete) < nnum) nnum = t->complete;
-                for (uint64_t j=1; j < nnum; ++j)
+                for (uint64_t j=1; j <= nnum; ++j)
                     fprintf(ff, "%" PRIu64 "\n", raw_latency[i][j]);
                 fclose(ff);
             }
