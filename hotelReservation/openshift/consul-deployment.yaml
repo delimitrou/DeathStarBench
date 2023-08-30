@@ -23,7 +23,7 @@ spec:
         sidecar.istio.io/inject: "true"
     spec:
       containers:
-      - image: consul:latest
+      - image: hashicorp/consul:latest
         name: consul
         ports:
         - containerPort: 8300
