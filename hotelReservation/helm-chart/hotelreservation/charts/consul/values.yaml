@@ -14,7 +14,7 @@ ports:
     targetPort: 53
 
 container:
-  image: consul
+  image: hashicorp/consul
   imageVersion: 1.13.2
   name: consul
   ports:
