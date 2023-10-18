@@ -28,7 +28,7 @@ spec:
       containers:
         - command:
             - recommendation
-          image: igorrudyk1/hotelreservation:latest
+          image: ghcr.io/picop-rd/DeathStarBench/hotelReservation:latest
           name: hotel-reserv-recommendation
           ports:
             - containerPort: 8085
