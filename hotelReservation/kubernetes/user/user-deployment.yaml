@@ -28,7 +28,7 @@ spec:
       containers:
         - command:
             - user
-          image: ghcr.io/picop-rd/DeathStarBench/hotelReservation:latest
+          image: ghcr.io/picop-rd/deathstarbench/hotelreservation:latest
           name: hotel-reserv-user
           ports:
             - containerPort: 8086

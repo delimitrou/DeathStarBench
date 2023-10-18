@@ -23,6 +23,6 @@ jobs:
       with:
         context: ./hotelReservation
         push: true
-        tags: ghcr.io/picop-rd/DeathStarBench/hotelReservation:latest
+        tags: ghcr.io/picop-rd/deathstarbench/hotelreservation:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
