@@ -5,9 +5,11 @@
 Package rate is a generated protocol buffer package.
 
 It is generated from these files:
+
 	services/rate/proto/rate.proto
 
 It has these top-level messages:
+
 	Request
 	Result
 	RatePlan

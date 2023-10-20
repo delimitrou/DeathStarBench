@@ -23,11 +23,11 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Request struct {
-	CustomerName         string   `protobuf:"bytes,1,opt,name=customerName,proto3" json:"customerName,omitempty"`
-	HotelId              []string `protobuf:"bytes,2,rep,name=hotelId,proto3" json:"hotelId,omitempty"`
-	InDate               string   `protobuf:"bytes,3,opt,name=inDate,proto3" json:"inDate,omitempty"`
-	OutDate              string   `protobuf:"bytes,4,opt,name=outDate,proto3" json:"outDate,omitempty"`
-	RoomNumber           int32    `protobuf:"varint,5,opt,name=roomNumber,proto3" json:"roomNumber,omitempty"`
+	CustomerName string   `protobuf:"bytes,1,opt,name=customerName,proto3" json:"customerName,omitempty"`
+	HotelId      []string `protobuf:"bytes,2,rep,name=hotelId,proto3" json:"hotelId,omitempty"`
+	InDate       string   `protobuf:"bytes,3,opt,name=inDate,proto3" json:"inDate,omitempty"`
+	OutDate      string   `protobuf:"bytes,4,opt,name=outDate,proto3" json:"outDate,omitempty"`
+	RoomNumber   int32    `protobuf:"varint,5,opt,name=roomNumber,proto3" json:"roomNumber,omitempty"`
 }
 
 func (m *Request) Reset()                    { *m = Request{} }
@@ -71,7 +71,7 @@ func (m *Request) GetRoomNumber() int32 {
 }
 
 type Result struct {
-	HotelId              []string `protobuf:"bytes,1,rep,name=hotelId,proto3" json:"hotelId,omitempty"`
+	HotelId []string `protobuf:"bytes,1,rep,name=hotelId,proto3" json:"hotelId,omitempty"`
 }
 
 func (m *Result) Reset()                    { *m = Result{} }

@@ -11,8 +11,8 @@ import (
 	"net"
 	// "os"
 	"sort"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog/log"
 

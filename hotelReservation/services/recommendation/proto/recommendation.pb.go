@@ -24,9 +24,9 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // The requirement of the recommendation.
 type Request struct {
-	Require string   `protobuf:"bytes,1,opt,name=require" json:"require,omitempty"`
-	Lat     float64  `protobuf:"fixed64,2,opt,name=lat" json:"lat,omitempty"`
-	Lon     float64  `protobuf:"fixed64,3,opt,name=lon" json:"lon,omitempty"`
+	Require string  `protobuf:"bytes,1,opt,name=require" json:"require,omitempty"`
+	Lat     float64 `protobuf:"fixed64,2,opt,name=lat" json:"lat,omitempty"`
+	Lon     float64 `protobuf:"fixed64,3,opt,name=lon" json:"lon,omitempty"`
 }
 
 func (m *Request) Reset()                    { *m = Request{} }

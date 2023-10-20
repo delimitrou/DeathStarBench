@@ -24,8 +24,8 @@ import (
 	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/rs/zerolog/log"
 
-	"strings"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -283,7 +283,7 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		nums := []number{}
 		capMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number")
 		capMongoSpan.SetTag("span.kind", "client")
-		err = c1.Find(bson.M{"hotelId": bson.M{"$in": queryMissKeys}}).All(&nums) 
+		err = c1.Find(bson.M{"hotelId": bson.M{"$in": queryMissKeys}}).All(&nums)
 		capMongoSpan.Finish()
 		if err != nil {
 			log.Panic().Msgf("Tried to find hotelId [%v], but got error", misKeys, err.Error())

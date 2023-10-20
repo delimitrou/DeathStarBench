@@ -5,9 +5,11 @@
 Package profile is a generated protocol buffer package.
 
 It is generated from these files:
+
 	services/profile/proto/profile.proto
 
 It has these top-level messages:
+
 	Request
 	Result
 	Hotel
