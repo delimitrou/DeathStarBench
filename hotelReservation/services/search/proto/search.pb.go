@@ -5,9 +5,11 @@
 Package search is a generated protocol buffer package.
 
 It is generated from these files:
+
 	services/search/proto/search.proto
 
 It has these top-level messages:
+
 	NearbyRequest
 	SearchResult
 */

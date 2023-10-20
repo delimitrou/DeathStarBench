@@ -23,8 +23,8 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Request struct {
-	Username             string   `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
-	Password             string   `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`
+	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
+	Password string `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`
 }
 
 func (m *Request) Reset()                    { *m = Request{} }
@@ -47,7 +47,7 @@ func (m *Request) GetPassword() string {
 }
 
 type Result struct {
-	Correct              bool     `protobuf:"varint,1,opt,name=correct" json:"correct,omitempty"`
+	Correct bool `protobuf:"varint,1,opt,name=correct" json:"correct,omitempty"`
 }
 
 func (m *Result) Reset()                    { *m = Result{} }

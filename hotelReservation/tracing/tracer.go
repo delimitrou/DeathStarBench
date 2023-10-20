@@ -1,12 +1,12 @@
 package tracing
 
 import (
-	"time"
 	"os"
 	"strconv"
+	"time"
 
-	"github.com/rs/zerolog/log"
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/rs/zerolog/log"
 	"github.com/uber/jaeger-client-go/config"
 )
 

@@ -10,8 +10,8 @@ import (
 	// "io/ioutil"
 	"net"
 	// "os"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
