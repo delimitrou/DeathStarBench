@@ -3,6 +3,7 @@ package user
 import (
 	"crypto/sha256"
 	// "encoding/json"
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -13,11 +14,10 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
-	// "io/ioutil"
+	// "io"
 	"net"
 
 	"github.com/rs/zerolog/log"
@@ -85,7 +85,7 @@ func (s *Server) Run() error {
 
 	// defer jsonFile.Close()
 
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
+	// byteValue, _ := io.ReadAll(jsonFile)
 
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)

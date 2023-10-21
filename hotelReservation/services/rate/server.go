@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	// "io/ioutil"
+	// "io"
 	"net"
 	// "os"
 	"sort"
@@ -87,7 +87,7 @@ func (s *Server) Run() error {
 
 	// defer jsonFile.Close()
 
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
+	// byteValue, _ := io.ReadAll(jsonFile)
 
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)

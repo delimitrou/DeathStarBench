@@ -19,7 +19,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
-	// "io/ioutil"
+	// "io"
 	"math"
 	"net"
 
@@ -86,7 +86,7 @@ func (s *Server) Run() error {
 
 	// defer jsonFile.Close()
 
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
+	// byteValue, _ := io.ReadAll(jsonFile)
 
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
