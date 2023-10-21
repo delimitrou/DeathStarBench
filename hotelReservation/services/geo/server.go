@@ -2,10 +2,11 @@ package geo
 
 import (
 	// "encoding/json"
+	"context"
 	"fmt"
 
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	// "io/ioutil"
 	"net"
@@ -20,7 +21,6 @@ import (
 	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -36,11 +36,11 @@ type Server struct {
 	index *geoindex.ClusteringIndex
 	uuid  string
 
-	Registry     *registry.Client
-	Tracer       opentracing.Tracer
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
+	Registry    *registry.Client
+	Tracer      opentracing.Tracer
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
 }
 
 // Run starts the server
@@ -50,7 +50,7 @@ func (s *Server) Run() error {
 	}
 
 	if s.index == nil {
-		s.index = newGeoIndex(s.MongoSession)
+		s.index = newGeoIndex(s.MongoClient)
 	}
 
 	s.uuid = uuid.New().String()
@@ -154,7 +154,8 @@ func (s *Server) getNearbyPoints(ctx context.Context, lat, lon float64) []geoind
 }
 
 // newGeoIndex returns a geo index with points loaded
-func newGeoIndex(session *mgo.Session) *geoindex.ClusteringIndex {
+func newGeoIndex(client *mongo.Client) *geoindex.ClusteringIndex {
+	ctx := context.Background()
 	// session, err := mgo.Dial("mongodb-geo")
 	// if err != nil {
 	// 	panic(err)
@@ -163,12 +164,14 @@ func newGeoIndex(session *mgo.Session) *geoindex.ClusteringIndex {
 
 	log.Trace().Msg("new geo newGeoIndex")
 
-	s := session.Copy()
-	defer s.Close()
-	c := s.DB("geo-db").C("geo")
+	c := client.Database("geo-db").Collection("geo")
 
 	var points []*point
-	err := c.Find(bson.M{}).All(&points)
+	cur, err := c.Find(ctx, bson.M{})
+	if err != nil {
+		log.Error().Msgf("Failed get geo data: ", err)
+	}
+	err = cur.All(ctx, &points)
 	if err != nil {
 		log.Error().Msgf("Failed get geo data: ", err)
 	}

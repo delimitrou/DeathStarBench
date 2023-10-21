@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"io/ioutil"
@@ -35,8 +36,9 @@ func main() {
 
 	log.Info().Msgf("Read database URL: %v", result["GeoMongoAddress"])
 	log.Info().Msg("Initializing DB connection...")
-	mongo_session := initializeDatabase(result["GeoMongoAddress"])
-	defer mongo_session.Close()
+	ctx := context.Background()
+	mongo_client := initializeDatabase(ctx, result["GeoMongoAddress"])
+	defer mongo_client.Disconnect(ctx)
 	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["GeoPort"])
@@ -69,11 +71,11 @@ func main() {
 
 	srv := &geo.Server{
 		// Port:     *port,
-		Port:         serv_port,
-		IpAddr:       serv_ip,
-		Tracer:       tracer,
-		Registry:     registry,
-		MongoSession: mongo_session,
+		Port:        serv_port,
+		IpAddr:      serv_ip,
+		Tracer:      tracer,
+		Registry:    registry,
+		MongoClient: mongo_client,
 	}
 
 	log.Info().Msg("Starting server...")
