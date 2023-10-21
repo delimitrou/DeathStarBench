@@ -1,10 +1,9 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"flag"
-	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
 
@@ -30,16 +29,15 @@ func main() {
 
 	defer jsonFile.Close()
 
-	byteValue, _ := io.ReadAll(jsonFile)
+	byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
 
 	log.Info().Msgf("Read database URL: %v", result["RateMongoAddress"])
 	log.Info().Msg("Initializing DB connection...")
-	ctx := context.Background()
-	mongo_client := initializeDatabase(ctx, result["RateMongoAddress"])
-	defer mongo_client.Disconnect(ctx)
+	mongo_session := initializeDatabase(result["RateMongoAddress"])
+	defer mongo_session.Close()
 	log.Info().Msg("Successfull")
 
 	log.Info().Msgf("Read profile memcashed address: %v", result["RateMemcAddress"])
@@ -77,11 +75,11 @@ func main() {
 	srv := &rate.Server{
 		Tracer: tracer,
 		// Port:     *port,
-		Registry:    registry,
-		Port:        serv_port,
-		IpAddr:      serv_ip,
-		MongoClient: mongo_client,
-		MemcClient:  memc_client,
+		Registry:     registry,
+		Port:         serv_port,
+		IpAddr:       serv_ip,
+		MongoSession: mongo_session,
+		MemcClient:   memc_client,
 	}
 
 	log.Info().Msg("Starting server...")

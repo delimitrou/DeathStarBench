@@ -2,7 +2,6 @@ package recommendation
 
 import (
 	// "encoding/json"
-	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -13,13 +12,13 @@ import (
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 
-	// "io"
+	// "io/ioutil"
 	"math"
 	"net"
 
@@ -32,13 +31,13 @@ const name = "srv-recommendation"
 
 // Server implements the recommendation service
 type Server struct {
-	hotels      map[string]Hotel
-	Tracer      opentracing.Tracer
-	Port        int
-	IpAddr      string
-	MongoClient *mongo.Client
-	Registry    *registry.Client
-	uuid        string
+	hotels       map[string]Hotel
+	Tracer       opentracing.Tracer
+	Port         int
+	IpAddr       string
+	MongoSession *mgo.Session
+	Registry     *registry.Client
+	uuid         string
 }
 
 // Run starts the server
@@ -48,7 +47,7 @@ func (s *Server) Run() error {
 	}
 
 	if s.hotels == nil {
-		s.hotels = loadRecommendations(s.MongoClient)
+		s.hotels = loadRecommendations(s.MongoSession)
 	}
 
 	s.uuid = uuid.New().String()
@@ -86,7 +85,7 @@ func (s *Server) Run() error {
 
 	// defer jsonFile.Close()
 
-	// byteValue, _ := io.ReadAll(jsonFile)
+	// byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
@@ -169,23 +168,20 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 }
 
 // loadRecommendations loads hotel recommendations from mongodb.
-func loadRecommendations(client *mongo.Client) map[string]Hotel {
-	ctx := context.Background()
+func loadRecommendations(session *mgo.Session) map[string]Hotel {
 	// session, err := mgo.Dial("mongodb-recommendation")
 	// if err != nil {
 	// 	panic(err)
 	// }
 	// defer session.Close()
+	s := session.Copy()
+	defer s.Close()
 
-	c := client.Database("recommendation-db").Collection("recommendation")
+	c := s.DB("recommendation-db").C("recommendation")
 
 	// unmarshal json profiles
 	var hotels []Hotel
-	cur, err := c.Find(ctx, bson.M{})
-	if err != nil {
-		log.Error().Msgf("Failed get hotels data: ", err)
-	}
-	err = cur.All(ctx, &hotels)
+	err := c.Find(bson.M{}).All(&hotels)
 	if err != nil {
 		log.Error().Msgf("Failed get hotels data: ", err)
 	}
@@ -199,10 +195,10 @@ func loadRecommendations(client *mongo.Client) map[string]Hotel {
 }
 
 type Hotel struct {
-	ID     primitive.ObjectID `bson:"_id"`
-	HId    string             `bson:"hotelId"`
-	HLat   float64            `bson:"lat"`
-	HLon   float64            `bson:"lon"`
-	HRate  float64            `bson:"rate"`
-	HPrice float64            `bson:"price"`
+	ID     bson.ObjectId `bson:"_id"`
+	HId    string        `bson:"hotelId"`
+	HLat   float64       `bson:"lat"`
+	HLon   float64       `bson:"lon"`
+	HRate  float64       `bson:"rate"`
+	HPrice float64       `bson:"price"`
 }

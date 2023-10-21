@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"io"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -29,7 +29,7 @@ func main() {
 
 	defer jsonFile.Close()
 
-	byteValue, _ := io.ReadAll(jsonFile)
+	byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
