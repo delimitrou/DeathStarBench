@@ -17,6 +17,6 @@
   "ReserveMemcAddress": "memcached-reserve:11211",
   "SearchPort": "8082",
   "UserPort": "8086",
-  "UserMongoAddress": "mongodb-user:27017",
+  "UserMongoAddress": "mongodb://mongodb-user:27017",
   "KnativeDomainName": ""
 }

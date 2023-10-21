@@ -11,11 +11,11 @@ import (
 	pb "github.com/harlow/go-micro-services/services/user/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 
 	// "io/ioutil"
 	"net"
@@ -32,12 +32,12 @@ const name = "srv-user"
 type Server struct {
 	users map[string]string
 
-	Tracer       opentracing.Tracer
-	Registry     *registry.Client
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	uuid         string
+	Tracer      opentracing.Tracer
+	Registry    *registry.Client
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	uuid        string
 }
 
 // Run starts the server
@@ -47,7 +47,7 @@ func (s *Server) Run() error {
 	}
 
 	if s.users == nil {
-		s.users = loadUsers(s.MongoSession)
+		s.users = loadUsers(s.MongoClient)
 	}
 
 	s.uuid = uuid.New().String()
@@ -139,19 +139,22 @@ func (s *Server) CheckUser(ctx context.Context, req *pb.Request) (*pb.Result, er
 }
 
 // loadUsers loads hotel users from mongodb.
-func loadUsers(session *mgo.Session) map[string]string {
+func loadUsers(client *mongo.Client) map[string]string {
+	ctx := context.Background()
 	// session, err := mgo.Dial("mongodb-user")
 	// if err != nil {
 	// 	panic(err)
 	// }
 	// defer session.Close()
-	s := session.Copy()
-	defer s.Close()
-	c := s.DB("user-db").C("user")
+	c := client.Database("user-db").Collection("user")
 
 	// unmarshal json profiles
 	var users []User
-	err := c.Find(bson.M{}).All(&users)
+	cur, err := c.Find(ctx, bson.M{})
+	if err != nil {
+		log.Error().Msgf("Failed get users data: ", err)
+	}
+	err = cur.All(ctx, &users)
 	if err != nil {
 		log.Error().Msgf("Failed get users data: ", err)
 	}
