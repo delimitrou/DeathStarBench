@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Hotel struct {
@@ -27,22 +29,22 @@ type Address struct {
 	Lon          float32 `bson:"lon"`
 }
 
-func initializeDatabase(url string) *mgo.Session {
-	session, err := mgo.Dial(url)
+func initializeDatabase(ctx context.Context, url string) *mongo.Client {
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(url))
 	if err != nil {
 		log.Panic().Msg(err.Error())
 	}
-	// defer session.Close()
+	// defer client.Close()
 	log.Info().Msg("New session successfull...")
 
 	log.Info().Msg("Generating test data...")
-	c := session.DB("profile-db").C("hotels")
-	count, err := c.Find(&bson.M{"id": "1"}).Count()
+	c := client.Database("profile-db").Collection("hotels")
+	count, err := c.CountDocuments(ctx, bson.M{"id": "1"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Hotel{
+		_, err = c.InsertOne(ctx, &Hotel{
 			"1",
 			"Clift Hotel",
 			"(415) 775-4700",
@@ -61,12 +63,12 @@ func initializeDatabase(url string) *mgo.Session {
 		}
 	}
 
-	count, err = c.Find(&bson.M{"id": "2"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"id": "2"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Hotel{
+		_, err = c.InsertOne(ctx, &Hotel{
 			"2",
 			"W San Francisco",
 			"(415) 777-5300",
@@ -85,12 +87,12 @@ func initializeDatabase(url string) *mgo.Session {
 		}
 	}
 
-	count, err = c.Find(&bson.M{"id": "3"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"id": "3"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Hotel{
+		_, err = c.InsertOne(ctx, &Hotel{
 			"3",
 			"Hotel Zetta",
 			"(415) 543-8555",
@@ -109,12 +111,12 @@ func initializeDatabase(url string) *mgo.Session {
 		}
 	}
 
-	count, err = c.Find(&bson.M{"id": "4"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"id": "4"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Hotel{
+		_, err = c.InsertOne(ctx, &Hotel{
 			"4",
 			"Hotel Vitale",
 			"(415) 278-3700",
@@ -133,12 +135,12 @@ func initializeDatabase(url string) *mgo.Session {
 		}
 	}
 
-	count, err = c.Find(&bson.M{"id": "5"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"id": "5"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Hotel{
+		_, err = c.InsertOne(ctx, &Hotel{
 			"5",
 			"Phoenix Hotel",
 			"(415) 776-1380",
@@ -157,12 +159,12 @@ func initializeDatabase(url string) *mgo.Session {
 		}
 	}
 
-	count, err = c.Find(&bson.M{"id": "6"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"id": "6"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Hotel{
+		_, err = c.InsertOne(ctx, &Hotel{
 			"6",
 			"St. Regis San Francisco",
 			"(415) 284-4000",
@@ -184,7 +186,7 @@ func initializeDatabase(url string) *mgo.Session {
 	// add up to 80 hotels
 	for i := 7; i <= 80; i++ {
 		hotel_id := strconv.Itoa(i)
-		count, err = c.Find(&bson.M{"id": hotel_id}).Count()
+		count, err = c.CountDocuments(ctx, bson.M{"id": hotel_id})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
@@ -192,7 +194,7 @@ func initializeDatabase(url string) *mgo.Session {
 		lat := 37.7835 + float32(i)/500.0*3
 		lon := -122.41 + float32(i)/500.0*4
 		if count == 0 {
-			err = c.Insert(&Hotel{
+			_, err = c.InsertOne(ctx, &Hotel{
 				hotel_id,
 				"St. Regis San Francisco",
 				phone_num,
@@ -212,10 +214,10 @@ func initializeDatabase(url string) *mgo.Session {
 		}
 	}
 
-	err = c.EnsureIndexKey("id")
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
+	// err = c.EnsureIndexKey("id")
+	// if err != nil {
+	// 	log.Fatal().Msg(err.Error())
+	// }
 
-	return session
+	return client
 }

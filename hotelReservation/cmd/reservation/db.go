@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Reservation struct {
@@ -21,88 +23,88 @@ type Number struct {
 	Number  int    `bson:"numberOfRoom"`
 }
 
-func initializeDatabase(url string) *mgo.Session {
-	session, err := mgo.Dial(url)
+func initializeDatabase(ctx context.Context, url string) *mongo.Client {
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(url))
 	if err != nil {
 		log.Panic().Msg(err.Error())
 	}
-	// defer session.Close()
+	// defer client.Close()
 	log.Info().Msg("New session successfull...")
 
-	c := session.DB("reservation-db").C("reservation")
-	count, err := c.Find(&bson.M{"hotelId": "4"}).Count()
+	c := client.Database("reservation-db").Collection("reservation")
+	count, err := c.CountDocuments(ctx, bson.M{"hotelId": "4"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Reservation{"4", "Alice", "2015-04-09", "2015-04-10", 1})
+		_, err = c.InsertOne(ctx, &Reservation{"4", "Alice", "2015-04-09", "2015-04-10", 1})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 	}
 
-	c = session.DB("reservation-db").C("number")
-	count, err = c.Find(&bson.M{"hotelId": "1"}).Count()
+	c = client.Database("reservation-db").Collection("number")
+	count, err = c.CountDocuments(ctx, bson.M{"hotelId": "1"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"1", 200})
+		_, err = c.InsertOne(ctx, &Number{"1", 200})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelId": "2"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"hotelId": "2"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"2", 200})
+		_, err = c.InsertOne(ctx, &Number{"2", 200})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelId": "3"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"hotelId": "3"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"3", 200})
+		_, err = c.InsertOne(ctx, &Number{"3", 200})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelId": "4"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"hotelId": "4"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"4", 200})
+		_, err = c.InsertOne(ctx, &Number{"4", 200})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelId": "5"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"hotelId": "5"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"5", 200})
+		_, err = c.InsertOne(ctx, &Number{"5", 200})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 	}
 
-	count, err = c.Find(&bson.M{"hotelId": "6"}).Count()
+	count, err = c.CountDocuments(ctx, bson.M{"hotelId": "6"})
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		err = c.Insert(&Number{"6", 200})
+		_, err = c.InsertOne(ctx, &Number{"6", 200})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
@@ -110,7 +112,7 @@ func initializeDatabase(url string) *mgo.Session {
 
 	for i := 7; i <= 80; i++ {
 		hotel_id := strconv.Itoa(i)
-		count, err = c.Find(&bson.M{"hotelId": hotel_id}).Count()
+		count, err = c.CountDocuments(ctx, bson.M{"hotelId": hotel_id})
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
@@ -121,17 +123,17 @@ func initializeDatabase(url string) *mgo.Session {
 			room_num = 250
 		}
 		if count == 0 {
-			err = c.Insert(&Number{hotel_id, room_num})
+			_, err = c.InsertOne(ctx, &Number{hotel_id, room_num})
 			if err != nil {
 				log.Fatal().Msg(err.Error())
 			}
 		}
 	}
 
-	err = c.EnsureIndexKey("hotelId")
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
+	// err = c.EnsureIndexKey("hotelId")
+	// if err != nil {
+	// 	log.Fatal().Msg(err.Error())
+	// }
 
-	return session
+	return client
 }
