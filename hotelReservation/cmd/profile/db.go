@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Hotel struct {
@@ -29,22 +27,22 @@ type Address struct {
 	Lon          float32 `bson:"lon"`
 }
 
-func initializeDatabase(ctx context.Context, url string) *mongo.Client {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(url))
+func initializeDatabase(url string) *mgo.Session {
+	session, err := mgo.Dial(url)
 	if err != nil {
 		log.Panic().Msg(err.Error())
 	}
-	// defer client.Close()
+	// defer session.Close()
 	log.Info().Msg("New session successfull...")
 
 	log.Info().Msg("Generating test data...")
-	c := client.Database("profile-db").Collection("hotels")
-	count, err := c.CountDocuments(ctx, bson.M{"id": "1"})
+	c := session.DB("profile-db").C("hotels")
+	count, err := c.Find(&bson.M{"id": "1"}).Count()
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		_, err = c.InsertOne(ctx, &Hotel{
+		err = c.Insert(&Hotel{
 			"1",
 			"Clift Hotel",
 			"(415) 775-4700",
@@ -63,12 +61,12 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 		}
 	}
 
-	count, err = c.CountDocuments(ctx, bson.M{"id": "2"})
+	count, err = c.Find(&bson.M{"id": "2"}).Count()
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		_, err = c.InsertOne(ctx, &Hotel{
+		err = c.Insert(&Hotel{
 			"2",
 			"W San Francisco",
 			"(415) 777-5300",
@@ -87,12 +85,12 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 		}
 	}
 
-	count, err = c.CountDocuments(ctx, bson.M{"id": "3"})
+	count, err = c.Find(&bson.M{"id": "3"}).Count()
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		_, err = c.InsertOne(ctx, &Hotel{
+		err = c.Insert(&Hotel{
 			"3",
 			"Hotel Zetta",
 			"(415) 543-8555",
@@ -111,12 +109,12 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 		}
 	}
 
-	count, err = c.CountDocuments(ctx, bson.M{"id": "4"})
+	count, err = c.Find(&bson.M{"id": "4"}).Count()
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		_, err = c.InsertOne(ctx, &Hotel{
+		err = c.Insert(&Hotel{
 			"4",
 			"Hotel Vitale",
 			"(415) 278-3700",
@@ -135,12 +133,12 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 		}
 	}
 
-	count, err = c.CountDocuments(ctx, bson.M{"id": "5"})
+	count, err = c.Find(&bson.M{"id": "5"}).Count()
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		_, err = c.InsertOne(ctx, &Hotel{
+		err = c.Insert(&Hotel{
 			"5",
 			"Phoenix Hotel",
 			"(415) 776-1380",
@@ -159,12 +157,12 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 		}
 	}
 
-	count, err = c.CountDocuments(ctx, bson.M{"id": "6"})
+	count, err = c.Find(&bson.M{"id": "6"}).Count()
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 	if count == 0 {
-		_, err = c.InsertOne(ctx, &Hotel{
+		err = c.Insert(&Hotel{
 			"6",
 			"St. Regis San Francisco",
 			"(415) 284-4000",
@@ -186,7 +184,7 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 	// add up to 80 hotels
 	for i := 7; i <= 80; i++ {
 		hotel_id := strconv.Itoa(i)
-		count, err = c.CountDocuments(ctx, bson.M{"id": hotel_id})
+		count, err = c.Find(&bson.M{"id": hotel_id}).Count()
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
@@ -194,7 +192,7 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 		lat := 37.7835 + float32(i)/500.0*3
 		lon := -122.41 + float32(i)/500.0*4
 		if count == 0 {
-			_, err = c.InsertOne(ctx, &Hotel{
+			err = c.Insert(&Hotel{
 				hotel_id,
 				"St. Regis San Francisco",
 				phone_num,
@@ -214,10 +212,10 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 		}
 	}
 
-	// err = c.EnsureIndexKey("id")
-	// if err != nil {
-	// 	log.Fatal().Msg(err.Error())
-	// }
+	err = c.EnsureIndexKey("id")
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
 
-	return client
+	return session
 }

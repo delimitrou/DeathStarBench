@@ -3,8 +3,7 @@ package search
 import (
 	// "encoding/json"
 	"fmt"
-	// F"io"
-	"context"
+	// F"io/ioutil"
 	"net"
 
 	"github.com/rs/zerolog/log"
@@ -21,6 +20,7 @@ import (
 	pb "github.com/harlow/go-micro-services/services/search/proto"
 	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
+	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -88,7 +88,7 @@ func (s *Server) Run() error {
 
 	// defer jsonFile.Close()
 
-	// byteValue, _ := io.ReadAll(jsonFile)
+	// byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)

@@ -1,15 +1,13 @@
 package main
 
 import (
-	"context"
 	"crypto/sha256"
 	"fmt"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
@@ -17,8 +15,8 @@ type User struct {
 	Password string `bson:"password"`
 }
 
-func initializeDatabase(ctx context.Context, url string) *mongo.Client {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(url))
+func initializeDatabase(url string) *mgo.Session {
+	session, err := mgo.Dial(url)
 	if err != nil {
 		log.Panic().Msg(err.Error())
 	}
@@ -26,7 +24,7 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 	log.Info().Msg("New session successfull...")
 
 	log.Info().Msg("Generating test data...")
-	c := client.Database("user-db").Collection("user")
+	c := session.DB("user-db").C("user")
 	for i := 0; i <= 500; i++ {
 		suffix := strconv.Itoa(i)
 		user_name := "Cornell_" + suffix
@@ -35,14 +33,14 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 			password += suffix
 		}
 
-		count, err := c.CountDocuments(ctx, bson.M{"username": user_name})
+		count, err := c.Find(&bson.M{"username": user_name}).Count()
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 		if count == 0 {
 			sum := sha256.Sum256([]byte(password))
 			pass := fmt.Sprintf("%x", sum)
-			_, err = c.InsertOne(ctx, &User{user_name, pass})
+			err = c.Insert(&User{user_name, pass})
 			if err != nil {
 				log.Fatal().Msg(err.Error())
 			}
@@ -50,12 +48,12 @@ func initializeDatabase(ctx context.Context, url string) *mongo.Client {
 
 	}
 
-	// err = c.EnsureIndexKey("username")
-	// if err != nil {
-	// 	log.Fatal().Msg(err.Error())
-	// }
+	err = c.EnsureIndexKey("username")
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
 
-	return client
+	return session
 
 	// count, err := c.Find(&bson.M{"username": "Cornell"}).Count()
 	// if err != nil {

@@ -9,9 +9,6 @@ proto:
 data:
 	go-bindata -o data/bindata.go -pkg data data/*.json
 
-run: fmt
+run:
 	docker-compose build
 	docker-compose up --remove-orphans
-
-fmt:
-	go fmt ./...
