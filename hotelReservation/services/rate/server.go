@@ -1,11 +1,12 @@
 package rate
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	// "io/ioutil"
 	"net"
@@ -22,7 +23,6 @@ import (
 	pb "github.com/harlow/go-micro-services/services/rate/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
@@ -35,13 +35,13 @@ const name = "srv-rate"
 
 // Server implements the rate service
 type Server struct {
-	Tracer       opentracing.Tracer
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	Registry     *registry.Client
-	MemcClient   *memcache.Client
-	uuid         string
+	Tracer      opentracing.Tracer
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	Registry    *registry.Client
+	MemcClient  *memcache.Client
+	uuid        string
 }
 
 // Run starts the server
@@ -153,14 +153,17 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 				log.Trace().Msg("memcached miss, set up mongo connection")
 
 				// memcached miss, set up mongo connection
-				session := s.MongoSession.Copy()
-				defer session.Close()
-				c := session.DB("rate-db").C("inventory")
+				client := s.MongoClient
+				c := client.Database("rate-db").Collection("inventory")
 				memcStr := ""
 				tmpRatePlans := make(RatePlans, 0)
 				mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_rate")
 				mongoSpan.SetTag("span.kind", "client")
-				err := c.Find(&bson.M{"hotelId": id}).All(&tmpRatePlans)
+				cur, err := c.Find(ctx, &bson.M{"hotelId": id})
+				if err != nil {
+					log.Panic().Msgf("Tried to find hotelId [%v], but got error", id, err.Error())
+				}
+				err = cur.All(ctx, &tmpRatePlans)
 				mongoSpan.Finish()
 				if err != nil {
 					log.Panic().Msgf("Tried to find hotelId [%v], but got error", id, err.Error())
