@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"io/ioutil"
@@ -36,8 +37,9 @@ func main() {
 
 	log.Info().Msgf("Read database URL: %v", result["RecommendMongoAddress"])
 	log.Info().Msg("Initializing DB connection...")
-	mongo_session := initializeDatabase(result["RecommendMongoAddress"])
-	defer mongo_session.Close()
+	ctx := context.Background()
+	mongo_client := initializeDatabase(ctx, result["RecommendMongoAddress"])
+	defer mongo_client.Disconnect(ctx)
 	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["RecommendPort"])
@@ -71,10 +73,10 @@ func main() {
 	srv := &recommendation.Server{
 		Tracer: tracer,
 		// Port:     *port,
-		Registry:     registry,
-		Port:         serv_port,
-		IpAddr:       serv_ip,
-		MongoSession: mongo_session,
+		Registry:    registry,
+		Port:        serv_port,
+		IpAddr:      serv_ip,
+		MongoClient: mongo_client,
 	}
 
 	log.Info().Msg("Starting server...")

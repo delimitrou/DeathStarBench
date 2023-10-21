@@ -11,7 +11,7 @@
   "RateMongoAddress": "mongodb://mongodb-rate:27017",
   "RateMemcAddress": "memcached-rate:11211",
   "RecommendPort": "8085",
-  "RecommendMongoAddress": "mongodb-recommendation:27017",
+  "RecommendMongoAddress": "mongodb://mongodb-recommendation:27017",
   "ReservePort": "8087",
   "ReserveMongoAddress": "mongodb-reservation:27017",
   "ReserveMemcAddress": "memcached-reserve:11211",
