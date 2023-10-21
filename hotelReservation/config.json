@@ -5,7 +5,7 @@
   "GeoPort": "8083",
   "GeoMongoAddress": "mongodb://mongodb-geo:27017",
   "ProfilePort": "8081",
-  "ProfileMongoAddress": "mongodb-profile:27017",
+  "ProfileMongoAddress": "mongodb://mongodb-profile:27017",
   "ProfileMemcAddress": "memcached-profile:11211",
   "RatePort": "8084",
   "RateMongoAddress": "mongodb-rate:27017",

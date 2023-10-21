@@ -1,11 +1,12 @@
 package profile
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	// "io/ioutil"
 	"net"
@@ -21,7 +22,6 @@ import (
 	pb "github.com/harlow/go-micro-services/services/profile/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
@@ -33,13 +33,13 @@ const name = "srv-profile"
 
 // Server implements the profile service
 type Server struct {
-	Tracer       opentracing.Tracer
-	uuid         string
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	Registry     *registry.Client
-	MemcClient   *memcache.Client
+	Tracer      opentracing.Tracer
+	uuid        string
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	Registry    *registry.Client
+	MemcClient  *memcache.Client
 }
 
 // Run starts the server
@@ -148,14 +148,13 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 		wg.Add(len(profileMap))
 		for hotelId := range profileMap {
 			go func(hotelId string) {
-				session := s.MongoSession.Copy()
-				defer session.Close()
-				c := session.DB("profile-db").C("hotels")
+				client := s.MongoClient
+				c := client.Database("profile-db").Collection("hotels")
 
 				hotelProf := new(pb.Hotel)
 				mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_profile")
 				mongoSpan.SetTag("span.kind", "client")
-				err := c.Find(bson.M{"id": hotelId}).One(&hotelProf)
+				err := c.FindOne(ctx, bson.M{"id": hotelId}).Decode(&hotelProf)
 				mongoSpan.Finish()
 
 				if err != nil {
