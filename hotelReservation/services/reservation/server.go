@@ -2,6 +2,7 @@ package reservation
 
 import (
 	// "encoding/json"
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -10,13 +11,12 @@ import (
 	pb "github.com/harlow/go-micro-services/services/reservation/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 
-	// "io/ioutil"
+	// "io"
 	"net"
 	// "os"
 	"time"
@@ -33,13 +33,13 @@ const name = "srv-reservation"
 
 // Server implements the user service
 type Server struct {
-	Tracer       opentracing.Tracer
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	Registry     *registry.Client
-	MemcClient   *memcache.Client
-	uuid         string
+	Tracer      opentracing.Tracer
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	Registry    *registry.Client
+	MemcClient  *memcache.Client
+	uuid        string
 }
 
 // Run starts the server
@@ -85,7 +85,7 @@ func (s *Server) Run() error {
 
 	// defer jsonFile.Close()
 
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
+	// byteValue, _ := io.ReadAll(jsonFile)
 
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
@@ -116,11 +116,10 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 	// 	panic(err)
 	// }
 	// defer session.Close()
-	session := s.MongoSession.Copy()
-	defer session.Close()
+	client := s.MongoClient
 
-	c := session.DB("reservation-db").C("reservation")
-	c1 := session.DB("reservation-db").C("number")
+	c := client.Database("reservation-db").Collection("reservation")
+	c1 := client.Database("reservation-db").Collection("number")
 
 	inDate, _ := time.Parse(
 		time.RFC3339,
@@ -154,7 +153,11 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 			// memcached miss
 			log.Trace().Msgf("memcached miss")
 			reserve := make([]reservation, 0)
-			err := c.Find(&bson.M{"hotelId": hotelId, "inDate": indate, "outDate": outdate}).All(&reserve)
+			cur, err := c.Find(ctx, &bson.M{"hotelId": hotelId, "inDate": indate, "outDate": outdate})
+			if err != nil {
+				log.Panic().Msgf("Tried to find hotelId [%v] from date [%v] to date [%v], but got error", hotelId, indate, outdate, err.Error())
+			}
+			err = cur.All(ctx, &reserve)
 			if err != nil {
 				log.Panic().Msgf("Tried to find hotelId [%v] from date [%v] to date [%v], but got error", hotelId, indate, outdate, err.Error())
 			}
@@ -181,7 +184,7 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 		} else if err == memcache.ErrCacheMiss {
 			// memcached miss
 			var num number
-			err = c1.Find(&bson.M{"hotelId": hotelId}).One(&num)
+			err = c1.FindOne(ctx, &bson.M{"hotelId": hotelId}).Decode(&num)
 			if err != nil {
 				log.Panic().Msgf("Tried to find hotelId [%v], but got error", hotelId, err.Error())
 			}
@@ -213,7 +216,7 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 	for inDate.Before(outDate) {
 		inDate = inDate.AddDate(0, 0, 1)
 		outdate := inDate.String()[0:10]
-		err := c.Insert(&reservation{
+		_, err := c.InsertOne(ctx, &reservation{
 			HotelId:      hotelId,
 			CustomerName: req.CustomerName,
 			InDate:       indate,
@@ -240,10 +243,9 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 	// 	panic(err)
 	// }
 	// defer session.Close()
-	session := s.MongoSession.Copy()
-	defer session.Close()
+	client := s.MongoClient
 
-	c1 := session.DB("reservation-db").C("number")
+	c1 := client.Database("reservation-db").Collection("number")
 
 	hotelMemKeys := []string{}
 	keysMap := make(map[string]struct{})
@@ -283,7 +285,11 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		nums := []number{}
 		capMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number")
 		capMongoSpan.SetTag("span.kind", "client")
-		err = c1.Find(bson.M{"hotelId": bson.M{"$in": queryMissKeys}}).All(&nums)
+		cur, err := c1.Find(ctx, bson.M{"hotelId": bson.M{"$in": queryMissKeys}})
+		if err != nil {
+			log.Panic().Msgf("Tried to find hotelId [%v], but got error", misKeys, err.Error())
+		}
+		err = cur.All(ctx, &nums)
 		capMongoSpan.Finish()
 		if err != nil {
 			log.Panic().Msgf("Tried to find hotelId [%v], but got error", misKeys, err.Error())
@@ -366,13 +372,17 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 				go func(comm string) {
 					defer wg.Done()
 					reserve := []reservation{}
-					tmpSess := s.MongoSession.Copy()
-					defer tmpSess.Close()
+					tmpCli := s.MongoClient
 					queryItem := queryMap[comm]
-					c := tmpSess.DB("reservation-db").C("reservation")
+					c := tmpCli.Database("reservation-db").Collection("reservation")
 					reserveMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number"+comm)
 					reserveMongoSpan.SetTag("span.kind", "client")
-					err := c.Find(&bson.M{"hotelId": queryItem["hotelId"], "inDate": queryItem["startDate"], "outDate": queryItem["endDate"]}).All(&reserve)
+					cur, err := c.Find(ctx, &bson.M{"hotelId": queryItem["hotelId"], "inDate": queryItem["startDate"], "outDate": queryItem["endDate"]})
+					if err != nil {
+						log.Panic().Msgf("Tried to find hotelId [%v] from date [%v] to date [%v], but got error",
+							queryItem["hotelId"], queryItem["startDate"], queryItem["endDate"], err.Error())
+					}
+					err = cur.All(ctx, &reserve)
 					reserveMongoSpan.Finish()
 					if err != nil {
 						log.Panic().Msgf("Tried to find hotelId [%v] from date [%v] to date [%v], but got error",

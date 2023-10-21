@@ -17,7 +17,6 @@ require (
 	go.mongodb.org/mongo-driver v1.12.1
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
 	google.golang.org/grpc v1.10.0
-	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
 
 require (

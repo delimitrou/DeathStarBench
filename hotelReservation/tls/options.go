@@ -3,7 +3,6 @@ package tls
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -80,7 +79,7 @@ func checkTLS() (bool, string) {
 func init() {
 	needTLS, cipher := checkTLS()
 	if needTLS {
-		b, err := ioutil.ReadFile("x509/ca_cert.pem")
+		b, err := os.ReadFile("x509/ca_cert.pem")
 		if err != nil {
 			log.Panic().Msgf("failed to read credentials: %v", err)
 		}
