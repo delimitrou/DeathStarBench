@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/harlow/go-micro-services/tls"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	consul "github.com/hashicorp/consul/api"
 	lb "github.com/olivere/grpc/lb/consul"
 	opentracing "github.com/opentracing/opentracing-go"

@@ -17,9 +17,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/harlow/go-micro-services/registry"
-	pb "github.com/harlow/go-micro-services/services/profile/proto"
-	"github.com/harlow/go-micro-services/tls"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
+	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/profile/proto"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
