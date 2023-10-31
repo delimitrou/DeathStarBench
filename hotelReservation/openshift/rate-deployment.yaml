@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - command:
-        - rate
+        - ./rate
         env:
         - name: DLOG
           value: DEBUG
@@ -34,7 +34,7 @@ spec:
         - containerPort: 8084
         resources: {}
         volumeMounts:
-        - mountPath: /go/src/github.com/harlow/go-micro-services/config.json
+        - mountPath: config.json
           subPath: config.json
           name: config-json
       restartPolicy: Always

@@ -27,8 +27,8 @@ spec:
     spec:
       containers:
         - command:
-            - user
-          image: igorrudyk1/hotelreservation:latest
+            - ./user
+          image: deathstarbench/hotel-reservation:latest
           name: hotel-reserv-user
           ports:
             - containerPort: 8086
