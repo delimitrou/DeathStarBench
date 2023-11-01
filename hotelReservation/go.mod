@@ -13,7 +13,7 @@ require (
 	github.com/opentracing-contrib/go-stdlib v0.0.0-20180308002341-f6b9967a3c69
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rs/zerolog v1.31.0
-	github.com/uber/jaeger-client-go v2.20.1+incompatible
+	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	golang.org/x/net v0.17.0
 	google.golang.org/grpc v1.11.2
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
