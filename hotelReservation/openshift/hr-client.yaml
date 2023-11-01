@@ -19,8 +19,6 @@ spec:
         death-star-project: hotel-res
         app: hr-client
       name: hr-client
-#      annotations:
-#        sidecar.istio.io/inject: "true"
     spec:
       containers:
       - name: hr-client
@@ -33,5 +31,5 @@ spec:
             luarocks install luasocket &&
             sleep 365d
         imagePullPolicy: Always
-        restartPolicy: Always
+      restartPolicy: Always
 
