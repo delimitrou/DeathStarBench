@@ -14,8 +14,8 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rs/zerolog v1.31.0
 	github.com/uber/jaeger-client-go v2.20.1+incompatible
-	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
-	google.golang.org/grpc v1.10.0
+	golang.org/x/net v0.17.0
+	google.golang.org/grpc v1.11.2
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
 
@@ -36,9 +36,9 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	go.uber.org/atomic v1.11.0 // indirect
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
-	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/text v0.3.0 // indirect
+	golang.org/x/sync v0.4.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto v0.0.0-20180306020942-df60624c1e9b // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
