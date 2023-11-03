@@ -22,13 +22,6 @@ spec:
     spec:
       containers:
       - name: ubuntu-client
-        image: ubuntu
-        command:  ["/bin/sh", "-c"]
-        args:
-          - apt-get -y update &&
-            apt-get -y upgrade &&
-            apt-get -y install dnsutils git vim python3 python3-aiohttp libssl-dev libz-dev luarocks iputils-ping lynx build-essential gcc bash curl &&
-            luarocks install luasocket &&
-            sleep 365d
+        image: deathstarbench/wrk2-client
         imagePullPolicy: Always
       restartPolicy: Always
