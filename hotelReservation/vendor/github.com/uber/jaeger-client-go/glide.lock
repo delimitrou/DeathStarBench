@@ -1,109 +1,105 @@
-hash: af5e193de27f73f5a8cef66ae2f0c013bcb9e48ecd69db4a595221f88ba99a71
-updated: 2017-11-21T19:49:03.248636345-05:00
+hash: 63bec420a22b7e5abac8c602c5cc9b66a33d6a1bfec8918eecc77fd344b759ed
+updated: 2020-07-31T13:30:37.242608-04:00
 imports:
-- name: github.com/apache/thrift
-  version: b2a4d4ae21c789b689dd162deb819665567f481c
-  subpackages:
-  - lib/go/thrift
 - name: github.com/beorn7/perks
-  version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
+  version: 3a771d992973f24aa725d07868b467d1ddfceafb
   subpackages:
   - quantile
-- name: github.com/codahale/hdrhistogram
-  version: f8ad88b59a584afeee9d334eff879b104439117b
+- name: github.com/HdrHistogram/hdrhistogram-go
+  version: 3a0bb77429bd3a61596f5e8a3172445844342120
 - name: github.com/crossdock/crossdock-go
   version: 049aabb0122b03bc9bd30cab8f3f91fb60166361
   subpackages:
   - assert
   - require
 - name: github.com/davecgh/go-spew
-  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
   subpackages:
   - spew
+- name: github.com/golang/mock
+  version: 51421b967af1f557f93a59e0057aaf15ca02e29c
+  subpackages:
+  - gomock
 - name: github.com/golang/protobuf
-  version: 7cc19b78d562895b13596ddce7aafb59dd789318
+  version: b5d812f8a3706043e23a9cd5babf2e5423744d30
   subpackages:
   - proto
 - name: github.com/matttproud/golang_protobuf_extensions
-  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
+  version: c182affec369e30f25d3eb8cd8a478dee585ae7d
   subpackages:
   - pbutil
 - name: github.com/opentracing/opentracing-go
-  version: 1949ddbfd147afd4d964a9f00b24eb291e0e7c38
+  version: d34af3eaa63c4d08ab54863a4bdd0daa45212e12
   subpackages:
   - ext
+  - harness
   - log
+- name: github.com/pkg/errors
+  version: ba968bfe8b2f7e042a574c888954fccecfa385b4
 - name: github.com/pmezard/go-difflib
-  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  version: 5d4384ee4fb2527b0a1256a821ebfc92f91efefc
   subpackages:
   - difflib
 - name: github.com/prometheus/client_golang
-  version: c5b7fccd204277076155f10851dad72b76a49317
+  version: 170205fb58decfd011f1550d4cfb737230d7ae4f
   subpackages:
   - prometheus
+  - prometheus/internal
 - name: github.com/prometheus/client_model
-  version: 6f3806018612930941127f2a7c6c453ba2c527d2
+  version: fd36f4220a901265f90734c3183c5f0c91daa0b8
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 49fee292b27bfff7f354ee0f64e1bc4850462edf
+  version: 1ab4d74fc89940cfbc3c2b3a89821336cdefa119
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: a1dba9ce8baed984a2495b658c82687f8157b98f
+  version: 8a055596020d692cf491851e47ba3e302d9f90ce
   subpackages:
-  - xfs
+  - internal/fs
+  - internal/util
 - name: github.com/stretchr/testify
-  version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
+  version: f654a9112bbeac49ca2cd45bfbe11533c4666cf8
   subpackages:
   - assert
+  - mock
   - require
   - suite
 - name: github.com/uber-go/atomic
-  version: 8474b86a5a6f79c443ce4b2992817ff32cf208b8
-  subpackages:
-  - utils
+  version: 845920076a298bdb984fb0f1b86052e4ca0a281c
 - name: github.com/uber/jaeger-lib
-  version: c48167d9cae5887393dd5e61efd06a4a48b7fbb3
+  version: 48cc1df63e6be0d63b95677f0d22beb880bce1e4
   subpackages:
   - metrics
+  - metrics/metricstest
   - metrics/prometheus
-  - metrics/testutils
-- name: github.com/uber/tchannel-go
-  version: cc230a2942d078a8b01f4a79895dad62e6c572f1
-  subpackages:
-  - atomic
-  - internal/argreader
-  - relay
-  - thrift
-  - thrift/gen-go/meta
-  - tnet
-  - tos
-  - trace/thrift/gen-go/tcollector
-  - trand
-  - typed
 - name: go.uber.org/atomic
-  version: 8474b86a5a6f79c443ce4b2992817ff32cf208b8
+  version: 845920076a298bdb984fb0f1b86052e4ca0a281c
 - name: go.uber.org/multierr
-  version: 3c4937480c32f4c13a875a1829af76c98ca3d40a
+  version: b587143a48b62b01d337824eab43700af6ffe222
 - name: go.uber.org/zap
-  version: 35aad584952c3e7020db7b839f6b102de6271f89
+  version: feeb9a050b31b40eec6f2470e7599eeeadfe5bdd
   subpackages:
   - buffer
   - internal/bufferpool
   - internal/color
   - internal/exit
   - zapcore
+  - zaptest/observer
 - name: golang.org/x/net
-  version: a337091b0525af65de94df2eb7e98bd9962dcbe2
+  version: addf6b3196f61cd44ce5a76657913698c73479d0
   subpackages:
-  - bpf
   - context
   - context/ctxhttp
-  - internal/iana
-  - internal/socket
-  - ipv4
-  - ipv6
-testImports: []
+- name: golang.org/x/sys
+  version: 3e129f6d46b10b0e1da36b3deffcb55e09631b64
+  subpackages:
+  - internal/unsafeheader
+  - windows
+- name: gopkg.in/yaml.v3
+  version: eeeca48fe7764f320e4870d231902bf9c1be2c08
+testImports:
+- name: github.com/stretchr/objx
+  version: 35313a95ee26395aa17d366c71a2ccf788fa69b6

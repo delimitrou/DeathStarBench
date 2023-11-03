@@ -7,10 +7,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/harlow/go-micro-services/registry"
-	"github.com/harlow/go-micro-services/services/rate"
-	"github.com/harlow/go-micro-services/tracing"
-	"github.com/harlow/go-micro-services/tune"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/services/rate"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tune"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 

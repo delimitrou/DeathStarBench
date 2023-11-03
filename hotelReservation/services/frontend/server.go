@@ -8,17 +8,17 @@ import (
 
 	"google.golang.org/grpc"
 
-	recommendation "github.com/harlow/go-micro-services/services/recommendation/proto"
-	reservation "github.com/harlow/go-micro-services/services/reservation/proto"
-	user "github.com/harlow/go-micro-services/services/user/proto"
+	recommendation "github.com/delimitrou/DeathStarBench/hotelreservation/services/recommendation/proto"
+	reservation "github.com/delimitrou/DeathStarBench/hotelreservation/services/reservation/proto"
+	user "github.com/delimitrou/DeathStarBench/hotelreservation/services/user/proto"
 	"github.com/rs/zerolog/log"
 
-	"github.com/harlow/go-micro-services/dialer"
-	"github.com/harlow/go-micro-services/registry"
-	profile "github.com/harlow/go-micro-services/services/profile/proto"
-	search "github.com/harlow/go-micro-services/services/search/proto"
-	"github.com/harlow/go-micro-services/tls"
-	"github.com/harlow/go-micro-services/tracing"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/dialer"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
+	profile "github.com/delimitrou/DeathStarBench/hotelreservation/services/profile/proto"
+	search "github.com/delimitrou/DeathStarBench/hotelreservation/services/search/proto"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
 	"github.com/opentracing/opentracing-go"
 )
 
