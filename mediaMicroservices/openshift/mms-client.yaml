@@ -25,6 +25,10 @@ spec:
       containers:
       - name: mms-client
         image: deathstarbench/wrk2-client
+        command:  ["/bin/sh"]
+        args:
+          - -c
+          - sleep 365d
 #        volumeMounts:
 #        - mountPath: /root/DeathStarBench
 #          name: deathstarbench

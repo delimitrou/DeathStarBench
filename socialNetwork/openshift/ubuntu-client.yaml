@@ -23,5 +23,9 @@ spec:
       containers:
       - name: ubuntu-client
         image: deathstarbench/wrk2-client
+        command:  ["/bin/sh"]
+        args:
+          - -c
+          - sleep 365d
         imagePullPolicy: Always
       restartPolicy: Always
