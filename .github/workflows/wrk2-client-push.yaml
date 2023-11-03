@@ -1,0 +1,58 @@
+name: Push wrk2 client
+concurrency: ci-wrk2-client
+
+on:
+  push: 
+    branches: [ master ]
+    paths: 
+      - 'wrk2/**'
+
+env:
+  IMAGE_BASE_NAME: 'deathstarbench/wrk2-client'
+  REPO_PATH: 'wrk2'
+  TAG_PREFIX: 'wrk2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: master
+        fetch-depth: 0 
+    - name: Login to ACR
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+    - name: Build docker image
+      run: docker build -f "${{ env.REPO_PATH }}/Dockerfile" -t ${{ env.IMAGE_BASE_NAME }} ${{ env.REPO_PATH }}
+    - name: Calculate new version
+      id: new-version
+      uses: codacy/git-version@2.4.0
+      with:
+        prefix: "${{ env.TAG_PREFIX }}-"
+        log-paths: "${{ env.REPO_PATH }}/"
+      if: github.ref == 'refs/heads/master'
+    - name: Create tag
+      uses: actions/github-script@v5
+      with:
+        script: |
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: 'refs/tags/${{ steps.new-version.outputs.VERSION }}',
+            sha: context.sha
+          })
+    - name: Retrieve version number
+      run: TEMP=${{ steps.new-version.outputs.VERSION }} && echo VERSION_NUMBER=${TEMP#*-} >> $GITHUB_ENV
+    - name: Create image full name
+      run: echo "IMAGE_ID=${{ env.IMAGE_BASE_NAME }}:${{ env.VERSION_NUMBER }}" >> $GITHUB_ENV
+    - name: Tag image
+      run: docker tag ${{ env.IMAGE_BASE_NAME }} ${{ env.IMAGE_ID }}
+    - name: Push docker image
+      run: docker push ${{ env.IMAGE_ID }}
+    - name: Tag image as latest
+      run: docker tag ${{ env.IMAGE_BASE_NAME }} ${{ env.IMAGE_BASE_NAME }}:latest
+    - name: Push latest
+      run: docker push ${{ env.IMAGE_BASE_NAME }}:latest
