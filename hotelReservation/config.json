@@ -13,7 +13,7 @@
   "RecommendPort": "8085",
   "RecommendMongoAddress": "mongodb://mongodb-recommendation-proxy:27017",
   "ReservePort": "8087",
-  "ReserveMongoAddress": "mongodb://mongodb-reservation:27017",
+  "ReserveMongoAddress": "mongodb://mongodb-reservation-proxy:27017",
   "ReserveMemcAddress": "memcached-reserve:11211",
   "SearchPort": "8082",
   "UserPort": "8086",

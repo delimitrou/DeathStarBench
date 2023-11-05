@@ -11,8 +11,8 @@ import (
 	pb "github.com/harlow/go-micro-services/services/reservation/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
+	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
@@ -36,7 +36,7 @@ type Server struct {
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
-	MongoClient *mongo.Client
+	MongoClient *picopmongo.Client
 	Registry    *registry.Client
 	MemcClient  *memcache.Client
 	uuid        string
@@ -111,12 +111,11 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 	res := new(pb.Result)
 	res.HotelId = make([]string, 0)
 
-	// session, err := mgo.Dial("mongodb-reservation")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer session.Close()
-	client := s.MongoClient
+	client, err := s.MongoClient.Connect(ctx)
+	if err != nil {
+		log.Panic().Msgf("Got error while connecting to mongo: %v", err)
+	}
+	defer client.Disconnect(ctx)
 
 	c := client.Database("reservation-db").Collection("reservation")
 	c1 := client.Database("reservation-db").Collection("number")
@@ -238,12 +237,11 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 	res := new(pb.Result)
 	res.HotelId = make([]string, 0)
 
-	// session, err := mgo.Dial("mongodb-reservation")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer session.Close()
-	client := s.MongoClient
+	client, err := s.MongoClient.Connect(ctx)
+	if err != nil {
+		log.Panic().Msgf("Got error while connecting to mongo: %v", err)
+	}
+	defer client.Disconnect(ctx)
 
 	c1 := client.Database("reservation-db").Collection("number")
 
@@ -372,7 +370,7 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 				go func(comm string) {
 					defer wg.Done()
 					reserve := []reservation{}
-					tmpCli := s.MongoClient
+					tmpCli := client
 					queryItem := queryMap[comm]
 					c := tmpCli.Database("reservation-db").Collection("reservation")
 					reserveMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number"+comm)

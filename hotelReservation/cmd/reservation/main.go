@@ -40,7 +40,6 @@ func main() {
 	log.Info().Msg("Initializing DB connection...")
 	ctx := context.Background()
 	mongo_client := initializeDatabase(ctx, result["ReserveMongoAddress"])
-	defer mongo_client.Disconnect(ctx)
 	log.Info().Msg("Successfull")
 
 	log.Info().Msgf("Read profile memcashed address: %v", result["ReserveMemcAddress"])
