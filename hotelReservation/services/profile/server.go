@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 
 	// "io"
 	"net"
@@ -14,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
 	"github.com/rs/zerolog/log"
 
 	"github.com/google/uuid"
@@ -37,7 +37,7 @@ type Server struct {
 	uuid        string
 	Port        int
 	IpAddr      string
-	MongoClient *mongo.Client
+	MongoClient *picopmongo.Client
 	Registry    *registry.Client
 	MemcClient  *memcache.Client
 }
@@ -145,10 +145,14 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 			delete(profileMap, hotelId)
 		}
 
+		client, err := s.MongoClient.Connect(ctx)
+		if err != nil {
+			log.Panic().Msgf("Got error while connecting to mongo: %v", err)
+		}
+		defer client.Disconnect(ctx)
 		wg.Add(len(profileMap))
 		for hotelId := range profileMap {
 			go func(hotelId string) {
-				client := s.MongoClient
 				c := client.Database("profile-db").Collection("hotels")
 
 				hotelProf := new(pb.Hotel)
