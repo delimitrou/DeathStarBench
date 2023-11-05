@@ -12,6 +12,7 @@ import (
 	pb "github.com/harlow/go-micro-services/services/recommendation/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
+	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -36,7 +37,7 @@ type Server struct {
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
-	MongoClient *mongo.Client
+	MongoClient *picopmongo.Client
 	Registry    *registry.Client
 	uuid        string
 }
@@ -48,7 +49,13 @@ func (s *Server) Run() error {
 	}
 
 	if s.hotels == nil {
-		s.hotels = loadRecommendations(s.MongoClient)
+		ctx := context.Background()
+		mc, err := s.MongoClient.Connect(ctx)
+		if err != nil {
+			return fmt.Errorf("Failed connect to mongo: ", err)
+		}
+		s.hotels = loadRecommendations(ctx, mc)
+		mc.Disconnect(ctx)
 	}
 
 	s.uuid = uuid.New().String()
@@ -169,8 +176,7 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 }
 
 // loadRecommendations loads hotel recommendations from mongodb.
-func loadRecommendations(client *mongo.Client) map[string]Hotel {
-	ctx := context.Background()
+func loadRecommendations(ctx context.Context, client *mongo.Client) map[string]Hotel {
 	// session, err := mgo.Dial("mongodb-recommendation")
 	// if err != nil {
 	// 	panic(err)

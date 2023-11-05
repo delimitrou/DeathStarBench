@@ -39,7 +39,6 @@ func main() {
 	log.Info().Msg("Initializing DB connection...")
 	ctx := context.Background()
 	mongo_client := initializeDatabase(ctx, result["RecommendMongoAddress"])
-	defer mongo_client.Disconnect(ctx)
 	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["RecommendPort"])
