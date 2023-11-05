@@ -3,7 +3,7 @@
   "jaegerAddress": "jaeger:6831",
   "FrontendPort": "5000",
   "GeoPort": "8083",
-  "GeoMongoAddress": "mongodb://mongodb-geo:27017",
+  "GeoMongoAddress": "mongodb://mongodb-geo-proxy:27017",
   "ProfilePort": "8081",
   "ProfileMongoAddress": "mongodb://mongodb-profile:27017",
   "ProfileMemcAddress": "memcached-profile:11211",

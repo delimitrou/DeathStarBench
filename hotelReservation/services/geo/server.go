@@ -20,6 +20,7 @@ import (
 	pb "github.com/harlow/go-micro-services/services/geo/proto"
 	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -40,7 +41,7 @@ type Server struct {
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
-	MongoClient *mongo.Client
+	MongoClient *picopmongo.Client
 }
 
 // Run starts the server
@@ -50,7 +51,13 @@ func (s *Server) Run() error {
 	}
 
 	if s.index == nil {
-		s.index = newGeoIndex(s.MongoClient)
+		ctx := context.Background()
+		mc, err := s.MongoClient.Connect(ctx)
+		if err != nil {
+			return fmt.Errorf("Failed connect to mongo: ", err)
+		}
+		s.index = newGeoIndex(ctx, mc)
+		mc.Disconnect(ctx)
 	}
 
 	s.uuid = uuid.New().String()
@@ -154,8 +161,7 @@ func (s *Server) getNearbyPoints(ctx context.Context, lat, lon float64) []geoind
 }
 
 // newGeoIndex returns a geo index with points loaded
-func newGeoIndex(client *mongo.Client) *geoindex.ClusteringIndex {
-	ctx := context.Background()
+func newGeoIndex(ctx context.Context, client *mongo.Client) *geoindex.ClusteringIndex {
 	// session, err := mgo.Dial("mongodb-geo")
 	// if err != nil {
 	// 	panic(err)

@@ -12,6 +12,7 @@ require (
 	github.com/olivere/grpc v1.0.0
 	github.com/opentracing-contrib/go-stdlib v0.0.0-20180308002341-f6b9967a3c69
 	github.com/opentracing/opentracing-go v1.0.2
+	github.com/picop-rd/picop-go v0.1.1-0.20231104135810-6b4b94ea3659
 	github.com/rs/zerolog v1.31.0
 	github.com/uber/jaeger-client-go v2.11.2+incompatible
 	go.mongodb.org/mongo-driver v1.12.1
@@ -45,6 +46,8 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
+	go.opentelemetry.io/otel v1.11.2 // indirect
+	go.opentelemetry.io/otel/trace v1.11.2 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/sync v0.4.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
