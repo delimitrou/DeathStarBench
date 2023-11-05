@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 
 	// "io"
 	"net"
@@ -15,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
 	"github.com/rs/zerolog/log"
 
 	"github.com/google/uuid"
@@ -38,7 +38,7 @@ type Server struct {
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
-	MongoClient *mongo.Client
+	MongoClient *picopmongo.Client
 	Registry    *registry.Client
 	MemcClient  *memcache.Client
 	uuid        string
@@ -146,6 +146,11 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 			}
 			delete(rateMap, hotelId)
 		}
+		client, err := s.MongoClient.Connect(ctx)
+		if err != nil {
+			log.Panic().Msgf("Got error while connecting to mongo: %v", err)
+		}
+		defer client.Disconnect(ctx)
 		wg.Add(len(rateMap))
 		for hotelId := range rateMap {
 			go func(id string) {
@@ -153,7 +158,6 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 				log.Trace().Msg("memcached miss, set up mongo connection")
 
 				// memcached miss, set up mongo connection
-				client := s.MongoClient
 				c := client.Database("rate-db").Collection("inventory")
 				memcStr := ""
 				tmpRatePlans := make(RatePlans, 0)
