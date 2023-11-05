@@ -59,3 +59,5 @@ replace (
 	github.com/codahale/hdrhistogram => github.com/HdrHistogram/hdrhistogram-go v0.9.0
 	github.com/uber-go/atomic => go.uber.org/atomic v1.11.0
 )
+
+replace go.mongodb.org/mongo-driver => github.com/picop-rd/mongo-go-driver v1.12.1-picop
