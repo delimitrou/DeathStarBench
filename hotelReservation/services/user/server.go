@@ -12,6 +12,7 @@ import (
 	pb "github.com/harlow/go-micro-services/services/user/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
+	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
@@ -36,7 +37,7 @@ type Server struct {
 	Registry    *registry.Client
 	Port        int
 	IpAddr      string
-	MongoClient *mongo.Client
+	MongoClient *picopmongo.Client
 	uuid        string
 }
 
@@ -47,7 +48,13 @@ func (s *Server) Run() error {
 	}
 
 	if s.users == nil {
-		s.users = loadUsers(s.MongoClient)
+		ctx := context.Background()
+		mc, err := s.MongoClient.Connect(ctx)
+		if err != nil {
+			return fmt.Errorf("Failed connect to mongo: ", err)
+		}
+		s.users = loadUsers(ctx, mc)
+		mc.Disconnect(ctx)
 	}
 
 	s.uuid = uuid.New().String()
@@ -139,8 +146,7 @@ func (s *Server) CheckUser(ctx context.Context, req *pb.Request) (*pb.Result, er
 }
 
 // loadUsers loads hotel users from mongodb.
-func loadUsers(client *mongo.Client) map[string]string {
-	ctx := context.Background()
+func loadUsers(ctx context.Context, client *mongo.Client) map[string]string {
 	// session, err := mgo.Dial("mongodb-user")
 	// if err != nil {
 	// 	panic(err)
