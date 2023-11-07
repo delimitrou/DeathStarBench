@@ -20,6 +20,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/registry"
 	pb "github.com/harlow/go-micro-services/services/profile/proto"
+	picopmc "github.com/picop-rd/picop-go/contrib/github.com/bradfitz/gomemcache/picopgomemcache"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
@@ -39,7 +40,7 @@ type Server struct {
 	IpAddr      string
 	MongoClient *picopmongo.Client
 	Registry    *registry.Client
-	MemcClient  *memcache.Client
+	MemcClient  *picopmc.Client
 }
 
 // Run starts the server
@@ -128,9 +129,10 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 		hotelIds = append(hotelIds, hotelId)
 		profileMap[hotelId] = struct{}{}
 	}
+	mclient := s.MemcClient.Connect(ctx)
 	memSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_get_profile")
 	memSpan.SetTag("span.kind", "client")
-	resMap, err := s.MemcClient.GetMulti(hotelIds)
+	resMap, err := mclient.GetMulti(ctx, hotelIds)
 	memSpan.Finish()
 	if err != nil && err != memcache.ErrCacheMiss {
 		log.Panic().Msgf("Tried to get hotelIds [%v], but got memmcached error = %s", hotelIds, err)
@@ -175,7 +177,7 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 				memcStr := string(profJson)
 
 				// write to memcached
-				go s.MemcClient.Set(&memcache.Item{Key: hotelId, Value: []byte(memcStr)})
+				go mclient.Set(ctx, &memcache.Item{Key: hotelId, Value: []byte(memcStr)})
 				defer wg.Done()
 			}(hotelId)
 		}
