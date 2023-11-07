@@ -9,6 +9,7 @@ metadata:
     io.kompose.service: jaeger
   name: jaeger
 spec:
+  type: NodePort
   ports:
     - name: "14269"
       port: 14269
@@ -25,6 +26,7 @@ spec:
     - name: "16686"
       port: 16686
       targetPort: 16686
+      nodePort: 30686
     - name: "5775"
       port: 5775
       protocol: UDP
