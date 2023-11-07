@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/bradfitz/gomemcache/memcache"
+	picopmc "github.com/picop-rd/picop-go/contrib/github.com/bradfitz/gomemcache/picopgomemcache"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	picopmc "github.com/picop-rd/picop-go/contrib/github.com/bradfitz/gomemcache/picopgomemcache"
 )
 
 var (
