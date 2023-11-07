@@ -23,6 +23,7 @@ import (
 	pb "github.com/harlow/go-micro-services/services/rate/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
+	picopmc "github.com/picop-rd/picop-go/contrib/github.com/bradfitz/gomemcache/picopgomemcache"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
@@ -40,7 +41,7 @@ type Server struct {
 	IpAddr      string
 	MongoClient *picopmongo.Client
 	Registry    *registry.Client
-	MemcClient  *memcache.Client
+	MemcClient  *picopmc.Client
 	uuid        string
 }
 
@@ -123,10 +124,11 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 		hotelIds = append(hotelIds, hotelID)
 		rateMap[hotelID] = struct{}{}
 	}
+	mclient := s.MemcClient.Connect(ctx)
 	// first check memcached(get-multi)
 	memSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_get_multi_rate")
 	memSpan.SetTag("span.kind", "client")
-	resMap, err := s.MemcClient.GetMulti(hotelIds)
+	resMap, err := mclient.GetMulti(ctx, hotelIds)
 	memSpan.Finish()
 	var wg sync.WaitGroup
 	var mutex sync.Mutex
@@ -182,7 +184,7 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 						memcStr = memcStr + string(rateJson) + "\n"
 					}
 				}
-				go s.MemcClient.Set(&memcache.Item{Key: id, Value: []byte(memcStr)})
+				go mclient.Set(ctx, &memcache.Item{Key: id, Value: []byte(memcStr)})
 
 				defer wg.Done()
 			}(hotelId)
