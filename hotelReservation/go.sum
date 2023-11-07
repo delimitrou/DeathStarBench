@@ -8,8 +8,6 @@ github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmV
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/armon/go-radix v1.0.0/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
-github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874 h1:N7oVaKyGp8bttX0bfZGmcGkjz7DLQXhAn3DNd3T0ous=
-github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874/go.mod h1:r5xuitiExdLAJ09PR7vBVENGvp4ZuTBeWTGtxuX3K+c=
 github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -102,10 +100,12 @@ github.com/opentracing/opentracing-go v1.0.2/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFSt
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pascaldekloe/goe v0.1.1 h1:Ah6WQ56rZONR3RW3qWa2NCZ6JAVvSpUcoLBaOmYFt9Q=
 github.com/pascaldekloe/goe v0.1.1/go.mod h1:KSyfaxQOh0HZPjDP1FL/kFtbqYqrALJTaMafFUIccqU=
+github.com/picop-rd/gomemcache v1.0.0-picop h1:vUldoLK1krYlq0Mu4twoGjqrLbZgxpzJB+bGvTc0ljE=
+github.com/picop-rd/gomemcache v1.0.0-picop/go.mod h1:r5xuitiExdLAJ09PR7vBVENGvp4ZuTBeWTGtxuX3K+c=
 github.com/picop-rd/mongo-go-driver v1.12.1-picop h1:TmcnpOJ2b4rBhC12MKTiqJNs/NJOS0h3Xv/QPcVtS3g=
 github.com/picop-rd/mongo-go-driver v1.12.1-picop/go.mod h1:/rGBTebI3XYboVmgz+Wv3Bcbl3aD0QF9zl6kDDw18rQ=
-github.com/picop-rd/picop-go v0.1.1-0.20231107064831-69697dd38513 h1:ps1Qc1HTdE/xwLEV9+KhP233vkMbh32HEHx01i+cT0g=
-github.com/picop-rd/picop-go v0.1.1-0.20231107064831-69697dd38513/go.mod h1:Qz30rqxyyPRdQMYb7c8ys1Bb0P1K7So/YH3xjcReBJk=
+github.com/picop-rd/picop-go v0.1.1-0.20231107075044-b4e48757ec62 h1:CqbnnPf9WGdHCaUEezCX1TSDzkXcW/i/JTbPsUP1DWE=
+github.com/picop-rd/picop-go v0.1.1-0.20231107075044-b4e48757ec62/go.mod h1:Qz30rqxyyPRdQMYb7c8ys1Bb0P1K7So/YH3xjcReBJk=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

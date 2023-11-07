@@ -10,6 +10,7 @@ import (
 	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	picopmc "github.com/picop-rd/picop-go/contrib/github.com/bradfitz/gomemcache/picopgomemcache"
 )
 
 var (
@@ -91,6 +92,12 @@ func NewMemCClient2(servers string) *memcache.Client {
 		memc_client.MaxIdleConns = defaultMemCMaxIdleConns
 		return memc_client
 	}
+}
+
+func NewPiCoPMemCClient(servers string) *picopmc.Client {
+	server_list := strings.Split(servers, ",")
+	memc_client := picopmc.New(server_list...)
+	return memc_client
 }
 
 func Init() {

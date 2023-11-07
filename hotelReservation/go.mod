@@ -12,7 +12,7 @@ require (
 	github.com/olivere/grpc v1.0.0
 	github.com/opentracing-contrib/go-stdlib v0.0.0-20180308002341-f6b9967a3c69
 	github.com/opentracing/opentracing-go v1.0.2
-	github.com/picop-rd/picop-go v0.1.1-0.20231107064831-69697dd38513
+	github.com/picop-rd/picop-go v0.1.1-0.20231107075044-b4e48757ec62
 	github.com/rs/zerolog v1.31.0
 	github.com/uber/jaeger-client-go v2.11.2+incompatible
 	go.mongodb.org/mongo-driver v1.12.1
@@ -56,8 +56,8 @@ require (
 )
 
 replace (
+	github.com/bradfitz/gomemcache => github.com/picop-rd/gomemcache v1.0.0-picop
 	github.com/codahale/hdrhistogram => github.com/HdrHistogram/hdrhistogram-go v0.9.0
 	github.com/uber-go/atomic => go.uber.org/atomic v1.11.0
+	go.mongodb.org/mongo-driver => github.com/picop-rd/mongo-go-driver v1.12.1-picop
 )
-
-replace go.mongodb.org/mongo-driver => github.com/picop-rd/mongo-go-driver v1.12.1-picop
