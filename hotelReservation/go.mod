@@ -12,7 +12,7 @@ require (
 	github.com/olivere/grpc v1.0.0
 	github.com/opentracing-contrib/go-stdlib v0.0.0-20180308002341-f6b9967a3c69
 	github.com/opentracing/opentracing-go v1.0.2
-	github.com/picop-rd/picop-go v0.1.1-0.20231107075044-b4e48757ec62
+	github.com/picop-rd/picop-go v0.1.1-0.20231107120344-78a883853af2
 	github.com/rs/zerolog v1.31.0
 	github.com/uber/jaeger-client-go v2.11.2+incompatible
 	go.mongodb.org/mongo-driver v1.12.1

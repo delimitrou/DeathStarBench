@@ -104,8 +104,8 @@ github.com/picop-rd/gomemcache v1.0.0-picop h1:vUldoLK1krYlq0Mu4twoGjqrLbZgxpzJB
 github.com/picop-rd/gomemcache v1.0.0-picop/go.mod h1:r5xuitiExdLAJ09PR7vBVENGvp4ZuTBeWTGtxuX3K+c=
 github.com/picop-rd/mongo-go-driver v1.12.1-picop h1:TmcnpOJ2b4rBhC12MKTiqJNs/NJOS0h3Xv/QPcVtS3g=
 github.com/picop-rd/mongo-go-driver v1.12.1-picop/go.mod h1:/rGBTebI3XYboVmgz+Wv3Bcbl3aD0QF9zl6kDDw18rQ=
-github.com/picop-rd/picop-go v0.1.1-0.20231107075044-b4e48757ec62 h1:CqbnnPf9WGdHCaUEezCX1TSDzkXcW/i/JTbPsUP1DWE=
-github.com/picop-rd/picop-go v0.1.1-0.20231107075044-b4e48757ec62/go.mod h1:Qz30rqxyyPRdQMYb7c8ys1Bb0P1K7So/YH3xjcReBJk=
+github.com/picop-rd/picop-go v0.1.1-0.20231107120344-78a883853af2 h1:pRG3Qt4D3pdD4D9x1d1g9+P4wd10758xJqs9LucbhQU=
+github.com/picop-rd/picop-go v0.1.1-0.20231107120344-78a883853af2/go.mod h1:Qz30rqxyyPRdQMYb7c8ys1Bb0P1K7So/YH3xjcReBJk=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
