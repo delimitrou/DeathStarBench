@@ -149,7 +149,6 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 		if err != nil {
 			log.Panic().Msgf("Got error while connecting to mongo: %v", err)
 		}
-		defer client.Disconnect(ctx)
 		wg.Add(len(profileMap))
 		for hotelId := range profileMap {
 			go func(hotelId string) {

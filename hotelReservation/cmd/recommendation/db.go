@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
-	"github.com/picop-rd/picop-go/propagation"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -20,12 +19,12 @@ type Hotel struct {
 }
 
 func initializeDatabase(ctx context.Context, url string) *picopmongo.Client {
-	pc := picopmongo.New(options.Client().ApplyURI(url), propagation.EnvID{})
+	pc := picopmongo.New(options.Client().ApplyURI(url))
 	client, err := pc.Connect(ctx)
 	if err != nil {
 		log.Panic().Msg(err.Error())
 	}
-	defer client.Disconnect(ctx)
+	// defer client.Close()
 	log.Info().Msg("New session successfull...")
 
 	log.Info().Msg("Generating test data...")

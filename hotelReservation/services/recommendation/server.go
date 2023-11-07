@@ -55,7 +55,6 @@ func (s *Server) Run() error {
 			return fmt.Errorf("Failed connect to mongo: ", err)
 		}
 		s.hotels = loadRecommendations(ctx, mc)
-		mc.Disconnect(ctx)
 	}
 
 	s.uuid = uuid.New().String()

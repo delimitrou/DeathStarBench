@@ -54,7 +54,6 @@ func (s *Server) Run() error {
 			return fmt.Errorf("Failed connect to mongo: ", err)
 		}
 		s.users = loadUsers(ctx, mc)
-		mc.Disconnect(ctx)
 	}
 
 	s.uuid = uuid.New().String()

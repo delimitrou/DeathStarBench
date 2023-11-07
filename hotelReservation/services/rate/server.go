@@ -150,7 +150,6 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 		if err != nil {
 			log.Panic().Msgf("Got error while connecting to mongo: %v", err)
 		}
-		defer client.Disconnect(ctx)
 		wg.Add(len(rateMap))
 		for hotelId := range rateMap {
 			go func(id string) {

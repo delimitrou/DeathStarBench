@@ -57,7 +57,6 @@ func (s *Server) Run() error {
 			return fmt.Errorf("Failed connect to mongo: ", err)
 		}
 		s.index = newGeoIndex(ctx, mc)
-		mc.Disconnect(ctx)
 	}
 
 	s.uuid = uuid.New().String()

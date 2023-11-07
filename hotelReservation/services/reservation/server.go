@@ -115,7 +115,6 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 	if err != nil {
 		log.Panic().Msgf("Got error while connecting to mongo: %v", err)
 	}
-	defer client.Disconnect(ctx)
 
 	c := client.Database("reservation-db").Collection("reservation")
 	c1 := client.Database("reservation-db").Collection("number")
@@ -241,7 +240,6 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 	if err != nil {
 		log.Panic().Msgf("Got error while connecting to mongo: %v", err)
 	}
-	defer client.Disconnect(ctx)
 
 	c1 := client.Database("reservation-db").Collection("number")
 
