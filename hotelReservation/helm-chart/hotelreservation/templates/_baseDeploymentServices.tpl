@@ -29,17 +29,19 @@ spec:
         {{- range $cport := .ports }}
         - containerPort: {{ $cport.containerPort -}}
         {{ end }}
+        {{- if hasKey . "environments" }}
         env:
-          - name: TLS
-            value: {{ $.Values.global.services.environments.tls | quote }}
-          - name: LOG_LEVEL
-            value: {{ $.Values.global.services.environments.logLevel | quote }}
-          - name: JAEGER_SAMPLE_RATIO
-            value: {{ $.Values.global.services.environments.jaegerSampleRatio | quote }}
-          - name: MEMC_TIMEOUT
-            value: {{ $.Values.global.services.environments.memcachedTimeout | quote }}
-          - name: GC
-            value: {{ $.Values.global.services.environments.gcPercent | quote }}
+          {{- range $variable, $value := .environments }}
+          - name: {{ $variable }}
+            value: {{ $value | quote }}
+          {{- end }}
+        {{- else if hasKey $.Values.global.services "environments" }}
+        env:
+          {{- range $variable, $value := $.Values.global.services.environments }}
+          - name: {{ $variable }}
+            value: {{ $value | quote }}
+          {{- end }}
+        {{- end }}
         {{- if .command}}
         command:
         - {{ .command }}
