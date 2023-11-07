@@ -23,6 +23,9 @@ var proxyIDs = []string{
 	"mongodb-recommendation",
 	"mongodb-reservation",
 	"mongodb-user",
+	"memcached-profile",
+	"memcached-rate",
+	"memcached-reserve",
 }
 
 func main() {
