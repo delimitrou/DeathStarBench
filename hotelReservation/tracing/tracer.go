@@ -44,7 +44,7 @@ func Init(serviceName, host string) (opentracing.Tracer, error) {
 		return nil, err
 	}
 
-	tracer, _, err := cfg.NewTracer(serviceName)
+	tracer, _, err := cfg.NewTracer()
 	if err != nil {
 		return nil, err
 	}
