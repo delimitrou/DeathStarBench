@@ -46,11 +46,9 @@ spec:
         resources:
           {{ tpl $.Values.global.resources $ | nindent 10 | trim }}
         {{- end }}
-	{{- if $.Values.global.mongodb.persistentVolume.hostPath.enabled }}
         volumeMounts:
         - mountPath: /data/db
           name: {{ $.Values.name }}-{{ include "hotel-reservation.fullname" $ }}-path
-        {{- end }}
       {{- end }}
       volumes:
       - name: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}-path

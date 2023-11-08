@@ -34,11 +34,19 @@ spec:
         {{- range $cport := .ports }}
         - containerPort: {{ $cport.containerPort -}}
         {{ end }}
+        {{- if hasKey . "environments" }}
         env:
-          - name: MEMCACHED_CACHE_SIZE
-            value: {{ $.Values.global.memcached.environments.cacheSize | quote }}
-          - name: MEMCACHED_THREADS
-            value: {{ $.Values.global.memcached.environments.threads | quote }}
+          {{- range $variable, $value := .environments }}
+          - name: {{ $variable }}
+            value: {{ $value | quote }}
+          {{- end }}
+        {{- else if hasKey $.Values.global.memcached "environments" }}
+        env:
+          {{- range $variable, $value := $.Values.global.memcached.environments }}
+          - name: {{ $variable }}
+            value: {{ $value | quote }}
+          {{- end }}
+        {{- end }}
         {{- if .args}}
         args:
         {{- range $arg := .args}}

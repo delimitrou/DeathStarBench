@@ -15,25 +15,25 @@ global:
       #  - 0: Disable
       #  - 1: Enabled, using default cipher suite based on golang runtime
       #  - TLS_XXX: Enabled, using the specified Cipher suite, see tls/options.go#L22
-      tls: 0
-      logLevel: "INFO"
-      jaegerSampleRatio: "0.01"
-      memcachedTimeout: "2"
-      gcPercent: "100"
+      TLS: 0
+      LOG_LEVEL: "INFO"
+      JAEGER_SAMPLE_RATIO: "0.01"
+      MEMC_TIMEOUT: "2"
+      GC: "100"
   affinity: {}
   tolerations: []
   nodeSelector: {}
   memcached:
     HACount: 1
     environments:
-      cacheSize: "128"
-      threads: "2"
+      MEMCACHED_CACHE_SIZE: "128"
+      MEMCACHED_THREADS: "2"
   mongodb:
-    enbaled: false
     persistentVolume:               # use hostPath or pvprovisioner
+      enabled: false
       size: "1Gi"
       hostPath:
-        enabled: true
+        enabled: false
         path: /tmp
       pvprovisioner:
         enabled: false
