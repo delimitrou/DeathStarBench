@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/rate";
+package rate;
 
 service Rate {
   // GetRates returns rate codes for hotels for a given date range
