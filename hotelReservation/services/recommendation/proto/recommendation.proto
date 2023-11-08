@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/recommendation";
+package recommendation;
 
 service Recommendation {
   // GetRecommendations returns recommended hotels for a given requirement
