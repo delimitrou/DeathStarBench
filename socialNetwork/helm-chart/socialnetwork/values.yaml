@@ -37,7 +37,7 @@ global:
     queueSize: 1000000
     bufferFlushInterval: 10
     samplerType: probabilistic
-    samplerParam: 0.01
+    samplerParam: 0.1
     disabled: false
     logSpans: false
 
