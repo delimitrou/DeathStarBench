@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package search;
+option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/search";
 
 // Search service returns best hotel chocies for a user.
 service Search {
