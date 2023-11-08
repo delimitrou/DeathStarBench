@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package user;
+option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/user";
 
 service User {
   // CheckUser returns whether the username and password are correct
