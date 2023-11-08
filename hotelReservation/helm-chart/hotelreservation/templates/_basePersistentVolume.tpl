@@ -1,4 +1,5 @@
 {{- define "hotelreservation.templates.basePersistentVolume" }}
+{{- if .Values.global.mongodb.persistentVolume.enabled }}
 {{- if .Values.global.mongodb.persistentVolume.hostPath.enabled }}
 apiVersion: v1
 kind: PersistentVolume
@@ -15,5 +16,6 @@ spec:
   hostPath:
     path: {{ .Values.global.mongodb.persistentVolume.hostPath.path }}/{{ .Values.name }}-pv
     type: DirectoryOrCreate
+{{- end }}
 {{- end }}
 {{- end }}

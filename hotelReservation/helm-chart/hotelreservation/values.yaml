@@ -29,11 +29,11 @@ global:
       MEMCACHED_CACHE_SIZE: "128"
       MEMCACHED_THREADS: "2"
   mongodb:
-    enbaled: false
     persistentVolume:               # use hostPath or pvprovisioner
+      enabled: false
       size: "1Gi"
       hostPath:
-        enabled: true
+        enabled: false
         path: /tmp
       pvprovisioner:
         enabled: false
