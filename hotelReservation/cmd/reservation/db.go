@@ -5,7 +5,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Reservation struct {

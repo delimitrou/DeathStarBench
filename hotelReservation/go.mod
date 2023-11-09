@@ -14,6 +14,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rs/zerolog v1.31.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
+	go.mongodb.org/mongo-driver v1.13.0
 	golang.org/x/net v0.17.0
 	google.golang.org/grpc v1.11.2
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
@@ -23,6 +24,7 @@ require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da // indirect
 	github.com/golang/glog v1.1.2 // indirect
+	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/hashicorp/go-cleanhttp v0.0.0-20171218145408-d5fe4b57a186 // indirect
 	github.com/hashicorp/go-immutable-radix v1.0.0 // indirect
 	github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90 // indirect

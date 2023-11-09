@@ -15,6 +15,10 @@ github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
+# github.com/golang/snappy v0.0.1
+## explicit
+# github.com/google/go-cmp v0.5.4
+## explicit; go 1.8
 # github.com/google/uuid v1.4.0
 ## explicit
 github.com/google/uuid
@@ -42,6 +46,8 @@ github.com/hashicorp/golang-lru/simplelru
 # github.com/hashicorp/serf v0.8.2
 ## explicit
 github.com/hashicorp/serf/coordinate
+# github.com/klauspost/compress v1.13.6
+## explicit; go 1.15
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
 github.com/mattn/go-colorable
@@ -53,6 +59,8 @@ github.com/mattn/go-isatty
 github.com/mitchellh/go-homedir
 # github.com/mitchellh/go-testing-interface v1.14.1
 ## explicit; go 1.14
+# github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe
+## explicit
 # github.com/olivere/grpc v1.0.0
 ## explicit
 github.com/olivere/grpc/lb/consul
@@ -98,9 +106,28 @@ github.com/uber/jaeger-client-go/utils
 # github.com/uber/jaeger-lib v2.4.1+incompatible
 ## explicit
 github.com/uber/jaeger-lib/metrics
+# github.com/xdg-go/pbkdf2 v1.0.0
+## explicit; go 1.9
+# github.com/xdg-go/scram v1.1.2
+## explicit; go 1.11
+# github.com/xdg-go/stringprep v1.0.4
+## explicit; go 1.11
+# github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d
+## explicit
+# go.mongodb.org/mongo-driver v1.13.0
+## explicit; go 1.13
+go.mongodb.org/mongo-driver/bson
+go.mongodb.org/mongo-driver/bson/bsoncodec
+go.mongodb.org/mongo-driver/bson/bsonoptions
+go.mongodb.org/mongo-driver/bson/bsonrw
+go.mongodb.org/mongo-driver/bson/bsontype
+go.mongodb.org/mongo-driver/bson/primitive
+go.mongodb.org/mongo-driver/x/bsonx/bsoncore
 # go.uber.org/atomic v1.11.0
 ## explicit; go 1.18
 go.uber.org/atomic
+# golang.org/x/crypto v0.14.0
+## explicit; go 1.17
 # golang.org/x/net v0.17.0
 ## explicit; go 1.17
 golang.org/x/net/context
@@ -121,6 +148,8 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+# golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
+## explicit; go 1.11
 # google.golang.org/genproto v0.0.0-20180306020942-df60624c1e9b
 ## explicit
 google.golang.org/genproto/googleapis/rpc/status

@@ -7,7 +7,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type User struct {
@@ -54,26 +54,4 @@ func initializeDatabase(url string) *mgo.Session {
 	}
 
 	return session
-
-	// count, err := c.Find(&bson.M{"username": "Cornell"}).Count()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// if count == 0{
-	// 	err = c.Insert(&User{"Cornell", "302eacf716390b1ebb39012b130302efec8a32ac4b8ad0a911112c53b60382b0"})
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-
-	// count, err = c.Find(&bson.M{"username": "ECE"}).Count()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// if count == 0{
-	// 	err = c.Insert(&User{"ECE", "a0a44ed8cfc32b7e61befeb99bbff7706808c3fe4dcdf4750a8addb3ffcd4008"})
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
 }

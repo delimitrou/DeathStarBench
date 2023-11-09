@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 
 	// "io/ioutil"
 	"math"
@@ -195,7 +195,6 @@ func loadRecommendations(session *mgo.Session) map[string]Hotel {
 }
 
 type Hotel struct {
-	ID     bson.ObjectId `bson:"_id"`
 	HId    string        `bson:"hotelId"`
 	HLat   float64       `bson:"lat"`
 	HLon   float64       `bson:"lon"`
