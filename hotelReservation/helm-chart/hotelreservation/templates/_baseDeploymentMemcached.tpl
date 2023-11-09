@@ -27,6 +27,13 @@ spec:
         {{- include "hotel-reservation.backendLabels" . | nindent 8 }}
         service: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
         app: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
+      {{- if hasKey $.Values "annotations" }}
+      annotations:
+        {{ tpl $.Values.annotations . | nindent 8 | trim }}
+      {{- else if hasKey $.Values.global "annotations" }}
+      annotations:
+        {{ tpl $.Values.global.annotations . | nindent 8 | trim }}
+      {{- end }}
     spec:
       containers:
       {{- with .Values.container }}
