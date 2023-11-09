@@ -71,3 +71,10 @@ Usage:
   {{- end }}
   {{- join "," $addrlist | toJson }}
 {{- end }}
+
+{{/*
+Backend labels
+*/}}
+{{- define "hotel-reservation.backendLabels" -}}
+backend: {{ .Chart.Name | regexFind "[^-]*" }}
+{{- end }}
