@@ -45,6 +45,5 @@ const (
 	TypeBinaryMD5         = bsontype.BinaryMD5
 	TypeBinaryEncrypted   = bsontype.BinaryEncrypted
 	TypeBinaryColumn      = bsontype.BinaryColumn
-	TypeBinarySensitive   = bsontype.BinarySensitive
 	TypeBinaryUserDefined = bsontype.BinaryUserDefined
 )

@@ -23,7 +23,7 @@ func Init(serviceName, host string) (opentracing.Tracer, error) {
 			ratio = 1.0
 		}
 	}
-	
+
 	log.Info().Msgf("Jaeger client: adjusted sample ratio %f", ratio)
 	tempCfg := &config.Configuration{
 		ServiceName: serviceName,
