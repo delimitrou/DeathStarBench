@@ -2,7 +2,7 @@
 
 sudo apt install python3-pip
 
-pip3 install aiohttp, asyncio
+pip3 install aiohttp asyncio
 
 sudo apt-get install libssl-dev
 
