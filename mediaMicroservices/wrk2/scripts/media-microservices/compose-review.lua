@@ -1,6 +1,3 @@
-counter = 0
-limit = 500
-
 math.randomseed(os.time())
 math.random(); math.random(); math.random()
 
@@ -1036,13 +1033,6 @@ request = function()
   local body = "counter=" .. counter .. "&username=" .. username .. "&password=" .. password .. "&title=" ..
                   title .. "&rating=" .. rating .. "&text=" .. text
   headers["Content-Type"] = "application/x-www-form-urlencoded"
-
-  counter = counter + 1
-  if counter >= limit then
-    io.write("End of queries\n")
-    body = body .. "&print=" .. "End of queries"
-    counter = 0
-  end
   
   return wrk.format(method, path, headers, body)
 end

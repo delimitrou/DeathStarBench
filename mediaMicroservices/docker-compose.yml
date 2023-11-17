@@ -3,15 +3,15 @@ services:
   #   Enables resolving container hostnames from host machine
   dns-media:
     image: defreitas/dns-proxy-server
-    cpuset: "81"
+    cpuset: "8-12"
     volumes:
       - /opt/dns-proxy-server/conf:/app/conf
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/resolv.conf:/etc/resolv.conf
 
   unique-id-service:
-    image: abdu1998a/media-microservices
-    cpuset: "82"
+    image: yg397/media-microservices
+    cpuset: "1"
     hostname: unique-id-service
     #    ports:
     #      - 10001:9090
@@ -19,8 +19,8 @@ services:
     entrypoint: UniqueIdService
 
   movie-id-service:
-    image: abdu1998a/media-microservices
-    cpuset: "83"
+    image: yg397/media-microservices
+    cpuset: "2-3"
     hostname: movie-id-service
     #    ports:
     #      - 10002:9090
@@ -29,7 +29,7 @@ services:
 
   movie-id-mongodb:
     image: mongo:4.4.6
-    cpuset: "84"
+    cpuset: "8-12"
     hostname: movie-id-mongodb
     #    ports:
     #      - 27018:27017
@@ -37,15 +37,15 @@ services:
 
   movie-id-memcached:
     image: memcached
-    cpuset: "85"
+    cpuset: "8-12"
     hostname: movie-id-memcached
     #    ports:
     #      - 11212:11211
     restart: always
 
   text-service:
-    image: abdu1998a/media-microservices
-    cpuset: "86"
+    image: yg397/media-microservices
+    cpuset: "8-12"
     hostname: text-service
     #    ports:
     #      - 10003:9090
@@ -53,8 +53,8 @@ services:
     entrypoint: TextService
 
   rating-service:
-    image: abdu1998a/media-microservices
-    cpuset: "87"
+    image: yg397/media-microservices
+    cpuset: "4"
     hostname: rating-service
     #    ports:
     #      - 10004:9090
@@ -63,15 +63,15 @@ services:
 
   rating-redis:
     image: redis
-    cpuset: "88"
+    cpuset: "8-12"
     hostname: rating-redis
     #    ports:
     #      - 6382:6379
     restart: always
 
   user-service:
-    image: abdu1998a/media-microservices
-    cpuset: "89"
+    image: yg397/media-microservices
+    cpuset: "8-12"
     hostname: user-service
     #    ports:
     #      - 10005:9090
@@ -80,7 +80,7 @@ services:
 
   user-mongodb:
     image: mongo:4.4.6
-    cpuset: "90"
+    cpuset: "8-12"
     hostname: user-mongodb
     #    ports:
     #      - 27019:27017
@@ -88,15 +88,15 @@ services:
 
   user-memcached:
     image: memcached
-    cpuset: "91"
+    cpuset: "8-12"
     hostname: user-memcached
     #    ports:
     #      - 11213:11211
     restart: always
 
   compose-review-service:
-    image: abdu1998a/media-microservices
-    cpuset: "1"
+    image: yg397/media-microservices
+    cpuset: "13-16"
     hostname: compose-review-service
     #    ports:
     #      - 10006:9090
@@ -107,15 +107,15 @@ services:
 
   compose-review-memcached:
     image: memcached
-    cpuset: "93"
+    cpuset: "17-18"
     hostname: compose-review-memcached
     #    ports:
     #      - 11214:11211
     restart: always
 
   review-storage-service:
-    image: abdu1998a/media-microservices
-    cpuset: "94"
+    image: yg397/media-microservices
+    cpuset: "8-12"
     hostname: review-storage-service
     #    ports:
     #      - 10007:9090
@@ -124,7 +124,7 @@ services:
 
   review-storage-mongodb:
     image: mongo:4.4.6
-    cpuset: "95"
+    cpuset: "8-12"
     hostname: review-storage-mongodb
     #    ports:
     #      - 27020:27017
@@ -132,15 +132,15 @@ services:
 
   review-storage-memcached:
     image: memcached
-    cpuset: "96"
+    cpuset: "8-12"
     hostname: review-storage-memcached
     #    ports:
     #      - 11215:11211
     restart: always
 
   user-review-service:
-    image: abdu1998a/media-microservices
-    cpuset: "97"
+    image: yg397/media-microservices
+    cpuset: "19"
     hostname: user-review-service
     #    ports:
     #      - 10008:9090
@@ -149,7 +149,7 @@ services:
 
   user-review-mongodb:
     image: mongo:4.4.6
-    cpuset: "98"
+    cpuset: "20-21"
     hostname: user-review-mongodb
     #    ports:
     #      - 27021:27017
@@ -157,15 +157,15 @@ services:
 
   user-review-redis:
     image: redis
-    cpuset: "99"
+    cpuset: "22-24"
     hostname: user-review-redis
     #    ports:
     #      - 6381:6379
     restart: always
 
   movie-review-service:
-    image: abdu1998a/media-microservices
-    cpuset: "100"
+    image: yg397/media-microservices
+    cpuset: "5"
     hostname: movie-review-service
     #    ports:
     #      - 10009:9090
@@ -174,7 +174,7 @@ services:
 
   movie-review-mongodb:
     image: mongo:4.4.6
-    cpuset: "101"
+    cpuset: "6-7"
     hostname: movie-review-mongodb
     ports:
       - 27022:27017
@@ -182,15 +182,15 @@ services:
 
   movie-review-redis:
     image: redis
-    cpuset: "102"
+    cpuset: "8-12"
     hostname: movie-review-redis
     #    ports:
     #      - 6380:6379
     restart: always
 
   nginx-web-server:
-    image: abdu1998a/openresty-thrift:xenial
-    cpuset: "103"
+    image: yg397/openresty-thrift:xenial
+    cpuset: "22-24"
     hostname: nginx-thrift
     ports:
       - 8080:8080
@@ -202,8 +202,8 @@ services:
       - ./gen-lua:/gen-lua
 
   cast-info-service:
-    image: abdu1998a/media-microservices
-    cpuset: "104"
+    image: yg397/media-microservices
+    cpuset: "8-12"
     hostname: cast-info-service
     #    ports:
     #      - 10010:9090
@@ -212,7 +212,7 @@ services:
 
   cast-info-mongodb:
     image: mongo:4.4.6
-    cpuset: "105"
+    cpuset: "8-12"
     hostname: cast-info-mongodb
     #    ports:
     #      - 27024:27017
@@ -220,15 +220,15 @@ services:
 
   cast-info-memcached:
     image: memcached
-    cpuset: "106"
+    cpuset: "8-12"
     hostname: cast-info-memcached
     #    ports:
     #      - 11219:11211
     restart: always
 
   plot-service:
-    image: abdu1998a/media-microservices
-    cpuset: "107"
+    image: yg397/media-microservices
+    cpuset: "8-12"
     hostname: plot-service
     #    ports:
     #      - 10011:9090
@@ -237,7 +237,7 @@ services:
 
   plot-mongodb:
     image: mongo:4.4.6
-    cpuset: "108"
+    cpuset: "8-12"
     hostname: plot-mongodb
     #    ports:
     #      - 27025:27017
@@ -245,15 +245,15 @@ services:
 
   plot-memcached:
     image: memcached
-    cpuset: "109"
+    cpuset: "8-12"
     hostname: plot-memcached
     #    ports:
     #      - 11220:11211
     restart: always
 
   movie-info-service:
-    image: abdu1998a/media-microservices
-    cpuset: "110"
+    image: yg397/media-microservices
+    cpuset: "22-24"
     hostname: movie-info-service
     #    ports:
     #      - 10012:9090
@@ -262,7 +262,7 @@ services:
 
   movie-info-mongodb:
     image: mongo:4.4.6
-    cpuset: "111"
+    cpuset: "22-24"
     hostname: movie-info-mongodb
     #    ports:
     #      - 27026:27017
@@ -270,7 +270,7 @@ services:
 
   movie-info-memcached:
     image: memcached
-    cpuset: "112"
+    cpuset: "22-24"
     hostname: movie-info-memcached
     #    ports:
     #      - 11221:11211
@@ -278,7 +278,7 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one:latest
-    cpuset: "113,114,115,116"
+    cpuset: "22-24"
     hostname: jaeger
     ports:
       #      - 5775:5775/udp

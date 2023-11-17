@@ -14,13 +14,23 @@ sudo luarocks install luasocket
 
 sudo apt install docker-compose
 
-cd wrk2
+cd DeathStarBench/wrk2
 
 make all
 
-cd ../mediaMicroservices
+cd DeathStarBench/mediaMicroservices
 
-sudo docker-compose up -d
+# Running the media service application
+Host actions are denoted as h: action and client actions are denoted as c: action
+
+h: ./compile.sh (only needed if you change the code)
+
+h: ./run.sh
+
+h: sudo ./remote-perf-https-multicore-x86 1 24 (only needed if you want to save instruction counts per query)
+
+c: ./load.sh (Usage: $0 [-t \<num-threads>] [-c \<num-conns>] [-d \<duration ex: 2m>] [-r \<reqs-per-sec>] [-s \<save-results 1 or 0>] [-h])
+
 
 # Setting env
 
