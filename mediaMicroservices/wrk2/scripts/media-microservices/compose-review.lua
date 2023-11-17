@@ -1030,7 +1030,7 @@ request = function()
   local path = url .. "/wrk2-api/review/compose"
   local method = "POST"
   local headers = {}
-  local body = "counter=" .. counter .. "&username=" .. username .. "&password=" .. password .. "&title=" ..
+  local body = "&username=" .. username .. "&password=" .. password .. "&title=" ..
                   title .. "&rating=" .. rating .. "&text=" .. text
   headers["Content-Type"] = "application/x-www-form-urlencoded"
   

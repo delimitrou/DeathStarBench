@@ -24,6 +24,14 @@ do
     esac
 done
 
+# print arguments
+echo "threads: $threads"
+echo "connections: $connections"
+echo "duration: $duration"
+echo "ip: $ip"
+echo "rps: $rps"
+echo "save: $save"
+
 # if save flag is 1 then send save result flags in script 
 if [ $save -eq 1 ]
 then

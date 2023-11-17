@@ -1,6 +1,6 @@
 counter = 0
 limit = 10000
-ip=10.89.3.2
+ip="10.89.3.2"
 
 math.randomseed(os.time())
 math.random(); math.random(); math.random()
@@ -1042,7 +1042,8 @@ request = function()
   if counter >= limit then
     -- Send an http request to ip:9999/rs using curl
     os.execute("curl http://" .. ip .. ":9999/rs")
-  end
+    counter = 0
+end
   
   return wrk.format(method, path, headers, body)
 end

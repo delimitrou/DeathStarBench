@@ -29,8 +29,41 @@ h: ./run.sh
 
 h: sudo ./remote-perf-https-multicore-x86 1 24 (only needed if you want to save instruction counts per query)
 
-c: ./load.sh (Usage: $0 [-t \<num-threads>] [-c \<num-conns>] [-d \<duration ex: 2m>] [-r \<reqs-per-sec>] [-s \<save-results 1 or 0>] [-h])
+c: update ip address in wrk2/scripts/media-microservices/compose-review-record.lua (only needed if you want to save instruction counts per query)
 
+c: ./load.sh (Usage: $0 [-t \<num-threads>] [-c \<num-conns>] [-d \<duration ex: 2m>] [-i \<ip-addr>] [-r \<reqs-per-sec>] [-s \<save-results 1 or 0>] [-h])
+
+# MongoDB problem Reproduction
+2 Options:
+
+1. Run the load script with the -s 1 flag to save the results to a file. Then plot the instruction count graph for core 6 or 7 for movie review mongodb and 20 or 21 for user review mongodb. The instruction count graph is an increasing function.
+
+2. Run the load script without -s 1 flag. Check CPU utilization of user review and movie revies mongodb containers with docker stats. The CPU utilization increases with time.
+
+We believe the problem is because of their database schema. For example their user_review schema is like this:
+```{
+    "user_id": "string",
+    "reviews": [
+        {
+            "review_id": "string",
+            "timestamp": "string"
+        },
+        {
+            "review_id": "string",
+            "timestamp": "string"
+        }...
+    ]
+}
+```
+With each review, this object size increases and it has to copy the whole array. Here is a pointer for mongodb blog post about this problem: https://www.mongodb.com/docs/atlas/schema-suggestions/avoid-unbounded-arrays/ I think we need to change the schema to something like this:
+```
+{
+    "user_id": "string",
+    "review_id": "string",
+    "timestamp": "string"
+}
+```
+We need to update their queries in the application code. We also need to update their indexes and keys. The application logic is in ./src/UserReviewService/UserReviewHandler.h and ./src/MovieReviewService/UserReviewHandler.cpp files.
 
 # Setting env
 
