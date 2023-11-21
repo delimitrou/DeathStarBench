@@ -91,8 +91,6 @@ github.com/mitchellh/go-testing-interface v1.14.1/go.mod h1:gfgS7OtZj6MA4U1UrDRp
 github.com/mitchellh/mapstructure v0.0.0-20160808181253-ca63d7c062ee/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe h1:iruDEfMl2E6fbMZ9s0scYfZQ84/6SPL6zC8ACM2oIL0=
 github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe/go.mod h1:wL8QJuTMNUDYhXwkmfOly8iTdp5TEcJFWZD2D7SIkUc=
-github.com/olivere/grpc v1.0.0 h1:5BRWyJD2IEJpXtkWBQa+8xoZB62IxIs8N5IRDC7Z4GU=
-github.com/olivere/grpc v1.0.0/go.mod h1:7QAZ2LTuxstIppsx92iigF/F4baKmlyldhW4C0S4Qlk=
 github.com/opentracing-contrib/go-stdlib v0.0.0-20180308002341-f6b9967a3c69 h1:xwxJZjgtaEhkTCXKdcV9+ZSIUox2tcv0a5oYzy6p4zE=
 github.com/opentracing-contrib/go-stdlib v0.0.0-20180308002341-f6b9967a3c69/go.mod h1:PLldrQSroqzH70Xl+1DQcGnefIbqsKR7UDaiux3zV+w=
 github.com/opentracing/opentracing-go v1.0.2 h1:3jA2P6O1F9UOrWVpwrIo17pu01KWvNWg4X946/Y5Zwg=

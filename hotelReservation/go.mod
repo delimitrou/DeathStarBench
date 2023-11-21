@@ -9,7 +9,6 @@ require (
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20171214222146-0e7658f8ee99
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
 	github.com/hashicorp/consul v1.0.6
-	github.com/olivere/grpc v1.0.0
 	github.com/opentracing-contrib/go-stdlib v0.0.0-20180308002341-f6b9967a3c69
 	github.com/opentracing/opentracing-go v1.0.2
 	github.com/picop-rd/picop-go v0.1.1-0.20231107120344-78a883853af2
