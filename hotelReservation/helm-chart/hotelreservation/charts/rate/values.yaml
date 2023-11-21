@@ -10,9 +10,6 @@ container:
   name: hotel-reserv-rate
   ports:
   - containerPort: 8084
-  environments:
-    logLevel: INFO
-    jaegerSampleRatio: 1
 
 configMaps:
   - name: service-config.json
