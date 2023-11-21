@@ -77,10 +77,8 @@ func (s *Server) Run() error {
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
-		grpc.UnaryInterceptor(
+		grpc.ChainUnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
-		),
-		grpc.UnaryInterceptor(
 			picopgrpc.UnaryServerInterceptor(propagation.EnvID{}),
 		),
 	}
