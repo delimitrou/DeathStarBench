@@ -21,6 +21,9 @@ import (
 	pb "github.com/harlow/go-micro-services/services/search/proto"
 	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
+	"github.com/picop-rd/picop-go/propagation"
+	picopnet "github.com/picop-rd/picop-go/protocol/net"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -29,8 +32,8 @@ const name = "srv-search"
 
 // Server implments the search service
 type Server struct {
-	geoClient  geo.GeoClient
-	rateClient rate.RateClient
+	geoClient  *picopgrpc.Client
+	rateClient *picopgrpc.Client
 
 	Tracer     opentracing.Tracer
 	Port       int
@@ -58,6 +61,9 @@ func (s *Server) Run() error {
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
 		),
+		grpc.UnaryInterceptor(
+			picopgrpc.UnaryServerInterceptor(propagation.EnvID{}),
+		),
 	}
 
 	if tlsopt := tls.GetServerOpt(); tlsopt != nil {
@@ -79,6 +85,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
+	blis := picopnet.NewListener(lis)
 
 	// register with consul
 	// jsonFile, err := os.Open("config.json")
@@ -99,7 +106,7 @@ func (s *Server) Run() error {
 	}
 	log.Info().Msg("Successfully registered in consul")
 
-	return srv.Serve(lis)
+	return srv.Serve(blis)
 }
 
 // Shutdown cleans up any processes
@@ -112,7 +119,7 @@ func (s *Server) initGeoClient(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.geoClient = geo.NewGeoClient(conn)
+	s.geoClient = conn
 	return nil
 }
 
@@ -121,11 +128,11 @@ func (s *Server) initRateClient(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.rateClient = rate.NewRateClient(conn)
+	s.rateClient = conn
 	return nil
 }
 
-func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
+func (s *Server) getGprcConn(name string) (*picopgrpc.Client, error) {
 	if s.KnativeDns != "" {
 		return dialer.Dial(
 			fmt.Sprintf("%s.%s", name, s.KnativeDns),
@@ -134,7 +141,6 @@ func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 		return dialer.Dial(
 			name,
 			dialer.WithTracer(s.Tracer),
-			dialer.WithBalancer(s.Registry.Client),
 		)
 	}
 }
@@ -147,7 +153,12 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 	log.Trace().Msgf("nearby lat = %f", req.Lat)
 	log.Trace().Msgf("nearby lon = %f", req.Lon)
 
-	nearby, err := s.geoClient.Nearby(ctx, &geo.Request{
+	geoConn, err := s.geoClient.Connect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	geoClient := geo.NewGeoClient(geoConn)
+	nearby, err := geoClient.Nearby(ctx, &geo.Request{
 		Lat: req.Lat,
 		Lon: req.Lon,
 	})
@@ -160,7 +171,12 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 	}
 
 	// find rates for hotels
-	rates, err := s.rateClient.GetRates(ctx, &rate.Request{
+	rateConn, err := s.rateClient.Connect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rateClient := rate.NewRateClient(rateConn)
+	rates, err := rateClient.GetRates(ctx, &rate.Request{
 		HotelIds: nearby.HotelIds,
 		InDate:   req.InDate,
 		OutDate:  req.OutDate,

@@ -13,6 +13,9 @@ import (
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
 	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
+	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
+	"github.com/picop-rd/picop-go/propagation"
+	picopnet "github.com/picop-rd/picop-go/protocol/net"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
@@ -68,6 +71,9 @@ func (s *Server) Run() error {
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
 		),
+		grpc.UnaryInterceptor(
+			picopgrpc.UnaryServerInterceptor(propagation.EnvID{}),
+		),
 	}
 
 	if tlsopt := tls.GetServerOpt(); tlsopt != nil {
@@ -82,6 +88,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
+	blis := picopnet.NewListener(lis)
 
 	// // register the service
 	// jsonFile, err := os.Open("config.json")
@@ -102,7 +109,7 @@ func (s *Server) Run() error {
 	}
 	log.Info().Msg("Successfully registered in consul")
 
-	return srv.Serve(lis)
+	return srv.Serve(blis)
 }
 
 // Shutdown cleans up any processes
