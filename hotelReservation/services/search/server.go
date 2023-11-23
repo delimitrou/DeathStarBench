@@ -132,9 +132,8 @@ func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 			dialer.WithTracer(s.Tracer))
 	} else {
 		return dialer.Dial(
-			s.Registry.Addr(name),
+			name,
 			dialer.WithTracer(s.Tracer),
-			dialer.WithBalancer(),
 		)
 	}
 }

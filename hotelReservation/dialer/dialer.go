@@ -8,16 +8,8 @@ import (
 	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/resolver"
-
-	"github.com/simplesurance/grpcconsulresolver/consul"
 )
-
-func init() {
-	resolver.Register(consul.NewBuilder())
-}
 
 // DialOption allows optional config for dialer
 type DialOption func(name string) (grpc.DialOption, error)
@@ -26,13 +18,6 @@ type DialOption func(name string) (grpc.DialOption, error)
 func WithTracer(tracer opentracing.Tracer) DialOption {
 	return func(name string) (grpc.DialOption, error) {
 		return grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(tracer)), nil
-	}
-}
-
-// WithBalancer enables client side load balancing
-func WithBalancer() DialOption {
-	return func(name string) (grpc.DialOption, error) {
-		return grpc.WithDefaultServiceConfig(`{"loadBalancingConfig": [{"round_robin":{}}]}`), nil
 	}
 }
 
@@ -48,7 +33,7 @@ func Dial(name string, opts ...DialOption) (*grpc.ClientConn, error) {
 	if tlsopt := tls.GetDialOpt(); tlsopt != nil {
 		dialopts = append(dialopts, tlsopt)
 	} else {
-		dialopts = append(dialopts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		dialopts = append(dialopts, grpc.WithInsecure())
 	}
 
 	for _, fn := range opts {
