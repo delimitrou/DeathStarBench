@@ -44,8 +44,7 @@ func main() {
 
 	log.Info().Msgf("Read profile memcashed address: %v", result["ProfileMemcAddress"])
 	log.Info().Msg("Initializing Memcashed client...")
-	memc_client := tune.NewPiCoPMemCClient(result["ProfileMemcAddress"])
-	defer memc_client.Close()
+	memc_client := tune.NewMemCClient2(result["ProfileMemcAddress"])
 	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["ProfilePort"])

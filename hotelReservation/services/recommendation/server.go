@@ -12,10 +12,6 @@ import (
 	pb "github.com/harlow/go-micro-services/services/recommendation/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
-	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
-	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
-	"github.com/picop-rd/picop-go/propagation"
-	picopnet "github.com/picop-rd/picop-go/protocol/net"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -40,7 +36,7 @@ type Server struct {
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
-	MongoClient *picopmongo.Client
+	MongoClient *mongo.Client
 	Registry    *registry.Client
 	uuid        string
 }
@@ -52,12 +48,7 @@ func (s *Server) Run() error {
 	}
 
 	if s.hotels == nil {
-		ctx := context.Background()
-		mc, err := s.MongoClient.Connect(ctx)
-		if err != nil {
-			return fmt.Errorf("Failed connect to mongo: ", err)
-		}
-		s.hotels = loadRecommendations(ctx, mc)
+		s.hotels = loadRecommendations(s.MongoClient)
 	}
 
 	s.uuid = uuid.New().String()
@@ -69,9 +60,8 @@ func (s *Server) Run() error {
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
-		grpc.ChainUnaryInterceptor(
+		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
-			picopgrpc.UnaryServerInterceptor(propagation.EnvID{}),
 		),
 	}
 
@@ -87,7 +77,6 @@ func (s *Server) Run() error {
 	if err != nil {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
-	blis := picopnet.NewListener(lis)
 
 	// // register the service
 	// jsonFile, err := os.Open("config.json")
@@ -108,7 +97,7 @@ func (s *Server) Run() error {
 	}
 	log.Info().Msg("Successfully registered in consul")
 
-	return srv.Serve(blis)
+	return srv.Serve(lis)
 }
 
 // Shutdown cleans up any processes
@@ -180,7 +169,8 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 }
 
 // loadRecommendations loads hotel recommendations from mongodb.
-func loadRecommendations(ctx context.Context, client *mongo.Client) map[string]Hotel {
+func loadRecommendations(client *mongo.Client) map[string]Hotel {
+	ctx := context.Background()
 	// session, err := mgo.Dial("mongodb-recommendation")
 	// if err != nil {
 	// 	panic(err)
