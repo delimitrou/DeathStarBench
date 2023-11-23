@@ -181,22 +181,18 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	log.Info().Msg("1:"+searchConn.GetState().String())
+	log.Info().Msg(searchConn.GetState().String())
 	searchClient := search.NewSearchClient(searchConn)
-	log.Info().Msg("2:"+searchConn.GetState().String())
 	searchResp, err := searchClient.Nearby(ctx, &search.NearbyRequest{
 		Lat:     lat,
 		Lon:     lon,
 		InDate:  inDate,
 		OutDate: outDate,
 	})
-	log.Info().Msg("3:"+searchConn.GetState().String())
 	if err != nil {
-		log.Error().Msgf("SearchHandler Nearby failed: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Info().Msg("4:"+searchConn.GetState().String())
 
 	log.Trace().Msg("SearchHandler gets searchResp")
 	//for _, hid := range searchResp.HotelIds {
