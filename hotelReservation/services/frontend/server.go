@@ -181,7 +181,6 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	log.Info().Msg(searchConn.GetState().String())
 	searchClient := search.NewSearchClient(searchConn)
 	searchResp, err := searchClient.Nearby(ctx, &search.NearbyRequest{
 		Lat:     lat,
