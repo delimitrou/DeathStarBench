@@ -19,6 +19,10 @@ import (
 	pb "github.com/harlow/go-micro-services/services/geo/proto"
 	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
+	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
+	"github.com/picop-rd/picop-go/propagation"
+	picopnet "github.com/picop-rd/picop-go/protocol/net"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -38,7 +42,7 @@ type Server struct {
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
-	MongoClient *mongo.Client
+	MongoClient *picopmongo.Client
 }
 
 // Run starts the server
@@ -48,7 +52,12 @@ func (s *Server) Run() error {
 	}
 
 	if s.index == nil {
-		s.index = newGeoIndex(s.MongoClient)
+		ctx := context.Background()
+		mc, err := s.MongoClient.Connect(ctx)
+		if err != nil {
+			return fmt.Errorf("Failed connect to mongo: ", err)
+		}
+		s.index = newGeoIndex(ctx, mc)
 	}
 
 	s.uuid = uuid.New().String()
@@ -66,8 +75,9 @@ func (s *Server) Run() error {
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
-		grpc.UnaryInterceptor(
+		grpc.ChainUnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
+			picopgrpc.UnaryServerInterceptor(propagation.EnvID{}),
 		),
 	}
 
@@ -84,6 +94,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		return fmt.Errorf("failed to listen: %v", err)
 	}
+	plis := picopnet.NewListener(lis)
 
 	// register the service
 	// jsonFile, err := os.Open("config.json")
@@ -100,7 +111,7 @@ func (s *Server) Run() error {
 
 	// fmt.Printf("geo server ip = %s, port = %d\n", s.IpAddr, s.Port)
 
-	return srv.Serve(lis)
+	return srv.Serve(plis)
 }
 
 // Shutdown cleans up any processes
@@ -145,8 +156,7 @@ func (s *Server) getNearbyPoints(ctx context.Context, lat, lon float64) []geoind
 }
 
 // newGeoIndex returns a geo index with points loaded
-func newGeoIndex(client *mongo.Client) *geoindex.ClusteringIndex {
-	ctx := context.Background()
+func newGeoIndex(ctx context.Context, client *mongo.Client) *geoindex.ClusteringIndex {
 	// session, err := mgo.Dial("mongodb-geo")
 	// if err != nil {
 	// 	panic(err)

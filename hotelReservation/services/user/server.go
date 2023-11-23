@@ -11,6 +11,10 @@ import (
 	pb "github.com/harlow/go-micro-services/services/user/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
+	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
+	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
+	"github.com/picop-rd/picop-go/propagation"
+	picopnet "github.com/picop-rd/picop-go/protocol/net"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
@@ -34,7 +38,7 @@ type Server struct {
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
-	MongoClient *mongo.Client
+	MongoClient *picopmongo.Client
 	uuid        string
 }
 
@@ -45,7 +49,12 @@ func (s *Server) Run() error {
 	}
 
 	if s.users == nil {
-		s.users = loadUsers(s.MongoClient)
+		ctx := context.Background()
+		mc, err := s.MongoClient.Connect(ctx)
+		if err != nil {
+			return fmt.Errorf("Failed connect to mongo: ", err)
+		}
+		s.users = loadUsers(ctx, mc)
 	}
 
 	s.uuid = uuid.New().String()
@@ -57,8 +66,9 @@ func (s *Server) Run() error {
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
-		grpc.UnaryInterceptor(
+		grpc.ChainUnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
+			picopgrpc.UnaryServerInterceptor(propagation.EnvID{}),
 		),
 	}
 
@@ -74,6 +84,7 @@ func (s *Server) Run() error {
 	if err != nil {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
+	blis := picopnet.NewListener(lis)
 
 	// // register the service
 	// jsonFile, err := os.Open("config.json")
@@ -88,7 +99,7 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	return srv.Serve(lis)
+	return srv.Serve(blis)
 }
 
 // Shutdown cleans up any processes
@@ -130,8 +141,7 @@ func (s *Server) CheckUser(ctx context.Context, req *pb.Request) (*pb.Result, er
 }
 
 // loadUsers loads hotel users from mongodb.
-func loadUsers(client *mongo.Client) map[string]string {
-	ctx := context.Background()
+func loadUsers(ctx context.Context, client *mongo.Client) map[string]string {
 	// session, err := mgo.Dial("mongodb-user")
 	// if err != nil {
 	// 	panic(err)
