@@ -45,7 +45,5 @@ func Dial(name string, opts ...DialOption) (*picopgrpc.Client, error) {
 		dialopts = append(dialopts, opt)
 	}
 
-	client := picopgrpc.New(name, dialopts...)
-	client.DisablePoolByEnvID()
-	return client, nil
+	return picopgrpc.New(name, dialopts...), nil
 }
