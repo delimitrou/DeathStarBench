@@ -19,7 +19,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/harlow/go-micro-services/registry"
 	pb "github.com/harlow/go-micro-services/services/rate/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
@@ -39,7 +38,6 @@ type Server struct {
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client
-	Registry    *registry.Client
 	MemcClient  *memcache.Client
 	uuid        string
 }
@@ -92,18 +90,11 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
-	if err != nil {
-		return fmt.Errorf("failed register: %v", err)
-	}
-	log.Info().Msg("Successfully registered in consul")
-
 	return srv.Serve(lis)
 }
 
 // Shutdown cleans up any processes
 func (s *Server) Shutdown() {
-	s.Registry.Deregister(s.uuid)
 }
 
 // GetRates gets rates for hotels for specific date range.

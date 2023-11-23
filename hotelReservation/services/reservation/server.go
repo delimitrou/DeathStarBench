@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/harlow/go-micro-services/registry"
 	pb "github.com/harlow/go-micro-services/services/reservation/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
@@ -29,7 +28,7 @@ import (
 	"sync"
 )
 
-const name = "srv-reservation"
+const name = "reservation"
 
 // Server implements the user service
 type Server struct {
@@ -37,7 +36,6 @@ type Server struct {
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client
-	Registry    *registry.Client
 	MemcClient  *memcache.Client
 	uuid        string
 }
@@ -92,18 +90,11 @@ func (s *Server) Run() error {
 
 	log.Trace().Msgf("In reservation s.IpAddr = %s, port = %d", s.IpAddr, s.Port)
 
-	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
-	if err != nil {
-		return fmt.Errorf("failed register: %v", err)
-	}
-	log.Info().Msg("Successfully registered in consul")
-
 	return srv.Serve(lis)
 }
 
 // Shutdown cleans up any processes
 func (s *Server) Shutdown() {
-	s.Registry.Deregister(s.uuid)
 }
 
 // MakeReservation makes a reservation based on given information

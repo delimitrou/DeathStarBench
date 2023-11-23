@@ -14,7 +14,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/harlow/go-micro-services/dialer"
-	"github.com/harlow/go-micro-services/registry"
 	profile "github.com/harlow/go-micro-services/services/profile/proto"
 	search "github.com/harlow/go-micro-services/services/search/proto"
 	"github.com/harlow/go-micro-services/tls"
@@ -33,7 +32,6 @@ type Server struct {
 	IpAddr               string
 	Port                 int
 	Tracer               opentracing.Tracer
-	Registry             *registry.Client
 }
 
 // Run the server
@@ -43,23 +41,23 @@ func (s *Server) Run() error {
 	}
 
 	log.Info().Msg("Initializing gRPC clients...")
-	if err := s.initSearchClient("srv-search"); err != nil {
+	if err := s.initSearchClient("search:8082"); err != nil {
 		return err
 	}
 
-	if err := s.initProfileClient("srv-profile"); err != nil {
+	if err := s.initProfileClient("profile:8081"); err != nil {
 		return err
 	}
 
-	if err := s.initRecommendationClient("srv-recommendation"); err != nil {
+	if err := s.initRecommendationClient("recommendation:8085"); err != nil {
 		return err
 	}
 
-	if err := s.initUserClient("srv-user"); err != nil {
+	if err := s.initUserClient("user:8086"); err != nil {
 		return err
 	}
 
-	if err := s.initReservation("srv-reservation"); err != nil {
+	if err := s.initReservation("reservation:8087"); err != nil {
 		return err
 	}
 	log.Info().Msg("Successfull")

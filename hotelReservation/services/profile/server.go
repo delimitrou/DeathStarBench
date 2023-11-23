@@ -18,7 +18,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/harlow/go-micro-services/registry"
 	pb "github.com/harlow/go-micro-services/services/profile/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
@@ -29,7 +28,7 @@ import (
 	// "strings"
 )
 
-const name = "srv-profile"
+const name = "profile"
 
 // Server implements the profile service
 type Server struct {
@@ -38,7 +37,6 @@ type Server struct {
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client
-	Registry    *registry.Client
 	MemcClient  *memcache.Client
 }
 
@@ -92,18 +90,11 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
-	if err != nil {
-		return fmt.Errorf("failed register: %v", err)
-	}
-	log.Info().Msg("Successfully registered in consul")
-
 	return srv.Serve(lis)
 }
 
 // Shutdown cleans up any processes
 func (s *Server) Shutdown() {
-	s.Registry.Deregister(s.uuid)
 }
 
 // GetProfiles returns hotel profiles for requested IDs

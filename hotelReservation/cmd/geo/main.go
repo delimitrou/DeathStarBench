@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/harlow/go-micro-services/registry"
 	"github.com/harlow/go-micro-services/services/geo"
 	"github.com/harlow/go-micro-services/tracing"
 	"github.com/harlow/go-micro-services/tune"
@@ -50,7 +49,6 @@ func main() {
 	var (
 		// port       = flag.Int("port", 8083, "Server port")
 		jaegeraddr = flag.String("jaegeraddr", result["jaegerAddress"], "Jaeger address")
-		consuladdr = flag.String("consuladdr", result["consulAddress"], "Consul address")
 	)
 	flag.Parse()
 
@@ -62,19 +60,11 @@ func main() {
 	}
 	log.Info().Msg("Jaeger agent initialized")
 
-	log.Info().Msgf("Initializing consul agent [host: %v]...", *consuladdr)
-	registry, err := registry.NewClient(*consuladdr)
-	if err != nil {
-		log.Panic().Msgf("Got error while initializing consul agent: %v", err)
-	}
-	log.Info().Msg("Consul agent initialized")
-
 	srv := &geo.Server{
 		// Port:     *port,
 		Port:        serv_port,
 		IpAddr:      serv_ip,
 		Tracer:      tracer,
-		Registry:    registry,
 		MongoClient: mongo_client,
 	}
 

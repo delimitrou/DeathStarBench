@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/dialer"
-	"github.com/harlow/go-micro-services/registry"
 	geo "github.com/harlow/go-micro-services/services/geo/proto"
 	rate "github.com/harlow/go-micro-services/services/rate/proto"
 	pb "github.com/harlow/go-micro-services/services/search/proto"
@@ -25,7 +24,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 )
 
-const name = "srv-search"
+const name = "search"
 
 // Server implments the search service
 type Server struct {
@@ -36,7 +35,6 @@ type Server struct {
 	Port       int
 	IpAddr     string
 	KnativeDns string
-	Registry   *registry.Client
 	uuid       string
 }
 
@@ -68,10 +66,10 @@ func (s *Server) Run() error {
 	pb.RegisterSearchServer(srv, s)
 
 	// init grpc clients
-	if err := s.initGeoClient("srv-geo"); err != nil {
+	if err := s.initGeoClient("geo:8083"); err != nil {
 		return err
 	}
-	if err := s.initRateClient("srv-rate"); err != nil {
+	if err := s.initRateClient("rate:8084"); err != nil {
 		return err
 	}
 
@@ -93,18 +91,11 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
-	if err != nil {
-		return fmt.Errorf("failed register: %v", err)
-	}
-	log.Info().Msg("Successfully registered in consul")
-
 	return srv.Serve(lis)
 }
 
 // Shutdown cleans up any processes
 func (s *Server) Shutdown() {
-	s.Registry.Deregister(s.uuid)
 }
 
 func (s *Server) initGeoClient(name string) error {

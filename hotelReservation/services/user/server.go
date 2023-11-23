@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/harlow/go-micro-services/registry"
 	pb "github.com/harlow/go-micro-services/services/user/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
@@ -26,14 +25,13 @@ import (
 	"time"
 )
 
-const name = "srv-user"
+const name = "user"
 
 // Server implements the user service
 type Server struct {
 	users map[string]string
 
 	Tracer      opentracing.Tracer
-	Registry    *registry.Client
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client
@@ -90,18 +88,11 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
-	if err != nil {
-		return fmt.Errorf("failed register: %v", err)
-	}
-	log.Info().Msg("Successfully registered in consul")
-
 	return srv.Serve(lis)
 }
 
 // Shutdown cleans up any processes
 func (s *Server) Shutdown() {
-	s.Registry.Deregister(s.uuid)
 }
 
 // CheckUser returns whether the username and password are correct.
