@@ -9,6 +9,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const scheme = "consul"
+
 // NewClient returns a new Client with connection to consul
 func NewClient(addr string) (*Client, error) {
 	cfg := consul.DefaultConfig()
@@ -19,12 +21,20 @@ func NewClient(addr string) (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{c}, nil
+	return &Client{
+		Client: c,
+		addr:   addr,
+	}, nil
 }
 
 // Client provides an interface for communicating with registry
 type Client struct {
 	*consul.Client
+	addr string
+}
+
+func (c *Client) Addr(name string) string {
+	return fmt.Sprintf("%s://%s/%s", scheme, c.addr, name)
 }
 
 // Look for the network device being dedicated for gRPC traffic.
