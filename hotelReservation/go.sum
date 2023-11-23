@@ -40,8 +40,8 @@ github.com/opentracing/opentracing-go v1.0.2 h1:3jA2P6O1F9UOrWVpwrIo17pu01KWvNWg
 github.com/opentracing/opentracing-go v1.0.2/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/picop-rd/gomemcache v1.0.0-picop h1:vUldoLK1krYlq0Mu4twoGjqrLbZgxpzJB+bGvTc0ljE=
 github.com/picop-rd/gomemcache v1.0.0-picop/go.mod h1:r5xuitiExdLAJ09PR7vBVENGvp4ZuTBeWTGtxuX3K+c=
-github.com/picop-rd/grpc-go v1.59.0-picop.0.20231123094046-aa54aada2089 h1:qxWKq2QoInlHZ4fvv5YbHzJ7XPZ5piqL6qmdRBbSyYw=
-github.com/picop-rd/grpc-go v1.59.0-picop.0.20231123094046-aa54aada2089/go.mod h1:VUbo7IFqmF1QtCAstipjG0GIoq49KvMe9+h1jFLBNJs=
+github.com/picop-rd/grpc-go v1.0.1-picop h1:yd4VJrpdmlnj8Mnolh3XMslgdtUBmK8qcHkN+azQi4E=
+github.com/picop-rd/grpc-go v1.0.1-picop/go.mod h1:VUbo7IFqmF1QtCAstipjG0GIoq49KvMe9+h1jFLBNJs=
 github.com/picop-rd/mongo-go-driver v1.12.1-picop h1:TmcnpOJ2b4rBhC12MKTiqJNs/NJOS0h3Xv/QPcVtS3g=
 github.com/picop-rd/mongo-go-driver v1.12.1-picop/go.mod h1:/rGBTebI3XYboVmgz+Wv3Bcbl3aD0QF9zl6kDDw18rQ=
 github.com/picop-rd/picop-go v0.1.1-0.20231123120345-90649f363798 h1:dLN2OtMOAkS49APloCeNGDUEWTadraOXjyPBHZXWP3c=
