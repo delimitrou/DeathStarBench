@@ -22,7 +22,6 @@ import math "math"
 import (
 	context "golang.org/x/net/context"
 	grpc "google.golang.org/grpc"
-	"github.com/rs/zerolog/log"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -121,13 +120,10 @@ func NewSearchClient(cc *grpc.ClientConn) SearchClient {
 
 func (c *searchClient) Nearby(ctx context.Context, in *NearbyRequest, opts ...grpc.CallOption) (*SearchResult, error) {
 	out := new(SearchResult)
-	log.Info().Msg("NearBy 1:"+c.cc.GetState().String())
 	err := grpc.Invoke(ctx, "/search.Search/Nearby", in, out, c.cc, opts...)
 	if err != nil {
-		log.Info().Msg("NearBy 2:"+c.cc.GetState().String())
 		return nil, err
 	}
-	log.Info().Msg("NearBy 3:"+c.cc.GetState().String())
 	return out, nil
 }
 
