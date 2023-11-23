@@ -43,6 +43,7 @@ namespace media_service
     _review_client_pool   = review_storage_client_pool;
   }
 
+
   void UserReviewHandler::UploadUserReview(
       int64_t req_id,
       int64_t user_id,
@@ -55,17 +56,16 @@ namespace media_service
     mongoc_client_t* mongodb_client = nullptr;
     mongoc_cursor_t* cursor         = nullptr;
     bson_error_t error;
-    bson_t* query                   = nullptr; // Will be reused by different code snippet
+    bson_t const* doc_iter          = nullptr;
     bson_t reply                    = BSON_INITIALIZER;
-    int rc                          = 0; 
     bool ok                         = true; // Will be reused by different code snippet
+    int rc                          = 0; 
 
 
     // Init timing stuff
     TextMapReader reader(carrier);
     std::map<std::string, std::string> writer_text_map;
     TextMapWriter writer(writer_text_map);
-    
     
     // ─── Launch Timing ───────────────────────────────────────────
     auto parent_span = opentracing::Tracer::Global()->Extract(reader);
@@ -85,125 +85,108 @@ namespace media_service
       throw se;
     }
 
-    // ─── Get Collection User-review ──────────────────────────────
+    // ─── Accessing Collections ───────────────────────────────────
 
-    auto collection = mongoc_client_get_collection(mongodb_client, "user-review", "user-review");
-    if (!collection)
+    // Access the "user-review" database and the "users" and "reviews" collections
+    mongoc_collection_t* users_collection   = mongoc_client_get_collection(mongodb_client, "user-review", "users");
+    mongoc_collection_t* reviews_collection = mongoc_client_get_collection(mongodb_client, "user-review", "reviews");
+
+    if (!users_collection || !reviews_collection)
     {
       ServiceException se{};
       se.errorCode = ErrorCode::SE_MONGODB_ERROR;
-      se.message = "Failed to pop a client from MongoDB pool";
+      se.message = "Failed to get access a collection from a MongoDB pool";
 
       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+
+      //? Not trying to free any of the collections, which is NOT ideal
       throw se;
     }
 
+    // ─── Buidling Documents ──────────────────────────────────────
+    // Or the mongoDB queries, sort of
     
-    // ─── Search Collection By User-id ────────────────────────────
-    const bson_t* doc;
-    
-    query = bson_new();
-    BSON_APPEND_INT64(query, "user_id", user_id);
+    bson_t* user_doc = BCON_NEW(
+      "user_id", BCON_INT64(user_id)
+      );
 
-    // ─── Start Tracing Time And Cpu Usage I Guess ────────────────
-    auto find_span = opentracing::Tracer::Global()->StartSpan( "MongoFindUser", {opentracing::ChildOf(&span->context())});
-    // ─────────────────────────────────────────────────────────────    
-
-    // lookup user_id, then point to the next documents
-    cursor  = mongoc_collection_find_with_opts(collection, query, nullptr, nullptr);
-    ok      = mongoc_cursor_next(cursor, &doc); //@see: https://mongoc.org/libmongoc/current/mongoc_cursor_next.html#mongoc-cursor-next
-
-    // If there is no next documents, it creates a new one, otherwise update the existing
-    if (!ok)
-    {
-      // Create an insert request
-      bson_destroy(query);
-      query = BCON_NEW(
-          "user_id", BCON_INT64(user_id),
-          "reviews",
-          "[", "{", "review_id", BCON_INT64(review_id),
-          "timestamp", BCON_INT64(timestamp), "}", "]");
-
-      // ─── Tracing Time Again ──────────────────────────────
-      auto insert_span = opentracing::Tracer::Global()->StartSpan( "MongoInsert", {opentracing::ChildOf(&span->context())});
-      // ─────────────────────────────────────────────────────
-
-      ok = mongoc_collection_insert_one(collection, query, nullptr, nullptr, &error);
-
-      // ─── Stop Timer ──────────────────────────────────────
-      insert_span->Finish();
-      // ─────────────────────────────────────────────────────
-
-      if (!ok)
-      {
-        LOG(error) << "Failed to insert user review of user " << user_id
-                   << " to MongoDB: " << error.message;
-
-        ServiceException se{};
-        se.errorCode = ErrorCode::SE_MONGODB_ERROR;
-        se.message = error.message;
-
-          // This sould be elsewhere or different (goto?). But mix usage of C and C++ code makes it weird to handle
-          bson_destroy(query);
-          mongoc_cursor_destroy(cursor);
-          mongoc_collection_destroy(collection);
-          mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
-        
-        throw se;
-      } // Finish here if couldn't insert
-
-    } 
-    else { // If User exist, we update
-
-      bson_t* update = BCON_NEW(
-          "$push", "{",
-            "reviews", "{",
-              "$each", "[", "{",
-                "review_id", BCON_INT64(review_id),
-                "timestamp", BCON_INT64(timestamp),
-              "}", "]",
-            "$position", BCON_INT32(0),
-          " }",
-          "}");
-
-      // ─── Update Timer ────────────────────────────────────
-      auto update_span = opentracing::Tracer::Global()->StartSpan( "MongoUpdate", {opentracing::ChildOf(&span->context())});
-      // ─────────────────────────────────────────────────────
-
-      ok = mongoc_collection_find_and_modify(collection, query, nullptr, update, nullptr, false, false, true, &reply, &error);
-      
-      // ─── Stop Timer ──────────────────────────────────────
-      update_span->Finish();
-      // ─────────────────────────────────────────────────────
+    bson_t* review_doc = BCON_NEW(
+      "review_id",  BCON_INT64(review_id),
+      "timestamp",  BCON_INT64(timestamp),
+      "user_id",    BCON_INT64(user_id)
+      );
 
 
-      bson_destroy(update);
-      // If the update goes wrong
-      if (!ok)
-      {
-        LOG(error) << "Failed to update user-review for user " << user_id
-                   << " to MongoDB: " << error.message;
+    // ─── Db Find Tracing ─────────────────────────────────────────
+    auto find_span = opentracing::Tracer::Global()->StartSpan( "MongoFindUser", {opentracing::ChildOf(&span->context())}); 
+
+    // Seleting a user
+    cursor = mongoc_collection_find_with_opts(users_collection, user_doc, NULL, NULL);
+
+    find_span->Finish();
+    // ─────────────────────────────────────────────────────────────
+
   
-        ServiceException se{};
-        se.errorCode  = ErrorCode::SE_MONGODB_ERROR;
-        se.message    = error.message;
+    // ─── Db Insert Tracing ───────────────────────────────────────
+    auto insert_span = opentracing::Tracer::Global()->StartSpan( "MongoTotalInsert", {opentracing::ChildOf(&span->context())});
 
-          // Idem
-          bson_destroy(query);
-          bson_destroy(&reply);
+    // ─── Adding The A User If Does Not Exist ─────────────────────
+
+    ok = mongoc_cursor_next(cursor, &doc_iter);
+    if(!ok)
+    {
+      
+        if (!mongoc_collection_insert_one(users_collection, user_doc, NULL, NULL, &error)) 
+        {
+          ServiceException se{};
+          se.errorCode = ErrorCode::SE_MONGODB_ERROR;
+          se.message = error.message;
+
+          //! If you wonder why those lines are here, and also duplicated to
+          //! other parts of the source code It's because someone had the mad
+          //! idea to mix C and C++. Therefore there is no good way to
+          //! disalocate memory using `goto;` in C or with a `unique_ptr<>` in
+          //! C++ goes out of scope. Well done lads.
+          //TODO Maybe I am to salty.. and can think of a possible way to avoid
+          //this madness
+          bson_destroy(user_doc);
+          bson_destroy(review_doc);
           mongoc_cursor_destroy(cursor);
-          mongoc_collection_destroy(collection);
+          mongoc_collection_destroy(users_collection);
+          mongoc_collection_destroy(reviews_collection);
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
-        throw se;
-      }
+        } 
     }
 
+    // ─── Db Update Tracing ───────────────────────────────────────
+    auto update_span = opentracing::Tracer::Global()->StartSpan( "MongoReviewInsert", {opentracing::ChildOf(&span->context())});
 
-    // DESTROY MONGODB
-    bson_destroy(query);
+    // ─── Insert Review Id Anyway ─────────────────────────────────
+
+    if (!mongoc_collection_insert_one(reviews_collection, review_doc, NULL, NULL, &error)) {
+      ServiceException se{};
+      se.errorCode = ErrorCode::SE_MONGODB_ERROR;
+      se.message = error.message;
+
+      bson_destroy(user_doc);
+      bson_destroy(review_doc);
+      mongoc_cursor_destroy(cursor);
+      mongoc_collection_destroy(users_collection);
+      mongoc_collection_destroy(reviews_collection);
+      mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+    }
+    
+    update_span->Finish();
+    insert_span->Finish();
+    // ─────────────────────────────────────────────────────────────
+
+    bson_destroy(user_doc);
+    bson_destroy(review_doc);
     mongoc_cursor_destroy(cursor);
-    mongoc_collection_destroy(collection);
+    mongoc_collection_destroy(users_collection);
+    mongoc_collection_destroy(reviews_collection);
     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+
 
     // STARTING REDIS
     
@@ -240,7 +223,6 @@ namespace media_service
     redis_span->Finish();
 
     // DO NOT FORGET TO FREE RESSOURCES
-
     // redis ?
 
     span->Finish();
@@ -248,26 +230,32 @@ namespace media_service
   }
 
   void UserReviewHandler::ReadUserReviews(
-      std::vector<Review> &_return, int64_t req_id,
-      int64_t user_id, int32_t start, int32_t stop,
-      const std::map<std::string, std::string> &carrier)
+      std::vector<Review> &_return, 
+      int64_t req_id,
+      int64_t user_id, 
+      int32_t start,  // start index
+      int32_t stop,   // stop index
+      const std::map<std::string, 
+      std::string> &carrier)
   {
 
-    // Initialize a span
+    // Init timing stuff
     TextMapReader reader(carrier);
     std::map<std::string, std::string> writer_text_map;
     TextMapWriter writer(writer_text_map);
+    
+    // ─── Launch Timing ───────────────────────────────────────────
     auto parent_span = opentracing::Tracer::Global()->Extract(reader);
-    auto span = opentracing::Tracer::Global()->StartSpan(
-        "ReadUserReviews",
-        {opentracing::ChildOf(parent_span->get())});
+    auto span = opentracing::Tracer::Global()->StartSpan( "ReadUserReviews", {opentracing::ChildOf(parent_span->get())}); 
     opentracing::Tracer::Global()->Inject(span->context(), writer);
+    // ─────────────────────────────────────────────────────────────
 
-    if (stop <= start || start < 0)
-    {
-      return;
-    }
+    // Early return if index does not fall into expected range
+    // but, i mean..., who is using signed int as index <:^)
+    if (stop <= start || start < 0) return;
 
+    // REDIS STUFF
+  
     auto redis_client_wrapper = _redis_client_pool->Pop();
     if (!redis_client_wrapper)
     {
@@ -276,11 +264,10 @@ namespace media_service
       se.message = "Cannot connected to Redis server";
       throw se;
     }
+
     auto redis_client = redis_client_wrapper->GetClient();
-    auto redis_span = opentracing::Tracer::Global()->StartSpan(
-        "RedisFind", {opentracing::ChildOf(&span->context())});
-    auto review_ids_future = redis_client->zrevrange(
-        std::to_string(user_id), start, stop - 1);
+    auto redis_span = opentracing::Tracer::Global()->StartSpan( "RedisFind", {opentracing::ChildOf(&span->context())});
+    auto review_ids_future = redis_client->zrevrange( std::to_string(user_id), start, stop - 1);
     redis_client->commit();
     redis_span->Finish();
 
@@ -295,21 +282,25 @@ namespace media_service
       _redis_client_pool->Push(redis_client_wrapper);
       throw;
     }
+
     _redis_client_pool->Push(redis_client_wrapper);
+    
     std::vector<int64_t> review_ids;
     auto review_ids_reply_array = review_ids_reply.as_array();
     for (auto &review_id_reply : review_ids_reply_array)
     {
       review_ids.emplace_back(std::stoul(review_id_reply.as_string()));
     }
+    // END OF REDIS STUFF
+
+    std::multimap<std::string, std::string> redis_update_map;
 
     int mongo_start = start + review_ids.size();
-    std::multimap<std::string, std::string> redis_update_map;
+  
     if (mongo_start < stop)
     {
       // Instead find review_ids from mongodb
-      mongoc_client_t *mongodb_client = mongoc_client_pool_pop(
-          _mongodb_client_pool);
+      mongoc_client_t *mongodb_client = mongoc_client_pool_pop( _mongodb_client_pool);
       if (!mongodb_client)
       {
         ServiceException se;
@@ -317,8 +308,8 @@ namespace media_service
         se.message = "Failed to pop a client from MongoDB pool";
         throw se;
       }
-      auto collection = mongoc_client_get_collection(
-          mongodb_client, "user-review", "user-review");
+
+      auto collection = mongoc_client_get_collection( mongodb_client, "user-review", "user-review");
       if (!collection)
       {
         ServiceException se;
@@ -330,16 +321,20 @@ namespace media_service
       bson_t *query = BCON_NEW("user_id", BCON_INT64(user_id));
       bson_t *opts = BCON_NEW(
           "projection", "{",
-          "reviews", "{",
-          "$slice", "[",
-          BCON_INT32(0), BCON_INT32(stop),
+            "reviews", "{",
+            "$slice", "[",
+              BCON_INT32(0), BCON_INT32(stop),
           "]", "}", "}");
       auto find_span = opentracing::Tracer::Global()->StartSpan(
           "MongoFindUserReviews", {opentracing::ChildOf(&span->context())});
+
       mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(
           collection, query, opts, nullptr);
+
       find_span->Finish();
+      
       const bson_t *doc;
+
       bool found = mongoc_cursor_next(cursor, &doc);
       if (found)
       {
@@ -350,25 +345,41 @@ namespace media_service
         int idx = 0;
         bson_iter_init(&iter_0, doc);
         bson_iter_init(&iter_1, doc);
-        while (bson_iter_find_descendant(&iter_0,
-                                         ("reviews." + std::to_string(idx) + ".review_id").c_str(),
-                                         &review_id_child) &&
-               BSON_ITER_HOLDS_INT64(&review_id_child) && bson_iter_find_descendant(&iter_1, ("reviews." + std::to_string(idx) + ".timestamp").c_str(), &timestamp_child) && BSON_ITER_HOLDS_INT64(&timestamp_child))
+
+        while(
+
+          bson_iter_find_descendant(
+            &iter_0, 
+            ("reviews." + std::to_string(idx) + ".review_id").c_str(), 
+            &review_id_child
+          ) 
+          && BSON_ITER_HOLDS_INT64(&review_id_child) 
+          && bson_iter_find_descendant(
+            &iter_1, 
+            ("reviews." + std::to_string(idx) + ".timestamp").c_str(), 
+            &timestamp_child) 
+          && BSON_ITER_HOLDS_INT64(&timestamp_child))
+
         {
           auto curr_review_id = bson_iter_int64(&review_id_child);
           auto curr_timestamp = bson_iter_int64(&timestamp_child);
+
           if (idx >= mongo_start)
           {
             review_ids.emplace_back(curr_review_id);
           }
-          redis_update_map.insert(
-              {std::to_string(curr_timestamp), std::to_string(curr_review_id)});
+
+          redis_update_map.insert({std::to_string(curr_timestamp), std::to_string(curr_review_id)});
+
           bson_iter_init(&iter_0, doc);
           bson_iter_init(&iter_1, doc);
+
           idx++;
         }
       }
+
       find_span->Finish();
+
       bson_destroy(opts);
       bson_destroy(query);
       mongoc_cursor_destroy(cursor);
@@ -376,32 +387,38 @@ namespace media_service
       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
     }
 
-    std::future<std::vector<Review>> review_future = std::async(
-        std::launch::async, [&]()
-        {
+    std::future<std::vector<Review>> review_future = std::async(std::launch::async, [&]() {
+
         auto review_client_wrapper = _review_client_pool->Pop();
+        
+        
         if (!review_client_wrapper) {
           ServiceException se;
           se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
           se.message = "Failed to connected to review-storage-service";
           throw se;
         }
+        
         std::vector<Review> _return_reviews;
+        
         auto review_client = review_client_wrapper->GetClient();
+        
+        
         try {
-          review_client->ReadReviews(
-              _return_reviews, req_id, review_ids, writer_text_map);
+          review_client->ReadReviews( _return_reviews, req_id, review_ids, writer_text_map);
         } catch (...) {
           _review_client_pool->Push(review_client_wrapper);
           LOG(error) << "Failed to read review from review-storage-service";
           throw;
         }
+
         _review_client_pool->Push(review_client_wrapper);
         return _return_reviews; });
 
     std::future<cpp_redis::reply> zadd_reply_future;
+
     if (!redis_update_map.empty())
-    {
+    { 
       // Update Redis
       redis_client_wrapper = _redis_client_pool->Pop();
       if (!redis_client_wrapper)
@@ -411,14 +428,16 @@ namespace media_service
         se.message = "Cannot connected to Redis server";
         throw se;
       }
+
       redis_client = redis_client_wrapper->GetClient();
-      auto redis_update_span = opentracing::Tracer::Global()->StartSpan(
-          "RedisUpdate", {opentracing::ChildOf(&span->context())});
+      auto redis_update_span = opentracing::Tracer::Global()->StartSpan( "RedisUpdate", {opentracing::ChildOf(&span->context())});
+      
       redis_client->del(std::vector<std::string>{std::to_string(user_id)});
       std::vector<std::string> options{"NX"};
-      zadd_reply_future = redis_client->zadd(
-          std::to_string(user_id), options, redis_update_map);
+      zadd_reply_future = redis_client->zadd( std::to_string(user_id), options, redis_update_map);
+      
       redis_client->commit();
+      
       redis_update_span->Finish();
     }
 
