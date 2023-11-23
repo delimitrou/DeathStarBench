@@ -10,7 +10,7 @@ require (
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
 	github.com/opentracing-contrib/go-stdlib v0.0.0-20180308002341-f6b9967a3c69
 	github.com/opentracing/opentracing-go v1.0.2
-	github.com/picop-rd/picop-go v0.1.1-0.20231116082607-3419df74ba03
+	github.com/picop-rd/picop-go v0.1.1-0.20231123081626-8c134a19a6e4
 	github.com/rs/zerolog v1.31.0
 	github.com/uber/jaeger-client-go v2.11.2+incompatible
 	go.mongodb.org/mongo-driver v1.12.1

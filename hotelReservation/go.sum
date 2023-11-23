@@ -46,6 +46,8 @@ github.com/picop-rd/mongo-go-driver v1.12.1-picop h1:TmcnpOJ2b4rBhC12MKTiqJNs/NJ
 github.com/picop-rd/mongo-go-driver v1.12.1-picop/go.mod h1:/rGBTebI3XYboVmgz+Wv3Bcbl3aD0QF9zl6kDDw18rQ=
 github.com/picop-rd/picop-go v0.1.1-0.20231116082607-3419df74ba03 h1:wrHy61jkKNXmblTUtDhNBoZ9fEoDaHK7yaP2873VFOg=
 github.com/picop-rd/picop-go v0.1.1-0.20231116082607-3419df74ba03/go.mod h1:XXMMuYfVuAHYKM+Z/ZLHBtQbPD8COVGQlwcAWIEtW6M=
+github.com/picop-rd/picop-go v0.1.1-0.20231123081626-8c134a19a6e4 h1:VI41S+CVcqgVljvY38oQwTpSmQuE+SHmWJJeYzwH/qs=
+github.com/picop-rd/picop-go v0.1.1-0.20231123081626-8c134a19a6e4/go.mod h1:XXMMuYfVuAHYKM+Z/ZLHBtQbPD8COVGQlwcAWIEtW6M=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
