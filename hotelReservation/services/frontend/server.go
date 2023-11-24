@@ -40,23 +40,23 @@ func (s *Server) Run() error {
 	}
 
 	log.Info().Msg("Initializing gRPC clients...")
-	if err := s.initSearchClient("search:8082"); err != nil {
+	if err := s.initSearchClient("search-proxy:8082"); err != nil {
 		return err
 	}
 
-	if err := s.initProfileClient("profile:8081"); err != nil {
+	if err := s.initProfileClient("profile-proxy:8081"); err != nil {
 		return err
 	}
 
-	if err := s.initRecommendationClient("recommendation:8085"); err != nil {
+	if err := s.initRecommendationClient("recommendation-proxy:8085"); err != nil {
 		return err
 	}
 
-	if err := s.initUserClient("user:8086"); err != nil {
+	if err := s.initUserClient("user-proxy:8086"); err != nil {
 		return err
 	}
 
-	if err := s.initReservation("reservation:8087"); err != nil {
+	if err := s.initReservation("reservation-proxy:8087"); err != nil {
 		return err
 	}
 	log.Info().Msg("Successfull")

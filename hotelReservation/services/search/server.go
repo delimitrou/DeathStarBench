@@ -70,10 +70,10 @@ func (s *Server) Run() error {
 	pb.RegisterSearchServer(srv, s)
 
 	// init grpc clients
-	if err := s.initGeoClient("geo:8083"); err != nil {
+	if err := s.initGeoClient("geo-proxy:8083"); err != nil {
 		return err
 	}
-	if err := s.initRateClient("rate:8084"); err != nil {
+	if err := s.initRateClient("rate-proxy:8084"); err != nil {
 		return err
 	}
 
