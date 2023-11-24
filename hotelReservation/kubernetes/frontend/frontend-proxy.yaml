@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-proxy
+  template:
+    metadata:
+      labels:
+        app: frontend-proxy
+    spec:
+      containers:
+        - name: proxy
+          image: "ghcr.io/picop-rd/proxy:latest"
+          command: ['/bin/proxy', '--proxy-port', '5000', '--admin-port', '9000', '--default-addr', 'frontend.dsb-hr.svc.cluster.local:5000', '--propagate=true', '--controller-url', 'http://proxy-controller.picop-system.svc.cluster.local:8080', '--id', 'frontend']
+          imagePullPolicy: Always
+          ports:
+            - name: proxy
+              containerPort: 5000
+            - name: admin
+              containerPort: 9000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-proxy
+spec:
+  type: NodePort
+  selector:
+    app: frontend-proxy
+  ports:
+    - name: proxy
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+    - name: admin
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
