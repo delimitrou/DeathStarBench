@@ -3,6 +3,7 @@ package frontend
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/picop-rd/picop-go/contrib/net/http/picophttp"
 	"github.com/picop-rd/picop-go/propagation"
+	picopnet "github.com/picop-rd/picop-go/protocol/net"
 )
 
 // Server implements frontend service
@@ -79,13 +81,18 @@ func (s *Server) Run() error {
 		Handler:     picophttp.NewHandler(mux, propagation.EnvID{}),
 		ConnContext: picophttp.ConnContext,
 	}
+	lis, err := net.Listen("tcp", srv.Addr)
+	if err != nil {
+		return err
+	}
+	plis := picopnet.NewListener(lis)
 	if tlsconfig != nil {
 		log.Info().Msg("Serving https")
 		srv.TLSConfig = tlsconfig
-		return srv.ListenAndServeTLS("x509/server_cert.pem", "x509/server_key.pem")
+		return srv.ServeTLS(plis, "x509/server_cert.pem", "x509/server_key.pem")
 	} else {
 		log.Info().Msg("Serving http")
-		return srv.ListenAndServe()
+		return srv.Serve(plis)
 	}
 }
 
