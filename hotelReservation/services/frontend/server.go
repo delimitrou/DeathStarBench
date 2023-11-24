@@ -18,6 +18,8 @@ import (
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/harlow/go-micro-services/tracing"
 	"github.com/opentracing/opentracing-go"
+	"github.com/picop-rd/picop-go/contrib/net/http/picophttp"
+	"github.com/picop-rd/picop-go/propagation"
 )
 
 // Server implements frontend service
@@ -73,8 +75,9 @@ func (s *Server) Run() error {
 
 	tlsconfig := tls.GetHttpsOpt()
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.Port),
-		Handler: mux,
+		Addr:        fmt.Sprintf(":%d", s.Port),
+		Handler:     picophttp.NewHandler(mux, propagation.EnvID{}),
+		ConnContext: picophttp.ConnContext,
 	}
 	if tlsconfig != nil {
 		log.Info().Msg("Serving https")
