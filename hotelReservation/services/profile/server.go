@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	// "io"
 	"net"
@@ -13,7 +14,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
 	"github.com/rs/zerolog/log"
 
 	"github.com/google/uuid"
@@ -21,10 +21,6 @@ import (
 	pb "github.com/harlow/go-micro-services/services/profile/proto"
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
-	picopmc "github.com/picop-rd/picop-go/contrib/github.com/bradfitz/gomemcache/picopgomemcache"
-	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
-	"github.com/picop-rd/picop-go/propagation"
-	picopnet "github.com/picop-rd/picop-go/protocol/net"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
@@ -40,8 +36,8 @@ type Server struct {
 	uuid        string
 	Port        int
 	IpAddr      string
-	MongoClient *picopmongo.Client
-	MemcClient  *picopmc.Client
+	MongoClient *mongo.Client
+	MemcClient  *memcache.Client
 }
 
 // Run starts the server
@@ -63,9 +59,8 @@ func (s *Server) Run() error {
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
-		grpc.ChainUnaryInterceptor(
+		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
-			picopgrpc.UnaryServerInterceptor(propagation.EnvID{}),
 		),
 	}
 
@@ -81,7 +76,6 @@ func (s *Server) Run() error {
 	if err != nil {
 		log.Fatal().Msgf("failed to configure listener: %v", err)
 	}
-	blis := picopnet.NewListener(lis)
 
 	// register the service
 	// jsonFile, err := os.Open("config.json")
@@ -96,7 +90,7 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	return srv.Serve(blis)
+	return srv.Serve(lis)
 }
 
 // Shutdown cleans up any processes
@@ -125,10 +119,9 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 		hotelIds = append(hotelIds, hotelId)
 		profileMap[hotelId] = struct{}{}
 	}
-	mclient := s.MemcClient.Connect(ctx)
 	memSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_get_profile")
 	memSpan.SetTag("span.kind", "client")
-	resMap, err := mclient.GetMulti(ctx, hotelIds)
+	resMap, err := s.MemcClient.GetMulti(hotelIds)
 	memSpan.Finish()
 	if err != nil && err != memcache.ErrCacheMiss {
 		log.Panic().Msgf("Tried to get hotelIds [%v], but got memmcached error = %s", hotelIds, err)
@@ -143,13 +136,10 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 			delete(profileMap, hotelId)
 		}
 
-		client, err := s.MongoClient.Connect(ctx)
-		if err != nil {
-			log.Panic().Msgf("Got error while connecting to mongo: %v", err)
-		}
 		wg.Add(len(profileMap))
 		for hotelId := range profileMap {
 			go func(hotelId string) {
+				client := s.MongoClient
 				c := client.Database("profile-db").Collection("hotels")
 
 				hotelProf := new(pb.Hotel)
@@ -173,7 +163,7 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 				memcStr := string(profJson)
 
 				// write to memcached
-				go mclient.Set(ctx, &memcache.Item{Key: hotelId, Value: []byte(memcStr)})
+				go s.MemcClient.Set(&memcache.Item{Key: hotelId, Value: []byte(memcStr)})
 				defer wg.Done()
 			}(hotelId)
 		}

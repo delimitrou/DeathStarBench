@@ -20,9 +20,6 @@ import (
 	pb "github.com/harlow/go-micro-services/services/search/proto"
 	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
-	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
-	"github.com/picop-rd/picop-go/propagation"
-	picopnet "github.com/picop-rd/picop-go/protocol/net"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -31,8 +28,8 @@ const name = "search"
 
 // Server implments the search service
 type Server struct {
-	geoClient  *picopgrpc.Client
-	rateClient *picopgrpc.Client
+	geoClient  geo.GeoClient
+	rateClient rate.RateClient
 
 	Tracer     opentracing.Tracer
 	Port       int
@@ -56,9 +53,8 @@ func (s *Server) Run() error {
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
-		grpc.ChainUnaryInterceptor(
+		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(s.Tracer),
-			picopgrpc.UnaryServerInterceptor(propagation.EnvID{}),
 		),
 	}
 
@@ -70,10 +66,10 @@ func (s *Server) Run() error {
 	pb.RegisterSearchServer(srv, s)
 
 	// init grpc clients
-	if err := s.initGeoClient("geo-proxy:8083"); err != nil {
+	if err := s.initGeoClient("geo:8083"); err != nil {
 		return err
 	}
-	if err := s.initRateClient("rate-proxy:8084"); err != nil {
+	if err := s.initRateClient("rate:8084"); err != nil {
 		return err
 	}
 
@@ -81,7 +77,6 @@ func (s *Server) Run() error {
 	if err != nil {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
-	blis := picopnet.NewListener(lis)
 
 	// register with consul
 	// jsonFile, err := os.Open("config.json")
@@ -96,7 +91,7 @@ func (s *Server) Run() error {
 	// var result map[string]string
 	// json.Unmarshal([]byte(byteValue), &result)
 
-	return srv.Serve(blis)
+	return srv.Serve(lis)
 }
 
 // Shutdown cleans up any processes
@@ -108,7 +103,7 @@ func (s *Server) initGeoClient(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.geoClient = conn
+	s.geoClient = geo.NewGeoClient(conn)
 	return nil
 }
 
@@ -117,11 +112,11 @@ func (s *Server) initRateClient(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.rateClient = conn
+	s.rateClient = rate.NewRateClient(conn)
 	return nil
 }
 
-func (s *Server) getGprcConn(name string) (*picopgrpc.Client, error) {
+func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 	if s.KnativeDns != "" {
 		return dialer.Dial(
 			fmt.Sprintf("%s.%s", name, s.KnativeDns),
@@ -142,12 +137,7 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 	log.Trace().Msgf("nearby lat = %f", req.Lat)
 	log.Trace().Msgf("nearby lon = %f", req.Lon)
 
-	geoConn, err := s.geoClient.Connect(ctx)
-	if err != nil {
-		return nil, err
-	}
-	geoClient := geo.NewGeoClient(geoConn)
-	nearby, err := geoClient.Nearby(ctx, &geo.Request{
+	nearby, err := s.geoClient.Nearby(ctx, &geo.Request{
 		Lat: req.Lat,
 		Lon: req.Lon,
 	})
@@ -160,12 +150,7 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 	}
 
 	// find rates for hotels
-	rateConn, err := s.rateClient.Connect(ctx)
-	if err != nil {
-		return nil, err
-	}
-	rateClient := rate.NewRateClient(rateConn)
-	rates, err := rateClient.GetRates(ctx, &rate.Request{
+	rates, err := s.rateClient.GetRates(ctx, &rate.Request{
 		HotelIds: nearby.HotelIds,
 		InDate:   req.InDate,
 		OutDate:  req.OutDate,

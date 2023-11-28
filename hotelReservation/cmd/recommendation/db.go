@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/picop-rd/picop-go/contrib/go.mongodb.org/mongo-driver/mongo/picopmongo"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -18,13 +18,12 @@ type Hotel struct {
 	HPrice float64 `bson:"price"`
 }
 
-func initializeDatabase(ctx context.Context, url string) *picopmongo.Client {
-	pc := picopmongo.New(options.Client().ApplyURI(url))
-	client, err := pc.Connect(ctx)
+func initializeDatabase(ctx context.Context, url string) *mongo.Client {
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(url))
 	if err != nil {
 		log.Panic().Msg(err.Error())
 	}
-	// defer client.Close()
+	// defer session.Close()
 	log.Info().Msg("New session successfull...")
 
 	log.Info().Msg("Generating test data...")
@@ -145,5 +144,5 @@ func initializeDatabase(ctx context.Context, url string) *picopmongo.Client {
 	// 	log.Fatal().Msg(err.Error())
 	// }
 
-	return pc
+	return client
 }

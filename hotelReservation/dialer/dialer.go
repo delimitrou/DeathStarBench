@@ -7,7 +7,6 @@ import (
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
-	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -23,7 +22,7 @@ func WithTracer(tracer opentracing.Tracer) DialOption {
 }
 
 // Dial returns a load balanced grpc client conn with tracing interceptor
-func Dial(name string, opts ...DialOption) (*picopgrpc.Client, error) {
+func Dial(name string, opts ...DialOption) (*grpc.ClientConn, error) {
 
 	dialopts := []grpc.DialOption{
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
@@ -45,5 +44,10 @@ func Dial(name string, opts ...DialOption) (*picopgrpc.Client, error) {
 		dialopts = append(dialopts, opt)
 	}
 
-	return picopgrpc.New(name, dialopts...), nil
+	conn, err := grpc.Dial(name, dialopts...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to dial %s: %v", name, err)
+	}
+
+	return conn, nil
 }

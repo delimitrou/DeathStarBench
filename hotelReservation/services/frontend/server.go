@@ -3,14 +3,14 @@ package frontend
 import (
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
+
+	"google.golang.org/grpc"
 
 	recommendation "github.com/harlow/go-micro-services/services/recommendation/proto"
 	reservation "github.com/harlow/go-micro-services/services/reservation/proto"
 	user "github.com/harlow/go-micro-services/services/user/proto"
-	"github.com/picop-rd/picop-go/contrib/google.golang.org/grpc/picopgrpc"
 	"github.com/rs/zerolog/log"
 
 	"github.com/harlow/go-micro-services/dialer"
@@ -19,18 +19,15 @@ import (
 	"github.com/harlow/go-micro-services/tls"
 	"github.com/harlow/go-micro-services/tracing"
 	"github.com/opentracing/opentracing-go"
-	"github.com/picop-rd/picop-go/contrib/net/http/picophttp"
-	"github.com/picop-rd/picop-go/propagation"
-	picopnet "github.com/picop-rd/picop-go/protocol/net"
 )
 
 // Server implements frontend service
 type Server struct {
-	searchClient         *picopgrpc.Client
-	profileClient        *picopgrpc.Client
-	recommendationClient *picopgrpc.Client
-	userClient           *picopgrpc.Client
-	reservationClient    *picopgrpc.Client
+	searchClient         search.SearchClient
+	profileClient        profile.ProfileClient
+	recommendationClient recommendation.RecommendationClient
+	userClient           user.UserClient
+	reservationClient    reservation.ReservationClient
 	KnativeDns           string
 	IpAddr               string
 	Port                 int
@@ -44,23 +41,23 @@ func (s *Server) Run() error {
 	}
 
 	log.Info().Msg("Initializing gRPC clients...")
-	if err := s.initSearchClient("search-proxy:8082"); err != nil {
+	if err := s.initSearchClient("search:8082"); err != nil {
 		return err
 	}
 
-	if err := s.initProfileClient("profile-proxy:8081"); err != nil {
+	if err := s.initProfileClient("profile:8081"); err != nil {
 		return err
 	}
 
-	if err := s.initRecommendationClient("recommendation-proxy:8085"); err != nil {
+	if err := s.initRecommendationClient("recommendation:8085"); err != nil {
 		return err
 	}
 
-	if err := s.initUserClient("user-proxy:8086"); err != nil {
+	if err := s.initUserClient("user:8086"); err != nil {
 		return err
 	}
 
-	if err := s.initReservation("reservation-proxy:8087"); err != nil {
+	if err := s.initReservation("reservation:8087"); err != nil {
 		return err
 	}
 	log.Info().Msg("Successfull")
@@ -77,22 +74,16 @@ func (s *Server) Run() error {
 
 	tlsconfig := tls.GetHttpsOpt()
 	srv := &http.Server{
-		Addr:        fmt.Sprintf(":%d", s.Port),
-		Handler:     picophttp.NewHandler(mux, propagation.EnvID{}),
-		ConnContext: picophttp.ConnContext,
+		Addr:    fmt.Sprintf(":%d", s.Port),
+		Handler: mux,
 	}
-	lis, err := net.Listen("tcp", srv.Addr)
-	if err != nil {
-		return err
-	}
-	plis := picopnet.NewListener(lis)
 	if tlsconfig != nil {
 		log.Info().Msg("Serving https")
 		srv.TLSConfig = tlsconfig
-		return srv.ServeTLS(plis, "x509/server_cert.pem", "x509/server_key.pem")
+		return srv.ListenAndServeTLS("x509/server_cert.pem", "x509/server_key.pem")
 	} else {
 		log.Info().Msg("Serving http")
-		return srv.Serve(plis)
+		return srv.ListenAndServe()
 	}
 }
 
@@ -101,7 +92,7 @@ func (s *Server) initSearchClient(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.searchClient = conn
+	s.searchClient = search.NewSearchClient(conn)
 	return nil
 }
 
@@ -110,7 +101,7 @@ func (s *Server) initProfileClient(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.profileClient = conn
+	s.profileClient = profile.NewProfileClient(conn)
 	return nil
 }
 
@@ -119,7 +110,7 @@ func (s *Server) initRecommendationClient(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.recommendationClient = conn
+	s.recommendationClient = recommendation.NewRecommendationClient(conn)
 	return nil
 }
 
@@ -128,7 +119,7 @@ func (s *Server) initUserClient(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.userClient = conn
+	s.userClient = user.NewUserClient(conn)
 	return nil
 }
 
@@ -137,11 +128,11 @@ func (s *Server) initReservation(name string) error {
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
-	s.reservationClient = conn
+	s.reservationClient = reservation.NewReservationClient(conn)
 	return nil
 }
 
-func (s *Server) getGprcConn(name string) (*picopgrpc.Client, error) {
+func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 	log.Info().Msg("get Grpc conn is :")
 	log.Info().Msg(s.KnativeDns)
 	log.Info().Msg(fmt.Sprintf("%s.%s", name, s.KnativeDns))
@@ -186,13 +177,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Trace().Msgf("SEARCH [lat: %v, lon: %v, inDate: %v, outDate: %v", lat, lon, inDate, outDate)
 	// search for best hotels
-	searchConn, err := s.searchClient.Connect(ctx)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	searchClient := search.NewSearchClient(searchConn)
-	searchResp, err := searchClient.Nearby(ctx, &search.NearbyRequest{
+	searchResp, err := s.searchClient.Nearby(ctx, &search.NearbyRequest{
 		Lat:     lat,
 		Lon:     lon,
 		InDate:  inDate,
@@ -214,13 +199,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		locale = "en"
 	}
 
-	reservationConn, err := s.reservationClient.Connect(ctx)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	reservationClient := reservation.NewReservationClient(reservationConn)
-	reservationResp, err := reservationClient.CheckAvailability(ctx, &reservation.Request{
+	reservationResp, err := s.reservationClient.CheckAvailability(ctx, &reservation.Request{
 		CustomerName: "",
 		HotelId:      searchResp.HotelIds,
 		InDate:       inDate,
@@ -237,13 +216,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 	log.Trace().Msgf("searchHandler gets reserveResp.HotelId = %s", reservationResp.HotelId)
 
 	// hotel profiles
-	profileConn, err := s.profileClient.Connect(ctx)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	profileClient := profile.NewProfileClient(profileConn)
-	profileResp, err := profileClient.GetProfiles(ctx, &profile.Request{
+	profileResp, err := s.profileClient.GetProfiles(ctx, &profile.Request{
 		HotelIds: reservationResp.HotelId,
 		Locale:   locale,
 	})
@@ -279,13 +252,7 @@ func (s *Server) recommendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// recommend hotels
-	recommendationConn, err := s.recommendationClient.Connect(ctx)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	recommendationClient := recommendation.NewRecommendationClient(recommendationConn)
-	recResp, err := recommendationClient.GetRecommendations(ctx, &recommendation.Request{
+	recResp, err := s.recommendationClient.GetRecommendations(ctx, &recommendation.Request{
 		Require: require,
 		Lat:     float64(lat),
 		Lon:     float64(lon),
@@ -302,13 +269,7 @@ func (s *Server) recommendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hotel profiles
-	profileConn, err := s.profileClient.Connect(ctx)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	profileClient := profile.NewProfileClient(profileConn)
-	profileResp, err := profileClient.GetProfiles(ctx, &profile.Request{
+	profileResp, err := s.profileClient.GetProfiles(ctx, &profile.Request{
 		HotelIds: recResp.HotelIds,
 		Locale:   locale,
 	})
@@ -331,13 +292,7 @@ func (s *Server) userHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check username and password
-	userConn, err := s.userClient.Connect(ctx)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	userClient := user.NewUserClient(userConn)
-	recResp, err := userClient.CheckUser(ctx, &user.Request{
+	recResp, err := s.userClient.CheckUser(ctx, &user.Request{
 		Username: username,
 		Password: password,
 	})
@@ -398,13 +353,7 @@ func (s *Server) reservationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check username and password
-	userConn, err := s.userClient.Connect(ctx)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	userClient := user.NewUserClient(userConn)
-	recResp, err := userClient.CheckUser(ctx, &user.Request{
+	recResp, err := s.userClient.CheckUser(ctx, &user.Request{
 		Username: username,
 		Password: password,
 	})
@@ -419,13 +368,7 @@ func (s *Server) reservationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Make reservation
-	reservationConn, err := s.reservationClient.Connect(ctx)
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	reservationClient := reservation.NewReservationClient(reservationConn)
-	resResp, err := reservationClient.MakeReservation(ctx, &reservation.Request{
+	resResp, err := s.reservationClient.MakeReservation(ctx, &reservation.Request{
 		CustomerName: customerName,
 		HotelId:      []string{hotelId},
 		InDate:       inDate,

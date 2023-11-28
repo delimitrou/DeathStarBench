@@ -43,8 +43,7 @@ func main() {
 
 	log.Info().Msgf("Read profile memcashed address: %v", result["RateMemcAddress"])
 	log.Info().Msg("Initializing Memcashed client...")
-	memc_client := tune.NewPiCoPMemCClient(result["RateMemcAddress"])
-	defer memc_client.Close()
+	memc_client := tune.NewMemCClient2(result["RateMemcAddress"])
 	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["RatePort"])
