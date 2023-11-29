@@ -26,7 +26,7 @@ target_link_libraries(
     Boost::log
     Boost::log_setup
     OpenSSL::SSL
-    /usr/local/lib/libjaegertracing.so
+    jaegertracing
     /usr/local/lib/libSimpleAmqpClient.so
 
 )

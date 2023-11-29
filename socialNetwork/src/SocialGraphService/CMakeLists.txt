@@ -24,11 +24,11 @@ target_link_libraries(
     Boost::log
     Boost::log_setup
     Boost::program_options
-    /usr/local/lib/libjaegertracing.so
-    /usr/local/lib/libhiredis.a
-    /usr/local/lib/libhiredis_ssl.a
-    /usr/local/lib/libredis++.a
+    hiredis::hiredis
+    hiredis::hiredis_ssl
+    jaegertracing
     OpenSSL::SSL
+    /usr/local/lib/libredis++.a 
 )
 
 install(TARGETS SocialGraphService DESTINATION ./)
