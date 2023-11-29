@@ -9,6 +9,7 @@ kind: Deployment
 metadata:
   labels:
     {{- include "hotel-reservation.labels" . | nindent 4 }}
+    {{- include "hotel-reservation.backendLabels" . | nindent 4 }}
     service: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
   name: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
 spec:
@@ -16,14 +17,23 @@ spec:
   selector:
     matchLabels:
       {{- include "hotel-reservation.selectorLabels" . | nindent 6 }}
+      {{- include "hotel-reservation.backendLabels" . | nindent 6 }}
       service: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
       app: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
   template:
     metadata:
       labels:
         {{- include "hotel-reservation.labels" . | nindent 8 }}
+        {{- include "hotel-reservation.backendLabels" . | nindent 8 }}
         service: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
         app: {{ .Values.name }}-{{ $rangeItem }}-{{ include "hotel-reservation.fullname" . }}
+      {{- if hasKey $.Values "annotations" }}
+      annotations:
+        {{ tpl $.Values.annotations . | nindent 8 | trim }}
+      {{- else if hasKey $.Values.global "annotations" }}
+      annotations:
+        {{ tpl $.Values.global.annotations . | nindent 8 | trim }}
+      {{- end }}
     spec:
       containers:
       {{- with .Values.container }}
@@ -50,7 +60,7 @@ spec:
         {{- if .args}}
         args:
         {{- range $arg := .args}}
-        - {{ $arg }}
+        - {{ $arg | quote }}
         {{- end -}}
         {{- end }}
         {{- if .resources }}
@@ -64,9 +74,9 @@ spec:
       {{- if hasKey .Values "topologySpreadConstraints" }}
       topologySpreadConstraints:
         {{ tpl .Values.topologySpreadConstraints . | nindent 6 | trim }}
-      {{- else if hasKey $.Values.global  "topologySpreadConstraints" }}
+      {{- else if hasKey $.Values.global.memcached "topologySpreadConstraints" }}
       topologySpreadConstraints:
-        {{ tpl $.Values.global.topologySpreadConstraints . | nindent 6 | trim }}
+        {{ tpl $.Values.global.memcached.topologySpreadConstraints . | nindent 6 | trim }}
       {{- end }}
       hostname: {{ .Values.name }}-{{ include "hotel-reservation.fullname" . }}
       restartPolicy: {{ .Values.restartPolicy | default .Values.global.restartPolicy}}
