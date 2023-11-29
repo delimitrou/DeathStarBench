@@ -3,6 +3,7 @@
 
 .DS_Store
 
+bin
 build
 
 wrk2/wrk
