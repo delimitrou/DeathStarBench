@@ -27,8 +27,8 @@ const name = "srv-profile"
 // Server implements the profile service
 type Server struct {
 	pb.UnimplementedProfileServer
-	
-	uuid        string
+
+	uuid string
 
 	Tracer      opentracing.Tracer
 	Port        int

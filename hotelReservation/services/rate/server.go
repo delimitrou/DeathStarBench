@@ -29,8 +29,8 @@ const name = "srv-rate"
 // Server implements the rate service
 type Server struct {
 	pb.UnimplementedRateServer
-	
-	uuid        string
+
+	uuid string
 
 	Tracer      opentracing.Tracer
 	Port        int

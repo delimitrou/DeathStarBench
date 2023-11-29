@@ -29,8 +29,8 @@ const name = "srv-reservation"
 type Server struct {
 	pb.UnimplementedReservationServer
 
-	uuid        string
-	
+	uuid string
+
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string

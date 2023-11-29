@@ -25,9 +25,9 @@ const name = "srv-user"
 // Server implements the user service
 type Server struct {
 	pb.UnimplementedUserServer
-	
+
 	users map[string]string
-	uuid        string
+	uuid  string
 
 	Tracer      opentracing.Tracer
 	Registry    *registry.Client
