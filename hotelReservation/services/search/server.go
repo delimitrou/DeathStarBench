@@ -29,15 +29,17 @@ const name = "srv-search"
 
 // Server implments the search service
 type Server struct {
+	pb.UnimplementedSearchServer
+
 	geoClient  geo.GeoClient
 	rateClient rate.RateClient
+	uuid       string
 
 	Tracer     opentracing.Tracer
 	Port       int
 	IpAddr     string
 	KnativeDns string
 	Registry   *registry.Client
-	uuid       string
 }
 
 // Run starts the server

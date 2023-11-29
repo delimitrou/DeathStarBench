@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874
-	github.com/golang/protobuf v1.0.0
 	github.com/google/uuid v1.4.0
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20171214222146-0e7658f8ee99
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
@@ -17,14 +16,15 @@ require (
 	go.mongodb.org/mongo-driver v1.12.2
 	golang.org/x/net v0.17.0
 	google.golang.org/grpc v1.11.2
+	google.golang.org/protobuf v1.31.0
 )
 
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da // indirect
 	github.com/golang/glog v1.1.2 // indirect
+	github.com/golang/protobuf v1.5.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
-	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/hashicorp/go-cleanhttp v0.0.0-20171218145408-d5fe4b57a186 // indirect
 	github.com/hashicorp/go-immutable-radix v1.0.0 // indirect
 	github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90 // indirect

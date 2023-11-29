@@ -27,13 +27,16 @@ const name = "srv-reservation"
 
 // Server implements the user service
 type Server struct {
+	pb.UnimplementedReservationServer
+
+	uuid        string
+	
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client
 	Registry    *registry.Client
 	MemcClient  *memcache.Client
-	uuid        string
 }
 
 // Run starts the server

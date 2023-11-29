@@ -26,8 +26,11 @@ const name = "srv-profile"
 
 // Server implements the profile service
 type Server struct {
-	Tracer      opentracing.Tracer
+	pb.UnimplementedProfileServer
+	
 	uuid        string
+
+	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client

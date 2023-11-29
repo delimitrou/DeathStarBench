@@ -28,13 +28,16 @@ const name = "srv-rate"
 
 // Server implements the rate service
 type Server struct {
+	pb.UnimplementedRateServer
+	
+	uuid        string
+
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client
 	Registry    *registry.Client
 	MemcClient  *memcache.Client
-	uuid        string
 }
 
 // Run starts the server
