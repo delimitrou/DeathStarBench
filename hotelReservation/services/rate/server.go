@@ -1,47 +1,40 @@
 package rate
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-
-	// "io/ioutil"
 	"net"
-	// "os"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
+	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
 	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/rate/proto"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-
-	"strings"
-
-	"github.com/bradfitz/gomemcache/memcache"
 )
 
 const name = "srv-rate"
 
 // Server implements the rate service
 type Server struct {
-	Tracer       opentracing.Tracer
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	Registry     *registry.Client
-	MemcClient   *memcache.Client
-	uuid         string
+	Tracer      opentracing.Tracer
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	Registry    *registry.Client
+	MemcClient  *memcache.Client
+	uuid        string
 }
 
 // Run starts the server
@@ -79,19 +72,6 @@ func (s *Server) Run() error {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
 
-	// register the service
-	// jsonFile, err := os.Open("config.json")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// defer jsonFile.Close()
-
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	// var result map[string]string
-	// json.Unmarshal([]byte(byteValue), &result)
-
 	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
@@ -109,11 +89,6 @@ func (s *Server) Shutdown() {
 // GetRates gets rates for hotels for specific date range.
 func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, error) {
 	res := new(pb.Result)
-	// session, err := mgo.Dial("mongodb-rate")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer session.Close()
 
 	ratePlans := make(RatePlans, 0)
 
@@ -126,8 +101,10 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 	// first check memcached(get-multi)
 	memSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_get_multi_rate")
 	memSpan.SetTag("span.kind", "client")
+
 	resMap, err := s.MemcClient.GetMulti(hotelIds)
 	memSpan.Finish()
+
 	var wg sync.WaitGroup
 	var mutex sync.Mutex
 	if err != nil && err != memcache.ErrCacheMiss {
@@ -144,24 +121,35 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 					ratePlans = append(ratePlans, rateP)
 				}
 			}
+
 			delete(rateMap, hotelId)
 		}
+
 		wg.Add(len(rateMap))
 		for hotelId := range rateMap {
 			go func(id string) {
 				log.Trace().Msgf("memc miss, hotelId = %s", id)
 				log.Trace().Msg("memcached miss, set up mongo connection")
 
-				// memcached miss, set up mongo connection
-				session := s.MongoSession.Copy()
-				defer session.Close()
-				c := session.DB("rate-db").C("inventory")
-				memcStr := ""
-				tmpRatePlans := make(RatePlans, 0)
 				mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_rate")
 				mongoSpan.SetTag("span.kind", "client")
-				err := c.Find(&bson.M{"hotelId": id}).All(&tmpRatePlans)
+
+				// memcached miss, set up mongo connection
+				collection := s.MongoClient.Database("rate-db").Collection("inventory")
+				curr, err := collection.Find(context.TODO(), bson.D{})
+				if err != nil {
+					log.Error().Msgf("Failed get rate data: ", err)
+				}
+
+				tmpRatePlans := make(RatePlans, 0)
+				curr.All(context.TODO(), &tmpRatePlans)
+				if err != nil {
+					log.Error().Msgf("Failed get rate data: ", err)
+				}
+
 				mongoSpan.Finish()
+
+				memcStr := ""
 				if err != nil {
 					log.Panic().Msgf("Tried to find hotelId [%v], but got error", id, err.Error())
 				} else {

@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Reservation struct {
@@ -21,117 +23,63 @@ type Number struct {
 	Number  int    `bson:"numberOfRoom"`
 }
 
-func initializeDatabase(url string) *mgo.Session {
-	session, err := mgo.Dial(url)
-	if err != nil {
-		log.Panic().Msg(err.Error())
-	}
-	// defer session.Close()
-	log.Info().Msg("New session successfull...")
+func initializeDatabase(url string) (*mongo.Client, func()) {
+	log.Info().Msg("Generating test data...")
 
-	c := session.DB("reservation-db").C("reservation")
-	count, err := c.Find(&bson.M{"hotelId": "4"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&Reservation{"4", "Alice", "2015-04-09", "2015-04-10", 1})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
+	newReservations := []interface{}{
+		Reservation{"4", "Alice", "2015-04-09", "2015-04-10", 1},
 	}
 
-	c = session.DB("reservation-db").C("number")
-	count, err = c.Find(&bson.M{"hotelId": "1"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&Number{"1", 200})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-	}
-
-	count, err = c.Find(&bson.M{"hotelId": "2"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&Number{"2", 200})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-	}
-
-	count, err = c.Find(&bson.M{"hotelId": "3"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&Number{"3", 200})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-	}
-
-	count, err = c.Find(&bson.M{"hotelId": "4"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&Number{"4", 200})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-	}
-
-	count, err = c.Find(&bson.M{"hotelId": "5"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&Number{"5", 200})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-	}
-
-	count, err = c.Find(&bson.M{"hotelId": "6"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&Number{"6", 200})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
+	newNumbers := []interface{}{
+		Number{"1", 200},
+		Number{"2", 200},
+		Number{"3", 200},
+		Number{"4", 200},
+		Number{"5", 200},
+		Number{"6", 200},
 	}
 
 	for i := 7; i <= 80; i++ {
-		hotel_id := strconv.Itoa(i)
-		count, err = c.Find(&bson.M{"hotelId": hotel_id}).Count()
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-		room_num := 200
+		hotelID := strconv.Itoa(i)
+
+		roomNumber := 200
 		if i%3 == 1 {
-			room_num = 300
+			roomNumber = 300
 		} else if i%3 == 2 {
-			room_num = 250
+			roomNumber = 250
 		}
-		if count == 0 {
-			err = c.Insert(&Number{hotel_id, room_num})
-			if err != nil {
-				log.Fatal().Msg(err.Error())
-			}
-		}
+
+		newNumbers = append(newNumbers, Number{hotelID, roomNumber})
 	}
 
-	err = c.EnsureIndexKey("hotelId")
+	uri := fmt.Sprintf("mongodb://%s", url)
+	log.Info().Msgf("Attempting connection to %v", uri)
+
+	opts := options.Client().ApplyURI(uri)
+	client, err := mongo.Connect(context.TODO(), opts)
+	if err != nil {
+		log.Panic().Msg(err.Error())
+	}
+	log.Info().Msg("Successfully connected to MongoDB")
+
+	database := client.Database("reservation-db")
+	resCollection := database.Collection("reservation")
+	numCollection := database.Collection("number")
+
+	_, err = resCollection.InsertMany(context.TODO(), newReservations)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 
-	return session
+	_, err = numCollection.InsertMany(context.TODO(), newNumbers)
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	log.Info().Msg("Successfully inserted test data into reservation DB")
+
+	return client, func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
 }

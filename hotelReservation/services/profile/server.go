@@ -1,45 +1,38 @@
 package profile
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-
-	// "io/ioutil"
 	"net"
-	// "os"
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
+	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
 	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/profile/proto"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-
-	"github.com/bradfitz/gomemcache/memcache"
-	// "strings"
 )
 
 const name = "srv-profile"
 
 // Server implements the profile service
 type Server struct {
-	Tracer       opentracing.Tracer
-	uuid         string
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	Registry     *registry.Client
-	MemcClient   *memcache.Client
+	Tracer      opentracing.Tracer
+	uuid        string
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	Registry    *registry.Client
+	MemcClient  *memcache.Client
 }
 
 // Run starts the server
@@ -79,19 +72,6 @@ func (s *Server) Run() error {
 		log.Fatal().Msgf("failed to configure listener: %v", err)
 	}
 
-	// register the service
-	// jsonFile, err := os.Open("config.json")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// defer jsonFile.Close()
-
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	// var result map[string]string
-	// json.Unmarshal([]byte(byteValue), &result)
-
 	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
@@ -108,16 +88,8 @@ func (s *Server) Shutdown() {
 
 // GetProfiles returns hotel profiles for requested IDs
 func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, error) {
-	// session, err := mgo.Dial("mongodb-profile")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer session.Close()
-
 	log.Trace().Msgf("In GetProfiles")
 
-	res := new(pb.Result)
-	hotels := make([]*pb.Hotel, 0)
 	var wg sync.WaitGroup
 	var mutex sync.Mutex
 
@@ -128,10 +100,15 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 		hotelIds = append(hotelIds, hotelId)
 		profileMap[hotelId] = struct{}{}
 	}
+
 	memSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_get_profile")
 	memSpan.SetTag("span.kind", "client")
 	resMap, err := s.MemcClient.GetMulti(hotelIds)
 	memSpan.Finish()
+
+	res := new(pb.Result)
+	hotels := make([]*pb.Hotel, 0)
+
 	if err != nil && err != memcache.ErrCacheMiss {
 		log.Panic().Msgf("Tried to get hotelIds [%v], but got memmcached error = %s", hotelIds, err)
 	} else {
@@ -148,14 +125,13 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 		wg.Add(len(profileMap))
 		for hotelId := range profileMap {
 			go func(hotelId string) {
-				session := s.MongoSession.Copy()
-				defer session.Close()
-				c := session.DB("profile-db").C("hotels")
+				var hotelProf *pb.Hotel
 
-				hotelProf := new(pb.Hotel)
+				collection := s.MongoClient.Database("profile-db").Collection("hotels")
+
 				mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_profile")
 				mongoSpan.SetTag("span.kind", "client")
-				err := c.Find(bson.M{"id": hotelId}).One(&hotelProf)
+				err := collection.FindOne(context.TODO(), bson.D{{"id", hotelId}}).Decode(&hotelProf)
 				mongoSpan.Finish()
 
 				if err != nil {

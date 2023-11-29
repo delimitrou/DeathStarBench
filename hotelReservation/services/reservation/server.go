@@ -1,45 +1,39 @@
 package reservation
 
 import (
-	// "encoding/json"
+	"context"
 	"fmt"
+	"net"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 
+	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
 	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/reservation/proto"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-
-	// "io/ioutil"
-	"net"
-	// "os"
-	"time"
-
-	"github.com/bradfitz/gomemcache/memcache"
-	"github.com/rs/zerolog/log"
-
-	"strconv"
-	"strings"
-	"sync"
 )
 
 const name = "srv-reservation"
 
 // Server implements the user service
 type Server struct {
-	Tracer       opentracing.Tracer
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	Registry     *registry.Client
-	MemcClient   *memcache.Client
-	uuid         string
+	Tracer      opentracing.Tracer
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	Registry    *registry.Client
+	MemcClient  *memcache.Client
+	uuid        string
 }
 
 // Run starts the server
@@ -77,19 +71,6 @@ func (s *Server) Run() error {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
 
-	// register the service
-	// jsonFile, err := os.Open("config.json")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// defer jsonFile.Close()
-
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	// var result map[string]string
-	// json.Unmarshal([]byte(byteValue), &result)
-
 	log.Trace().Msgf("In reservation s.IpAddr = %s, port = %d", s.IpAddr, s.Port)
 
 	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
@@ -111,16 +92,9 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 	res := new(pb.Result)
 	res.HotelId = make([]string, 0)
 
-	// session, err := mgo.Dial("mongodb-reservation")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer session.Close()
-	session := s.MongoSession.Copy()
-	defer session.Close()
-
-	c := session.DB("reservation-db").C("reservation")
-	c1 := session.DB("reservation-db").C("number")
+	database := s.MongoClient.Database("reservation-db")
+	resCollection := database.Collection("reservation")
+	numCollection := database.Collection("number")
 
 	inDate, _ := time.Parse(
 		time.RFC3339,
@@ -153,8 +127,14 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 		} else if err == memcache.ErrCacheMiss {
 			// memcached miss
 			log.Trace().Msgf("memcached miss")
-			reserve := make([]reservation, 0)
-			err := c.Find(&bson.M{"hotelId": hotelId, "inDate": indate, "outDate": outdate}).All(&reserve)
+			var reserve []reservation
+
+			filter := bson.D{{"hotelId", hotelId}, {"inDate", indate}, {"outDate", outdate}}
+			curr, err := resCollection.Find(context.TODO(), filter)
+			if err != nil {
+				log.Error().Msgf("Failed get reservation data: ", err)
+			}
+			curr.All(context.TODO(), &reserve)
 			if err != nil {
 				log.Panic().Msgf("Tried to find hotelId [%v] from date [%v] to date [%v], but got error", hotelId, indate, outdate, err.Error())
 			}
@@ -181,7 +161,7 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 		} else if err == memcache.ErrCacheMiss {
 			// memcached miss
 			var num number
-			err = c1.Find(&bson.M{"hotelId": hotelId}).One(&num)
+			err = numCollection.FindOne(context.TODO(), &bson.D{{"hotelId", hotelId}}).Decode(&num)
 			if err != nil {
 				log.Panic().Msgf("Tried to find hotelId [%v], but got error", hotelId, err.Error())
 			}
@@ -213,12 +193,16 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 	for inDate.Before(outDate) {
 		inDate = inDate.AddDate(0, 0, 1)
 		outdate := inDate.String()[0:10]
-		err := c.Insert(&reservation{
-			HotelId:      hotelId,
-			CustomerName: req.CustomerName,
-			InDate:       indate,
-			OutDate:      outdate,
-			Number:       int(req.RoomNumber)})
+		_, err := resCollection.InsertOne(
+			context.TODO(),
+			reservation{
+				HotelId:      hotelId,
+				CustomerName: req.CustomerName,
+				InDate:       indate,
+				OutDate:      outdate,
+				Number:       int(req.RoomNumber),
+			},
+		)
 		if err != nil {
 			log.Panic().Msgf("Tried to insert hotel [hotelId %v], but got error", hotelId, err.Error())
 		}
@@ -235,16 +219,6 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 	res := new(pb.Result)
 	res.HotelId = make([]string, 0)
 
-	// session, err := mgo.Dial("mongodb-reservation")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer session.Close()
-	session := s.MongoSession.Copy()
-	defer session.Close()
-
-	c1 := session.DB("reservation-db").C("number")
-
 	hotelMemKeys := []string{}
 	keysMap := make(map[string]struct{})
 	resMap := make(map[string]bool)
@@ -254,10 +228,14 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		resMap[hotelId] = true
 		keysMap[hotelId+"_cap"] = struct{}{}
 	}
+
 	capMemSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_capacity_get_multi_number")
 	capMemSpan.SetTag("span.kind", "client")
 	cacheMemRes, err := s.MemcClient.GetMulti(hotelMemKeys)
 	capMemSpan.Finish()
+
+	numCollection := s.MongoClient.Database("reservation-db").Collection("number")
+
 	misKeys := []string{}
 	// gather cache miss key to query in mongodb
 	if err == memcache.ErrCacheMiss {
@@ -280,10 +258,17 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		for _, k := range misKeys {
 			queryMissKeys = append(queryMissKeys, strings.Split(k, "_")[0])
 		}
-		nums := []number{}
+		var nums []number
 		capMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number")
 		capMongoSpan.SetTag("span.kind", "client")
-		err = c1.Find(bson.M{"hotelId": bson.M{"$in": queryMissKeys}}).All(&nums)
+		curr, err := numCollection.Find(context.TODO(), bson.D{{"$in", queryMissKeys}})
+		if err != nil {
+			log.Error().Msgf("Failed get reservation number data: ", err)
+		}
+		curr.All(context.TODO(), &nums)
+		if err != nil {
+			log.Error().Msgf("Failed get reservation number data: ", err)
+		}
 		capMongoSpan.Finish()
 		if err != nil {
 			log.Panic().Msgf("Tried to find hotelId [%v], but got error", misKeys, err.Error())
@@ -365,15 +350,25 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 			for command := range queryMap {
 				go func(comm string) {
 					defer wg.Done()
-					reserve := []reservation{}
-					tmpSess := s.MongoSession.Copy()
-					defer tmpSess.Close()
+
+					var reserve []reservation
+
 					queryItem := queryMap[comm]
-					c := tmpSess.DB("reservation-db").C("reservation")
+					resCollection := s.MongoClient.Database("reservation-db").Collection("reservation")
+					filter := bson.D{{"hotelId", queryItem["hotelId"]}, {"inDate", queryItem["startDate"]}, {"outDate", queryItem["endDate"]}}
+
 					reserveMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number"+comm)
 					reserveMongoSpan.SetTag("span.kind", "client")
-					err := c.Find(&bson.M{"hotelId": queryItem["hotelId"], "inDate": queryItem["startDate"], "outDate": queryItem["endDate"]}).All(&reserve)
+					curr, err := resCollection.Find(context.TODO(), filter)
+					if err != nil {
+						log.Error().Msgf("Failed get reservation data: ", err)
+					}
+					curr.All(context.TODO(), &reserve)
+					if err != nil {
+						log.Error().Msgf("Failed get reservation data: ", err)
+					}
 					reserveMongoSpan.Finish()
+
 					if err != nil {
 						log.Panic().Msgf("Tried to find hotelId [%v] from date [%v] to date [%v], but got error",
 							queryItem["hotelId"], queryItem["startDate"], queryItem["endDate"], err.Error())
