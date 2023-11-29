@@ -25,13 +25,16 @@ const name = "srv-recommendation"
 
 // Server implements the recommendation service
 type Server struct {
+	pb.UnimplementedRecommendationServer
+	
 	hotels      map[string]Hotel
+	uuid        string
+
 	Tracer      opentracing.Tracer
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client
-	Registry    *registry.Client
-	uuid        string
+	Registry    *registry.Client	
 }
 
 // Run starts the server
