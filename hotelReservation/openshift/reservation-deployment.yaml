@@ -15,7 +15,7 @@ spec:
   strategy: {}
   template:
     metadata:
-      name: ./reservation
+      name: reservation
       labels:
         death-star-project: hotel-res
         app-name: reservation
@@ -34,7 +34,7 @@ spec:
         - containerPort: 8087
         resources: {}
         volumeMounts:
-        - mountPath: config.json
+        - mountPath: /go/src/github.com/harlow/go-micro-services/config.json
           subPath: config.json
           name: config-json
       restartPolicy: Always

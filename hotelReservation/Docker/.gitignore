@@ -1,0 +1,8 @@
+cmd/*/data
+cmd/api/api
+cmd/auth/auth
+cmd/geo/geo
+cmd/profile/profile
+cmd/rate/rate
+cmd/www/www
+cmd/search/search

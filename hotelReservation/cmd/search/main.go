@@ -9,10 +9,10 @@ import (
 
 	"strconv"
 
-	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/services/search"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tune"
+	"github.com/harlow/go-micro-services/registry"
+	"github.com/harlow/go-micro-services/services/search"
+	"github.com/harlow/go-micro-services/tracing"
+	"github.com/harlow/go-micro-services/tune"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -34,36 +34,39 @@ func main() {
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
 
-	servPort, _ := strconv.Atoi(result["SearchPort"])
-	servIP := result["SearchIP"]
-	knativeDNS := result["KnativeDomainName"]
+	serv_port, _ := strconv.Atoi(result["SearchPort"])
+	serv_ip := result["SearchIP"]
+	log.Info().Msgf("Read target port: %v", serv_port)
+	log.Info().Msgf("Read consul address: %v", result["consulAddress"])
+	log.Info().Msgf("Read jaeger address: %v", result["jaegerAddress"])
 
 	var (
-		jaegerAddr = flag.String("jaegerAddr", result["jaegerAddress"], "Jaeger address")
-		consulAddr = flag.String("consulAddr", result["consulAddress"], "Consul address")
+		// port       = flag.Int("port", 8082, "The server port")
+		jaegeraddr = flag.String("jaegeraddr", result["jaegerAddress"], "Jaeger address")
+		consuladdr = flag.String("consuladdr", result["consulAddress"], "Consul address")
 	)
 	flag.Parse()
 
-	log.Info().Msgf("Initializing jaeger agent [service name: %v | host: %v]...", "search", *jaegerAddr)
-	tracer, err := tracing.Init("search", *jaegerAddr)
+	log.Info().Msgf("Initializing jaeger agent [service name: %v | host: %v]...", "search", *jaegeraddr)
+	tracer, err := tracing.Init("search", *jaegeraddr)
 	if err != nil {
 		log.Panic().Msgf("Got error while initializing jaeger agent: %v", err)
 	}
 	log.Info().Msg("Jaeger agent initialized")
 
-	log.Info().Msgf("Initializing consul agent [host: %v]...", *consulAddr)
-	registry, err := registry.NewClient(*consulAddr)
+	log.Info().Msgf("Initializing consul agent [host: %v]...", *consuladdr)
+	registry, err := registry.NewClient(*consuladdr)
 	if err != nil {
 		log.Panic().Msgf("Got error while initializing consul agent: %v", err)
 	}
 	log.Info().Msg("Consul agent initialized")
 
 	srv := &search.Server{
-		Tracer:     tracer,
-		Port:       servPort,
-		IpAddr:     servIP,
-		KnativeDns: knativeDNS,
-		Registry:   registry,
+		Tracer: tracer,
+		// Port:     *port,
+		Port:     serv_port,
+		IpAddr:   serv_ip,
+		Registry: registry,
 	}
 
 	log.Info().Msg("Starting server...")

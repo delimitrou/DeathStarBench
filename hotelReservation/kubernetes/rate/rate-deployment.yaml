@@ -27,8 +27,8 @@ spec:
     spec:
       containers:
         - command:
-            - ./rate
-          image: deathstarbench/hotel-reservation:latest
+            - rate
+          image: igorrudyk1/hotelreservation:latest
           name: hotel-reserv-rate
           ports:
             - containerPort: 8084

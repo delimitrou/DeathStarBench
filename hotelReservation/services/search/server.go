@@ -11,14 +11,14 @@ import (
 	// "os"
 	"time"
 
-	"github.com/delimitrou/DeathStarBench/hotelreservation/dialer"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
-	geo "github.com/delimitrou/DeathStarBench/hotelreservation/services/geo/proto"
-	rate "github.com/delimitrou/DeathStarBench/hotelreservation/services/rate/proto"
-	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/search/proto"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/harlow/go-micro-services/dialer"
+	"github.com/harlow/go-micro-services/registry"
+	geo "github.com/harlow/go-micro-services/services/geo/proto"
+	rate "github.com/harlow/go-micro-services/services/rate/proto"
+	pb "github.com/harlow/go-micro-services/services/search/proto"
+	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
 	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -32,12 +32,11 @@ type Server struct {
 	geoClient  geo.GeoClient
 	rateClient rate.RateClient
 
-	Tracer     opentracing.Tracer
-	Port       int
-	IpAddr     string
-	KnativeDns string
-	Registry   *registry.Client
-	uuid       string
+	Tracer   opentracing.Tracer
+	Port     int
+	IpAddr   string
+	Registry *registry.Client
+	uuid     string
 }
 
 // Run starts the server
@@ -108,7 +107,11 @@ func (s *Server) Shutdown() {
 }
 
 func (s *Server) initGeoClient(name string) error {
-	conn, err := s.getGprcConn(name)
+	conn, err := dialer.Dial(
+		name,
+		dialer.WithTracer(s.Tracer),
+		dialer.WithBalancer(s.Registry.Client),
+	)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
@@ -117,26 +120,16 @@ func (s *Server) initGeoClient(name string) error {
 }
 
 func (s *Server) initRateClient(name string) error {
-	conn, err := s.getGprcConn(name)
+	conn, err := dialer.Dial(
+		name,
+		dialer.WithTracer(s.Tracer),
+		dialer.WithBalancer(s.Registry.Client),
+	)
 	if err != nil {
 		return fmt.Errorf("dialer error: %v", err)
 	}
 	s.rateClient = rate.NewRateClient(conn)
 	return nil
-}
-
-func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
-	if s.KnativeDns != "" {
-		return dialer.Dial(
-			fmt.Sprintf("%s.%s", name, s.KnativeDns),
-			dialer.WithTracer(s.Tracer))
-	} else {
-		return dialer.Dial(
-			name,
-			dialer.WithTracer(s.Tracer),
-			dialer.WithBalancer(s.Registry.Client),
-		)
-	}
 }
 
 // Nearby returns ids of nearby hotels ordered by ranking algo

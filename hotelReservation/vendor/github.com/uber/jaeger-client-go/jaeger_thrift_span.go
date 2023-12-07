@@ -24,10 +24,7 @@ import (
 )
 
 // BuildJaegerThrift builds jaeger span based on internal span.
-// TODO: (breaking change) move to internal package.
 func BuildJaegerThrift(span *Span) *j.Span {
-	span.Lock()
-	defer span.Unlock()
 	startTime := utils.TimeToMicrosecondsSinceEpochInt64(span.startTime)
 	duration := span.duration.Nanoseconds() / int64(time.Microsecond)
 	jaegerSpan := &j.Span{
@@ -36,10 +33,10 @@ func BuildJaegerThrift(span *Span) *j.Span {
 		SpanId:        int64(span.context.spanID),
 		ParentSpanId:  int64(span.context.parentID),
 		OperationName: span.operationName,
-		Flags:         int32(span.context.samplingState.flags()),
+		Flags:         int32(span.context.flags),
 		StartTime:     startTime,
 		Duration:      duration,
-		Tags:          buildTags(span.tags, span.tracer.options.maxTagValueLength),
+		Tags:          buildTags(span.tags),
 		Logs:          buildLogs(span.logs),
 		References:    buildReferences(span.references),
 	}
@@ -47,28 +44,22 @@ func BuildJaegerThrift(span *Span) *j.Span {
 }
 
 // BuildJaegerProcessThrift creates a thrift Process type.
-// TODO: (breaking change) move to internal package.
 func BuildJaegerProcessThrift(span *Span) *j.Process {
-	span.Lock()
-	defer span.Unlock()
 	return buildJaegerProcessThrift(span.tracer)
 }
 
 func buildJaegerProcessThrift(tracer *Tracer) *j.Process {
 	process := &j.Process{
 		ServiceName: tracer.serviceName,
-		Tags:        buildTags(tracer.tags, tracer.options.maxTagValueLength),
-	}
-	if tracer.process.UUID != "" {
-		process.Tags = append(process.Tags, &j.Tag{Key: TracerUUIDTagKey, VStr: &tracer.process.UUID, VType: j.TagType_STRING})
+		Tags:        buildTags(tracer.tags),
 	}
 	return process
 }
 
-func buildTags(tags []Tag, maxTagValueLength int) []*j.Tag {
+func buildTags(tags []Tag) []*j.Tag {
 	jTags := make([]*j.Tag, 0, len(tags))
 	for _, tag := range tags {
-		jTag := buildTag(&tag, maxTagValueLength)
+		jTag := buildTag(&tag)
 		jTags = append(jTags, jTag)
 	}
 	return jTags
@@ -86,16 +77,16 @@ func buildLogs(logs []opentracing.LogRecord) []*j.Log {
 	return jLogs
 }
 
-func buildTag(tag *Tag, maxTagValueLength int) *j.Tag {
+func buildTag(tag *Tag) *j.Tag {
 	jTag := &j.Tag{Key: tag.key}
 	switch value := tag.value.(type) {
 	case string:
-		vStr := truncateString(value, maxTagValueLength)
+		vStr := truncateString(value)
 		jTag.VStr = &vStr
 		jTag.VType = j.TagType_STRING
 	case []byte:
-		if len(value) > maxTagValueLength {
-			value = value[:maxTagValueLength]
+		if len(value) > maxAnnotationLength {
+			value = value[:maxAnnotationLength]
 		}
 		jTag.VBinary = value
 		jTag.VType = j.TagType_BINARY
@@ -152,7 +143,7 @@ func buildTag(tag *Tag, maxTagValueLength int) *j.Tag {
 		jTag.VBool = &vBool
 		jTag.VType = j.TagType_BOOL
 	default:
-		vStr := truncateString(stringify(value), maxTagValueLength)
+		vStr := truncateString(stringify(value))
 		jTag.VStr = &vStr
 		jTag.VType = j.TagType_STRING
 	}

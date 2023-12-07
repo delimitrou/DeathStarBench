@@ -12,11 +12,10 @@ services:
   frontend:
     environment:
       - TLS
-      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_frontend_single_node
+    image: nevenas/dsbhotel
     entrypoint: frontend
     container_name: 'hotel_reserv_frontend'
     ports:
@@ -28,9 +27,7 @@ services:
   profile:
     environment:
       - TLS
-      - GC
       - JAEGER_SAMPLE_RATIO
-      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_profile_single_node
@@ -39,6 +36,21 @@ services:
     depends_on:
       - mongodb-profile
       - memcached-profile
+      - consul
+    restart: always
+
+  review:
+    environment:
+      - TLS
+      - JAEGER_SAMPLE_RATIO
+      - LOG_LEVEL
+    build: .
+    image: nevenas/dsbhotel
+    entrypoint: review
+    container_name: 'hotel_reserv_review'
+    depends_on:
+      - mongodb-review
+      - memcached-review
       - consul
     restart: always
 
@@ -52,7 +64,6 @@ services:
     restart: always
     environment:
       - TLS
-      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
       # - GRPC_GO_LOG_VERBOSITY_LEVEL=2
@@ -61,7 +72,6 @@ services:
   geo:
     environment:
       - TLS
-      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -76,9 +86,7 @@ services:
   rate:
     environment:
       - TLS
-      - GC
       - JAEGER_SAMPLE_RATIO
-      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_rate_single_node
@@ -93,7 +101,6 @@ services:
   recommendation:
     environment:
       - TLS
-      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -108,7 +115,6 @@ services:
   user:
     environment:
       - TLS
-      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -123,9 +129,7 @@ services:
   reservation:
     environment:
       - TLS
-      - GC
       - JAEGER_SAMPLE_RATIO
-      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_rsv_single_node
@@ -175,6 +179,18 @@ services:
       options:
         max-size: 50m
 
+  memcached-review:
+    image: memcached
+    # hostname: user-memcached
+    container_name: 'hotel_reserv_review_mmc'
+    restart: always
+    environment:
+      - MEMCACHED_CACHE_SIZE=128
+      - MEMCACHED_THREADS=2
+    logging:
+      options:
+        max-size: 50m
+
   memcached-reserve:
     image: memcached
     # hostname: user-memcached
@@ -202,6 +218,14 @@ services:
     restart: always
     volumes:
       - profile:/data/db    
+
+  mongodb-review:
+    image: mongo:4.4.6
+    container_name: 'hotel_reserv_review_mongo'
+    hostname: review-db
+    restart: always
+    volumes:
+      - review:/data/db   
 
   mongodb-rate:
     image: mongo:4.4.6
@@ -242,3 +266,4 @@ volumes:
   recommendation:
   reservation:
   user:
+  review:

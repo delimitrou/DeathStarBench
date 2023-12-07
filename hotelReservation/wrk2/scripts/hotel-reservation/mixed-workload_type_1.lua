@@ -2,8 +2,6 @@ local socket = require("socket")
 math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
 
-local url = "http://localhost:5000"
-
 local function get_user()
   local id = math.random(0, 500)
   local user_name = "Cornell_" .. tostring(id)
