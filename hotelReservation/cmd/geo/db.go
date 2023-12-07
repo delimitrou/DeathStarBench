@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type point struct {
@@ -16,46 +14,103 @@ type point struct {
 	Plon float64 `bson:"lon"`
 }
 
-func initializeDatabase(url string) (*mongo.Client, func()) {
-	log.Info().Msg("Generating test data...")
-
-	newPoints := []interface{}{
-		point{"1", 37.7867, -122.4112},
-		point{"2", 37.7854, -122.4005},
-		point{"3", 37.7854, -122.4071},
-		point{"4", 37.7936, -122.3930},
-		point{"5", 37.7831, -122.4181},
-		point{"6", 37.7863, -122.4015},
-	}
-
-	for i := 7; i <= 80; i++ {
-		hotelID := strconv.Itoa(i)
-		lat := 37.7835 + float64(i)/500.0*3
-		lon := -122.41 + float64(i)/500.0*4
-
-		newPoints = append(newPoints, point{hotelID, lat, lon})
-	}
-
-	uri := fmt.Sprintf("mongodb://%s", url)
-	log.Info().Msgf("Attempting connection to %v", uri)
-
-	opts := options.Client().ApplyURI(uri)
-	client, err := mongo.Connect(context.TODO(), opts)
+func initializeDatabase(url string) *mgo.Session {
+	session, err := mgo.Dial(url)
 	if err != nil {
 		log.Panic().Msg(err.Error())
 	}
-	log.Info().Msg("Successfully connected to MongoDB")
+	// defer session.Close()
+	log.Info().Msg("New session successfull...")
 
-	collection := client.Database("geo-db").Collection("geo")
-	_, err = collection.InsertMany(context.TODO(), newPoints)
+	log.Info().Msg("Generating test data...")
+	c := session.DB("geo-db").C("geo")
+	count, err := c.Find(&bson.M{"hotelId": "1"}).Count()
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
-	log.Info().Msg("Successfully inserted test data into geo DB")
-
-	return client, func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
+	if count == 0 {
+		err = c.Insert(&point{"1", 37.7867, -122.4112})
+		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 	}
+
+	count, err = c.Find(&bson.M{"hotelId": "2"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&point{"2", 37.7854, -122.4005})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"hotelId": "3"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&point{"3", 37.7854, -122.4071})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"hotelId": "4"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&point{"4", 37.7936, -122.3930})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"hotelId": "5"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&point{"5", 37.7831, -122.4181})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"hotelId": "6"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&point{"6", 37.7863, -122.4015})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	// add up to 80 hotels
+	for i := 7; i <= 80; i++ {
+		hotel_id := strconv.Itoa(i)
+		count, err = c.Find(&bson.M{"hotelId": hotel_id}).Count()
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+		lat := 37.7835 + float64(i)/500.0*3
+		lon := -122.41 + float64(i)/500.0*4
+		if count == 0 {
+			err = c.Insert(&point{hotel_id, lat, lon})
+			if err != nil {
+				log.Fatal().Msg(err.Error())
+			}
+		}
+	}
+
+	err = c.EnsureIndexKey("hotelId")
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+
+	return session
 }

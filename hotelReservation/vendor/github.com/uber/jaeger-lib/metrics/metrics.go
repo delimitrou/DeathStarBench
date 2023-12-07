@@ -17,29 +17,23 @@ package metrics
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 )
 
-// MustInit initializes the passed in metrics and initializes its fields using the passed in factory.
-//
-// It uses reflection to initialize a struct containing metrics fields
+// Init initializes the passed in metrics and initializes its fields using the passed in factory.
+func Init(metrics interface{}, factory Factory, globalTags map[string]string) {
+	if err := initMetrics(metrics, factory, globalTags); err != nil {
+		panic(err.Error())
+	}
+}
+
+// initMetrics uses reflection to initialize a struct containing metrics fields
 // by assigning new Counter/Gauge/Timer values with the metric name retrieved
 // from the `metric` tag and stats tags retrieved from the `tags` tag.
 //
 // Note: all fields of the struct must be exported, have a `metric` tag, and be
 // of type Counter or Gauge or Timer.
-//
-// Errors during Init lead to a panic.
-func MustInit(metrics interface{}, factory Factory, globalTags map[string]string) {
-	if err := Init(metrics, factory, globalTags); err != nil {
-		panic(err.Error())
-	}
-}
-
-// Init does the same as MustInit, but returns an error instead of
-// panicking.
-func Init(m interface{}, factory Factory, globalTags map[string]string) error {
+func initMetrics(m interface{}, factory Factory, globalTags map[string]string) error {
 	// Allow user to opt out of reporting metrics by passing in nil.
 	if factory == nil {
 		factory = NullFactory
@@ -48,7 +42,6 @@ func Init(m interface{}, factory Factory, globalTags map[string]string) error {
 	counterPtrType := reflect.TypeOf((*Counter)(nil)).Elem()
 	gaugePtrType := reflect.TypeOf((*Gauge)(nil)).Elem()
 	timerPtrType := reflect.TypeOf((*Timer)(nil)).Elem()
-	histogramPtrType := reflect.TypeOf((*Histogram)(nil)).Elem()
 
 	v := reflect.ValueOf(m).Elem()
 	t := v.Type()
@@ -57,7 +50,6 @@ func Init(m interface{}, factory Factory, globalTags map[string]string) error {
 		for k, v := range globalTags {
 			tags[k] = v
 		}
-		var buckets []float64
 		field := t.Field(i)
 		metric := field.Tag.Get("metric")
 		if metric == "" {
@@ -75,57 +67,13 @@ func Init(m interface{}, factory Factory, globalTags map[string]string) error {
 				tags[tag[0]] = tag[1]
 			}
 		}
-		if bucketString := field.Tag.Get("buckets"); bucketString != "" {
-			if field.Type.AssignableTo(timerPtrType) {
-				// TODO: Parse timer duration buckets
-				return fmt.Errorf(
-					"Field [%s]: Buckets are not currently initialized for timer metrics",
-					field.Name)
-			} else if field.Type.AssignableTo(histogramPtrType) {
-				bucketValues := strings.Split(bucketString, ",")
-				for _, bucket := range bucketValues {
-					b, err := strconv.ParseFloat(bucket, 64)
-					if err != nil {
-						return fmt.Errorf(
-							"Field [%s]: Bucket [%s] could not be converted to float64 in 'buckets' string [%s]",
-							field.Name, bucket, bucketString)
-					}
-					buckets = append(buckets, b)
-				}
-			} else {
-				return fmt.Errorf(
-					"Field [%s]: Buckets should only be defined for Timer and Histogram metric types",
-					field.Name)
-			}
-		}
-		help := field.Tag.Get("help")
 		var obj interface{}
 		if field.Type.AssignableTo(counterPtrType) {
-			obj = factory.Counter(Options{
-				Name: metric,
-				Tags: tags,
-				Help: help,
-			})
+			obj = factory.Counter(metric, tags)
 		} else if field.Type.AssignableTo(gaugePtrType) {
-			obj = factory.Gauge(Options{
-				Name: metric,
-				Tags: tags,
-				Help: help,
-			})
+			obj = factory.Gauge(metric, tags)
 		} else if field.Type.AssignableTo(timerPtrType) {
-			// TODO: Add buckets once parsed (see TODO above)
-			obj = factory.Timer(TimerOptions{
-				Name: metric,
-				Tags: tags,
-				Help: help,
-			})
-		} else if field.Type.AssignableTo(histogramPtrType) {
-			obj = factory.Histogram(HistogramOptions{
-				Name:    metric,
-				Tags:    tags,
-				Help:    help,
-				Buckets: buckets,
-			})
+			obj = factory.Timer(metric, tags)
 		} else {
 			return fmt.Errorf(
 				"Field %s is not a pointer to timer, gauge, or counter",

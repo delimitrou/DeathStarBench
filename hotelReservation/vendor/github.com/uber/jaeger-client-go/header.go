@@ -38,8 +38,7 @@ type HeadersConfig struct {
 	TraceBaggageHeaderPrefix string `yaml:"traceBaggageHeaderPrefix"`
 }
 
-// ApplyDefaults sets missing configuration keys to default values
-func (c *HeadersConfig) ApplyDefaults() *HeadersConfig {
+func (c *HeadersConfig) applyDefaults() *HeadersConfig {
 	if c.JaegerBaggageHeader == "" {
 		c.JaegerBaggageHeader = JaegerBaggageHeader
 	}

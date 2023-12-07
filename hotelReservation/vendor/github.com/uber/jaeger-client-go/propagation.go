@@ -51,17 +51,15 @@ type Extractor interface {
 	Extract(carrier interface{}) (SpanContext, error)
 }
 
-// TextMapPropagator is a combined Injector and Extractor for TextMap format
-type TextMapPropagator struct {
+type textMapPropagator struct {
 	headerKeys  *HeadersConfig
 	metrics     Metrics
 	encodeValue func(string) string
 	decodeValue func(string) string
 }
 
-// NewTextMapPropagator creates a combined Injector and Extractor for TextMap format
-func NewTextMapPropagator(headerKeys *HeadersConfig, metrics Metrics) *TextMapPropagator {
-	return &TextMapPropagator{
+func newTextMapPropagator(headerKeys *HeadersConfig, metrics Metrics) *textMapPropagator {
+	return &textMapPropagator{
 		headerKeys: headerKeys,
 		metrics:    metrics,
 		encodeValue: func(val string) string {
@@ -73,9 +71,8 @@ func NewTextMapPropagator(headerKeys *HeadersConfig, metrics Metrics) *TextMapPr
 	}
 }
 
-// NewHTTPHeaderPropagator creates a combined Injector and Extractor for HTTPHeaders format
-func NewHTTPHeaderPropagator(headerKeys *HeadersConfig, metrics Metrics) *TextMapPropagator {
-	return &TextMapPropagator{
+func newHTTPHeaderPropagator(headerKeys *HeadersConfig, metrics Metrics) *textMapPropagator {
+	return &textMapPropagator{
 		headerKeys: headerKeys,
 		metrics:    metrics,
 		encodeValue: func(val string) string {
@@ -91,22 +88,19 @@ func NewHTTPHeaderPropagator(headerKeys *HeadersConfig, metrics Metrics) *TextMa
 	}
 }
 
-// BinaryPropagator is a combined Injector and Extractor for Binary format
-type BinaryPropagator struct {
+type binaryPropagator struct {
 	tracer  *Tracer
 	buffers sync.Pool
 }
 
-// NewBinaryPropagator creates a combined Injector and Extractor for Binary format
-func NewBinaryPropagator(tracer *Tracer) *BinaryPropagator {
-	return &BinaryPropagator{
+func newBinaryPropagator(tracer *Tracer) *binaryPropagator {
+	return &binaryPropagator{
 		tracer:  tracer,
 		buffers: sync.Pool{New: func() interface{} { return &bytes.Buffer{} }},
 	}
 }
 
-// Inject implements Injector of TextMapPropagator
-func (p *TextMapPropagator) Inject(
+func (p *textMapPropagator) Inject(
 	sc SpanContext,
 	abstractCarrier interface{},
 ) error {
@@ -127,8 +121,7 @@ func (p *TextMapPropagator) Inject(
 	return nil
 }
 
-// Extract implements Extractor of TextMapPropagator
-func (p *TextMapPropagator) Extract(abstractCarrier interface{}) (SpanContext, error) {
+func (p *textMapPropagator) Extract(abstractCarrier interface{}) (SpanContext, error) {
 	textMapReader, ok := abstractCarrier.(opentracing.TextMapReader)
 	if !ok {
 		return emptyContext, opentracing.ErrInvalidCarrier
@@ -173,8 +166,7 @@ func (p *TextMapPropagator) Extract(abstractCarrier interface{}) (SpanContext, e
 	return ctx, nil
 }
 
-// Inject implements Injector of BinaryPropagator
-func (p *BinaryPropagator) Inject(
+func (p *binaryPropagator) Inject(
 	sc SpanContext,
 	abstractCarrier interface{},
 ) error {
@@ -193,7 +185,7 @@ func (p *BinaryPropagator) Inject(
 	if err := binary.Write(carrier, binary.BigEndian, sc.parentID); err != nil {
 		return err
 	}
-	if err := binary.Write(carrier, binary.BigEndian, sc.samplingState.flags()); err != nil {
+	if err := binary.Write(carrier, binary.BigEndian, sc.flags); err != nil {
 		return err
 	}
 
@@ -215,20 +207,12 @@ func (p *BinaryPropagator) Inject(
 	return nil
 }
 
-// W3C limits https://github.com/w3c/baggage/blob/master/baggage/HTTP_HEADER_FORMAT.md#limits
-const (
-	maxBinaryBaggage      = 180
-	maxBinaryNameValueLen = 4096
-)
-
-// Extract implements Extractor of BinaryPropagator
-func (p *BinaryPropagator) Extract(abstractCarrier interface{}) (SpanContext, error) {
+func (p *binaryPropagator) Extract(abstractCarrier interface{}) (SpanContext, error) {
 	carrier, ok := abstractCarrier.(io.Reader)
 	if !ok {
 		return emptyContext, opentracing.ErrInvalidCarrier
 	}
 	var ctx SpanContext
-	ctx.samplingState = &samplingState{}
 
 	if err := binary.Read(carrier, binary.BigEndian, &ctx.traceID); err != nil {
 		return emptyContext, opentracing.ErrSpanContextCorrupted
@@ -239,19 +223,13 @@ func (p *BinaryPropagator) Extract(abstractCarrier interface{}) (SpanContext, er
 	if err := binary.Read(carrier, binary.BigEndian, &ctx.parentID); err != nil {
 		return emptyContext, opentracing.ErrSpanContextCorrupted
 	}
-
-	var flags byte
-	if err := binary.Read(carrier, binary.BigEndian, &flags); err != nil {
+	if err := binary.Read(carrier, binary.BigEndian, &ctx.flags); err != nil {
 		return emptyContext, opentracing.ErrSpanContextCorrupted
 	}
-	ctx.samplingState.setFlags(flags)
 
 	// Handle the baggage items
 	var numBaggage int32
 	if err := binary.Read(carrier, binary.BigEndian, &numBaggage); err != nil {
-		return emptyContext, opentracing.ErrSpanContextCorrupted
-	}
-	if numBaggage > maxBinaryBaggage {
 		return emptyContext, opentracing.ErrSpanContextCorrupted
 	}
 	if iNumBaggage := int(numBaggage); iNumBaggage > 0 {
@@ -274,9 +252,6 @@ func (p *BinaryPropagator) Extract(abstractCarrier interface{}) (SpanContext, er
 			if err := binary.Read(carrier, binary.BigEndian, &valLen); err != nil {
 				return emptyContext, opentracing.ErrSpanContextCorrupted
 			}
-			if keyLen+valLen > maxBinaryNameValueLen {
-				return emptyContext, opentracing.ErrSpanContextCorrupted
-			}
 			buf.Reset()
 			buf.Grow(int(valLen))
 			if n, err := io.CopyN(buf, carrier, int64(valLen)); err != nil || int32(n) != valLen {
@@ -294,7 +269,7 @@ func (p *BinaryPropagator) Extract(abstractCarrier interface{}) (SpanContext, er
 // is converted to map[string]string { "key1" : "value1",
 //                                     "key2" : "value2",
 //                                     "key3" : "value3" }
-func (p *TextMapPropagator) parseCommaSeparatedMap(value string) map[string]string {
+func (p *textMapPropagator) parseCommaSeparatedMap(value string) map[string]string {
 	baggage := make(map[string]string)
 	value, err := url.QueryUnescape(value)
 	if err != nil {
@@ -304,7 +279,7 @@ func (p *TextMapPropagator) parseCommaSeparatedMap(value string) map[string]stri
 	for _, kvpair := range strings.Split(value, ",") {
 		kv := strings.Split(strings.TrimSpace(kvpair), "=")
 		if len(kv) == 2 {
-			baggage[strings.TrimSpace(kv[0])] = kv[1]
+			baggage[kv[0]] = kv[1]
 		} else {
 			log.Printf("Malformed value passed in for %s", p.headerKeys.JaegerBaggageHeader)
 		}
@@ -314,12 +289,12 @@ func (p *TextMapPropagator) parseCommaSeparatedMap(value string) map[string]stri
 
 // Converts a baggage item key into an http header format,
 // by prepending TraceBaggageHeaderPrefix and encoding the key string
-func (p *TextMapPropagator) addBaggageKeyPrefix(key string) string {
+func (p *textMapPropagator) addBaggageKeyPrefix(key string) string {
 	// TODO encodeBaggageKeyAsHeader add caching and escaping
 	return fmt.Sprintf("%v%v", p.headerKeys.TraceBaggageHeaderPrefix, key)
 }
 
-func (p *TextMapPropagator) removeBaggageKeyPrefix(key string) string {
+func (p *textMapPropagator) removeBaggageKeyPrefix(key string) string {
 	// TODO decodeBaggageHeaderKey add caching and escaping
 	return key[len(p.headerKeys.TraceBaggageHeaderPrefix):]
 }

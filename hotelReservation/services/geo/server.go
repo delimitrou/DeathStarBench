@@ -1,21 +1,26 @@
 package geo
 
 import (
-	"context"
+	// "encoding/json"
 	"fmt"
+
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+
+	// "io/ioutil"
 	"net"
+	// "os"
 	"time"
 
-	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
-	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/geo/proto"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/hailocab/go-geoindex"
+	"github.com/harlow/go-micro-services/registry"
+	pb "github.com/harlow/go-micro-services/services/geo/proto"
+	"github.com/harlow/go-micro-services/tls"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -31,11 +36,11 @@ type Server struct {
 	index *geoindex.ClusteringIndex
 	uuid  string
 
-	Registry    *registry.Client
-	Tracer      opentracing.Tracer
-	Port        int
-	IpAddr      string
-	MongoClient *mongo.Client
+	Registry *registry.Client
+	Tracer   opentracing.Tracer
+	Port     int
+	IpAddr	 string
+	MongoSession 	*mgo.Session
 }
 
 // Run starts the server
@@ -45,10 +50,16 @@ func (s *Server) Run() error {
 	}
 
 	if s.index == nil {
-		s.index = newGeoIndex(s.MongoClient)
+		s.index = newGeoIndex(s.MongoSession)
 	}
 
 	s.uuid = uuid.New().String()
+
+	// opts := []grpc.ServerOption {
+	// 	grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+	// 		PermitWithoutStream: true,
+	// 	}),
+	// }
 
 	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepalive.ServerParameters{
@@ -75,6 +86,21 @@ func (s *Server) Run() error {
 	if err != nil {
 		return fmt.Errorf("failed to listen: %v", err)
 	}
+
+	// register the service
+	// jsonFile, err := os.Open("config.json")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	// defer jsonFile.Close()
+
+	// byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	// var result map[string]string
+	// json.Unmarshal([]byte(byteValue), &result)
+
+	// fmt.Printf("geo server ip = %s, port = %d\n", s.IpAddr, s.Port)
 
 	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
 	if err != nil {
@@ -128,17 +154,21 @@ func (s *Server) getNearbyPoints(ctx context.Context, lat, lon float64) []geoind
 }
 
 // newGeoIndex returns a geo index with points loaded
-func newGeoIndex(client *mongo.Client) *geoindex.ClusteringIndex {
+func newGeoIndex(session *mgo.Session) *geoindex.ClusteringIndex {
+	// session, err := mgo.Dial("mongodb-geo")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer session.Close()
+
 	log.Trace().Msg("new geo newGeoIndex")
 
-	collection := client.Database("geo-db").Collection("geo")
-	curr, err := collection.Find(context.TODO(), bson.D{})
-	if err != nil {
-		log.Error().Msgf("Failed get geo data: ", err)
-	}
+	s := session.Copy()
+	defer s.Close()
+	c := s.DB("geo-db").C("geo")
 
 	var points []*point
-	curr.All(context.TODO(), &points)
+	err := c.Find(bson.M{}).All(&points)
 	if err != nil {
 		log.Error().Msgf("Failed get geo data: ", err)
 	}

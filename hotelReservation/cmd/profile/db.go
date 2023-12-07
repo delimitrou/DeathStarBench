@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Hotel struct {
@@ -29,11 +27,22 @@ type Address struct {
 	Lon          float32 `bson:"lon"`
 }
 
-func initializeDatabase(url string) (*mongo.Client, func()) {
-	log.Info().Msg("Generating test data...")
+func initializeDatabase(url string) *mgo.Session {
+	session, err := mgo.Dial(url)
+	if err != nil {
+		log.Panic().Msg(err.Error())
+	}
+	// defer session.Close()
+	log.Info().Msg("New session successfull...")
 
-	newProfiles := []interface{}{
-		Hotel{
+	log.Info().Msg("Generating test data...")
+	c := session.DB("profile-db").C("hotels")
+	count, err := c.Find(&bson.M{"id": "1"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&Hotel{
 			"1",
 			"Clift Hotel",
 			"(415) 775-4700",
@@ -46,10 +55,18 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 				"United States",
 				"94102",
 				37.7867,
-				-122.4112,
-			},
-		},
-		Hotel{
+				-122.4112}})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"id": "2"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&Hotel{
 			"2",
 			"W San Francisco",
 			"(415) 777-5300",
@@ -62,10 +79,18 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 				"United States",
 				"94103",
 				37.7854,
-				-122.4005,
-			},
-		},
-		Hotel{
+				-122.4005}})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"id": "3"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&Hotel{
 			"3",
 			"Hotel Zetta",
 			"(415) 543-8555",
@@ -78,10 +103,18 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 				"United States",
 				"94103",
 				37.7834,
-				-122.4071,
-			},
-		},
-		Hotel{
+				-122.4071}})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"id": "4"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&Hotel{
 			"4",
 			"Hotel Vitale",
 			"(415) 278-3700",
@@ -94,10 +127,18 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 				"United States",
 				"94105",
 				37.7936,
-				-122.3930,
-			},
-		},
-		Hotel{
+				-122.3930}})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"id": "5"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&Hotel{
 			"5",
 			"Phoenix Hotel",
 			"(415) 776-1380",
@@ -110,10 +151,18 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 				"United States",
 				"94109",
 				37.7831,
-				-122.4181,
-			},
-		},
-		Hotel{
+				-122.4181}})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
+
+	count, err = c.Find(&bson.M{"id": "6"}).Count()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if count == 0 {
+		err = c.Insert(&Hotel{
 			"6",
 			"St. Regis San Francisco",
 			"(415) 284-4000",
@@ -126,24 +175,27 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 				"United States",
 				"94109",
 				37.7863,
-				-122.4015,
-			},
-		},
+				-122.4015}})
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
 	}
 
+	// add up to 80 hotels
 	for i := 7; i <= 80; i++ {
-		hotelID := strconv.Itoa(i)
-		phoneNumber := fmt.Sprintf("(415) 284-40%s", hotelID)
-
+		hotel_id := strconv.Itoa(i)
+		count, err = c.Find(&bson.M{"id": hotel_id}).Count()
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+		phone_num := "(415) 284-40" + hotel_id
 		lat := 37.7835 + float32(i)/500.0*3
 		lon := -122.41 + float32(i)/500.0*4
-
-		newProfiles = append(
-			newProfiles,
-			Hotel{
-				hotelID,
+		if count == 0 {
+			err = c.Insert(&Hotel{
+				hotel_id,
 				"St. Regis San Francisco",
-				phoneNumber,
+				phone_num,
 				"St. Regis Museum Tower is a 42-story, 484 ft skyscraper in the South of Market district of San Francisco, California, adjacent to Yerba Buena Gardens, Moscone Center, PacBell Building and the San Francisco Museum of Modern Art.",
 				&Address{
 					"125",
@@ -153,32 +205,17 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 					"United States",
 					"94109",
 					lat,
-					lon,
-				},
-			},
-		)
+					lon}})
+			if err != nil {
+				log.Fatal().Msg(err.Error())
+			}
+		}
 	}
 
-	uri := fmt.Sprintf("mongodb://%s", url)
-	log.Info().Msgf("Attempting connection to %v", uri)
-
-	opts := options.Client().ApplyURI(uri)
-	client, err := mongo.Connect(context.TODO(), opts)
-	if err != nil {
-		log.Panic().Msg(err.Error())
-	}
-	log.Info().Msg("Successfully connected to MongoDB")
-
-	collection := client.Database("profile-db").Collection("hotels")
-	_, err = collection.InsertMany(context.TODO(), newProfiles)
+	err = c.EnsureIndexKey("id")
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
-	log.Info().Msg("Successfully inserted test data into profile DB")
 
-	return client, func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-	}
+	return session
 }

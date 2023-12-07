@@ -55,7 +55,7 @@ func (p *zipkinPropagator) Inject(
 	carrier.SetTraceID(ctx.TraceID().Low) // TODO this cannot work with 128bit IDs
 	carrier.SetSpanID(uint64(ctx.SpanID()))
 	carrier.SetParentID(uint64(ctx.ParentID()))
-	carrier.SetFlags(ctx.samplingState.flags())
+	carrier.SetFlags(ctx.flags)
 	return nil
 }
 
@@ -71,7 +71,6 @@ func (p *zipkinPropagator) Extract(abstractCarrier interface{}) (SpanContext, er
 	ctx.traceID.Low = carrier.TraceID()
 	ctx.spanID = SpanID(carrier.SpanID())
 	ctx.parentID = SpanID(carrier.ParentID())
-	ctx.samplingState = &samplingState{}
-	ctx.samplingState.setFlags(carrier.Flags())
+	ctx.flags = carrier.Flags()
 	return ctx, nil
 }

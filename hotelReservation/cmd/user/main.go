@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/services/user"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tune"
+	"github.com/harlow/go-micro-services/registry"
+	"github.com/harlow/go-micro-services/services/user"
+	"github.com/harlow/go-micro-services/tracing"
+	"github.com/harlow/go-micro-services/tune"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -34,39 +34,46 @@ func main() {
 	var result map[string]string
 	json.Unmarshal([]byte(byteValue), &result)
 
+	log.Info().Msgf("Read database URL: %v", result["UserMongoAddress"])
 	log.Info().Msg("Initializing DB connection...")
-	mongoClient, mongoClose := initializeDatabase(result["UserMongoAddress"])
-	defer mongoClose()
+	mongo_session := initializeDatabase(result["UserMongoAddress"])
+	defer mongo_session.Close()
+	log.Info().Msg("Successfull")
 
-	servPort, _ := strconv.Atoi(result["UserPort"])
-	servIP := result["UserIP"]
+	serv_port, _ := strconv.Atoi(result["UserPort"])
+	serv_ip := result["UserIP"]
+	log.Info().Msgf("Read target port: %v", serv_port)
+	log.Info().Msgf("Read consul address: %v", result["consulAddress"])
+	log.Info().Msgf("Read jaeger address: %v", result["jaegerAddress"])
 
 	var (
-		jaegerAddr = flag.String("jaegeraddr", result["jaegerAddress"], "Jaeger address")
-		consulAddr = flag.String("consuladdr", result["consulAddress"], "Consul address")
+		// port       = flag.Int("port", 8086, "The server port")
+		jaegeraddr = flag.String("jaegeraddr", result["jaegerAddress"], "Jaeger server addr")
+		consuladdr = flag.String("consuladdr", result["consulAddress"], "Consul address")
 	)
 	flag.Parse()
 
-	log.Info().Msgf("Initializing jaeger agent [service name: %v | host: %v]...", "user", *jaegerAddr)
-	tracer, err := tracing.Init("user", *jaegerAddr)
+	log.Info().Msgf("Initializing jaeger agent [service name: %v | host: %v]...", "user", *jaegeraddr)
+	tracer, err := tracing.Init("user", *jaegeraddr)
 	if err != nil {
 		log.Panic().Msgf("Got error while initializing jaeger agent: %v", err)
 	}
 	log.Info().Msg("Jaeger agent initialized")
 
-	log.Info().Msgf("Initializing consul agent [host: %v]...", *consulAddr)
-	registry, err := registry.NewClient(*consulAddr)
+	log.Info().Msgf("Initializing consul agent [host: %v]...", *consuladdr)
+	registry, err := registry.NewClient(*consuladdr)
 	if err != nil {
 		log.Panic().Msgf("Got error while initializing consul agent: %v", err)
 	}
 	log.Info().Msg("Consul agent initialized")
 
 	srv := &user.Server{
-		Port:        servPort,
-		IpAddr:      servIP,
-		Tracer:      tracer,
-		Registry:    registry,
-		MongoClient: mongoClient,
+		Tracer: tracer,
+		// Port:     *port,
+		Registry:     registry,
+		Port:         serv_port,
+		IpAddr:       serv_ip,
+		MongoSession: mongo_session,
 	}
 
 	log.Info().Msg("Starting server...")

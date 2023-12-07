@@ -1,30 +1,11 @@
-FROM golang:1.21 as builder
+FROM golang:1.17.3
 
-WORKDIR /workspace
-
-COPY go.sum go.sum
-COPY go.mod go.mod
-COPY vendor/ vendor/
-
-COPY cmd/ cmd/
-COPY dialer/ dialer/
-COPY registry/ registry/
-COPY services/ services/
-COPY tls/ tls/
-COPY tracing/ tracing/
-COPY tune/ tune/
-
-RUN CGO_ENABLED=0 GOOS=linux GO111MODULE=on go install -ldflags="-s -w" -mod=vendor ./cmd/...
-
-FROM gcr.io/distroless/static:nonroot
-
-WORKDIR /
-
-COPY --from=builder /go/bin/frontend .
-COPY --from=builder /go/bin/geo .
-COPY --from=builder /go/bin/profile .
-COPY --from=builder /go/bin/rate .
-COPY --from=builder /go/bin/recommendation .
-COPY --from=builder /go/bin/reservation .
-COPY --from=builder /go/bin/search .
-COPY --from=builder /go/bin/user .
+RUN git config --global http.sslverify false
+COPY . /go/src/github.com/harlow/go-micro-services
+WORKDIR /go/src/github.com/harlow/go-micro-services
+RUN go get gopkg.in/mgo.v2
+RUN go get github.com/bradfitz/gomemcache/memcache
+RUN go get github.com/google/uuid
+RUN go mod init
+RUN go mod vendor
+RUN go install -ldflags="-s -w" ./cmd/...
