@@ -48,7 +48,7 @@ func main() {
 	// memc_client := memcache.New(result["ReviewMemcAddress"])
 	// memc_client.Timeout = time.Second * 2
 	// memc_client.MaxIdleConns = 512
-	memc_client := tune.NewMemCClient2(result["ReserveMemcAddress"])
+	memc_client := tune.NewMemCClient2(result["ReviewMemcAddress"])
 	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["ReviewPort"])
