@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package review;
 
+option go_package="github.com/delimitrou/DeathStarBench/hotelreservation/services/review";
+
 service Review {
   rpc GetReviews(Request) returns (Result);
 }
