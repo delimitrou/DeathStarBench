@@ -17,7 +17,7 @@ import (
 
 	"time"
 
-	"github.com/bradfitz/gomemcache/memcache"
+	// "github.com/bradfitz/gomemcache/memcache"
 )
 
 func main() {
@@ -45,9 +45,10 @@ func main() {
 
 	log.Info().Msgf("Read review memcashed address: %v", result["ReviewMemcAddress"])
 	log.Info().Msg("Initializing Memcashed client...")
-	memc_client := memcache.New(result["ReviewMemcAddress"])
-	memc_client.Timeout = time.Second * 2
-	memc_client.MaxIdleConns = 512
+	// memc_client := memcache.New(result["ReviewMemcAddress"])
+	// memc_client.Timeout = time.Second * 2
+	// memc_client.MaxIdleConns = 512
+	memc_client := tune.NewMemCClient2(result["ReserveMemcAddress"])
 	log.Info().Msg("Successfull")
 
 	serv_port, _ := strconv.Atoi(result["ReviewPort"])
