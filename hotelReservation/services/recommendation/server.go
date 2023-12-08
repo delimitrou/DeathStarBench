@@ -1,43 +1,37 @@
 package recommendation
 
 import (
-	// "encoding/json"
+	"context"
 	"fmt"
+	"math"
+	"net"
+	"time"
 
+	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
+	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/recommendation/proto"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/hailocab/go-geoindex"
-	"github.com/harlow/go-micro-services/registry"
-	pb "github.com/harlow/go-micro-services/services/recommendation/proto"
-	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/net/context"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-
-	// "io/ioutil"
-	"math"
-	"net"
-
-	// "os"
-	"time"
-	// "strings"
 )
 
 const name = "srv-recommendation"
 
 // Server implements the recommendation service
 type Server struct {
-	hotels       map[string]Hotel
-	Tracer       opentracing.Tracer
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	Registry     *registry.Client
-	uuid         string
+	hotels      map[string]Hotel
+	Tracer      opentracing.Tracer
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	Registry    *registry.Client
+	uuid        string
 }
 
 // Run starts the server
@@ -47,7 +41,7 @@ func (s *Server) Run() error {
 	}
 
 	if s.hotels == nil {
-		s.hotels = loadRecommendations(s.MongoSession)
+		s.hotels = loadRecommendations(s.MongoClient)
 	}
 
 	s.uuid = uuid.New().String()
@@ -76,19 +70,6 @@ func (s *Server) Run() error {
 	if err != nil {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
-
-	// // register the service
-	// jsonFile, err := os.Open("config.json")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// defer jsonFile.Close()
-
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	// var result map[string]string
-	// json.Unmarshal([]byte(byteValue), &result)
 
 	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
 	if err != nil {
@@ -168,20 +149,15 @@ func (s *Server) GetRecommendations(ctx context.Context, req *pb.Request) (*pb.R
 }
 
 // loadRecommendations loads hotel recommendations from mongodb.
-func loadRecommendations(session *mgo.Session) map[string]Hotel {
-	// session, err := mgo.Dial("mongodb-recommendation")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer session.Close()
-	s := session.Copy()
-	defer s.Close()
+func loadRecommendations(client *mongo.Client) map[string]Hotel {
+	collection := client.Database("recommendation-db").Collection("recommendation")
+	curr, err := collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Error().Msgf("Failed get hotels data: ", err)
+	}
 
-	c := s.DB("recommendation-db").C("recommendation")
-
-	// unmarshal json profiles
 	var hotels []Hotel
-	err := c.Find(bson.M{}).All(&hotels)
+	curr.All(context.TODO(), &hotels)
 	if err != nil {
 		log.Error().Msgf("Failed get hotels data: ", err)
 	}
@@ -195,10 +171,9 @@ func loadRecommendations(session *mgo.Session) map[string]Hotel {
 }
 
 type Hotel struct {
-	ID     bson.ObjectId `bson:"_id"`
-	HId    string        `bson:"hotelId"`
-	HLat   float64       `bson:"lat"`
-	HLon   float64       `bson:"lon"`
-	HRate  float64       `bson:"rate"`
-	HPrice float64       `bson:"price"`
+	HId    string  `bson:"hotelId"`
+	HLat   float64 `bson:"lat"`
+	HLon   float64 `bson:"lon"`
+	HRate  float64 `bson:"rate"`
+	HPrice float64 `bson:"price"`
 }

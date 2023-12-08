@@ -1,0 +1,17 @@
+name: rate
+
+ports:
+  - port: 8084
+    targetPort: 8084
+ 
+container:
+  command: ./rate
+  image: deathstarbench/hotel-reservation
+  name: hotel-reserv-rate
+  ports:
+  - containerPort: 8084
+
+configMaps:
+  - name: service-config.json
+    mountPath: config.json
+    value: service-config
