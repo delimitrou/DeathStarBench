@@ -12,10 +12,11 @@ services:
   frontend:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
-    image: nevenas/dsbhotel
+    image: jovanvr97/dsbnew
     entrypoint: frontend
     container_name: 'hotel_reserv_frontend'
     ports:
@@ -27,7 +28,9 @@ services:
   profile:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_profile_single_node
@@ -36,21 +39,6 @@ services:
     depends_on:
       - mongodb-profile
       - memcached-profile
-      - consul
-    restart: always
-
-  review:
-    environment:
-      - TLS
-      - JAEGER_SAMPLE_RATIO
-      - LOG_LEVEL
-    build: .
-    image: nevenas/dsbhotel
-    entrypoint: review
-    container_name: 'hotel_reserv_review'
-    depends_on:
-      - mongodb-review
-      - memcached-review
       - consul
     restart: always
 
@@ -64,6 +52,7 @@ services:
     restart: always
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
       # - GRPC_GO_LOG_VERBOSITY_LEVEL=2
@@ -72,6 +61,7 @@ services:
   geo:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -86,7 +76,9 @@ services:
   rate:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_rate_single_node
@@ -98,9 +90,27 @@ services:
       - consul
     restart: always
 
+  review:
+    environment:
+      - TLS
+      - GC
+      - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
+      - LOG_LEVEL
+    build: .
+    image: jovanvr97/dsbnew
+    entrypoint: review
+    container_name: 'hotel_reserv_review'
+    depends_on:
+      - mongodb-review
+      - memcached-review
+      - consul
+    restart: always
+
   recommendation:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -115,6 +125,7 @@ services:
   user:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
@@ -129,7 +140,9 @@ services:
   reservation:
     environment:
       - TLS
+      - GC
       - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
     image: hotel_reserv_rsv_single_node
@@ -167,10 +180,10 @@ services:
       options:
         max-size: 50m
 
-  memcached-profile:
+  memcached-review:
     image: memcached
     # hostname: user-memcached
-    container_name: 'hotel_reserv_profile_mmc'
+    container_name: 'hotel_reserv_review_mmc'
     restart: always
     environment:
       - MEMCACHED_CACHE_SIZE=128
@@ -179,10 +192,10 @@ services:
       options:
         max-size: 50m
 
-  memcached-review:
+  memcached-profile:
     image: memcached
     # hostname: user-memcached
-    container_name: 'hotel_reserv_review_mmc'
+    container_name: 'hotel_reserv_profile_mmc'
     restart: always
     environment:
       - MEMCACHED_CACHE_SIZE=128
@@ -219,6 +232,14 @@ services:
     volumes:
       - profile:/data/db    
 
+  mongodb-rate:
+    image: mongo:4.4.6
+    container_name: 'hotel_reserv_rate_mongo'
+    hostname: rate-db
+    restart: always
+    volumes:
+      - rate:/data/db
+
   mongodb-review:
     image: mongo:4.4.6
     container_name: 'hotel_reserv_review_mongo'
@@ -226,14 +247,6 @@ services:
     restart: always
     volumes:
       - review:/data/db   
-
-  mongodb-rate:
-    image: mongo:4.4.6
-    container_name: 'hotel_reserv_rate_mongo'
-    hostname: rate-db
-    restart: always
-    volumes:
-      - rate:/data/db   
 
   mongodb-recommendation:
     image: mongo:4.4.6

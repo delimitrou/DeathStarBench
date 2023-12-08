@@ -1,12 +1,12 @@
 package tracing
 
 import (
-	"time"
 	"os"
 	"strconv"
+	"time"
 
-	"github.com/rs/zerolog/log"
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/rs/zerolog/log"
 	"github.com/uber/jaeger-client-go/config"
 )
 
@@ -23,8 +23,10 @@ func Init(serviceName, host string) (opentracing.Tracer, error) {
 			ratio = 1.0
 		}
 	}
+
 	log.Info().Msgf("Jaeger client: adjusted sample ratio %f", ratio)
-	cfg := config.Configuration{
+	tempCfg := &config.Configuration{
+		ServiceName: serviceName,
 		Sampler: &config.SamplerConfig{
 			Type:  "probabilistic",
 			Param: ratio,
@@ -36,7 +38,13 @@ func Init(serviceName, host string) (opentracing.Tracer, error) {
 		},
 	}
 
-	tracer, _, err := cfg.New(serviceName)
+	log.Info().Msg("Overriding Jaeger config with env variables")
+	cfg, err := tempCfg.FromEnv()
+	if err != nil {
+		return nil, err
+	}
+
+	tracer, _, err := cfg.NewTracer()
 	if err != nil {
 		return nil, err
 	}

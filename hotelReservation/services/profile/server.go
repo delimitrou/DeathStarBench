@@ -1,48 +1,44 @@
 package profile
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-
-	// "io/ioutil"
 	"net"
-	// "os"
+	"sync"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
+	"github.com/bradfitz/gomemcache/memcache"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
+	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/profile/proto"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/harlow/go-micro-services/registry"
-	pb "github.com/harlow/go-micro-services/services/profile/proto"
-	"github.com/harlow/go-micro-services/tls"
 	"github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-
-	"github.com/bradfitz/gomemcache/memcache"
-	// "strings"
 )
 
 const name = "srv-profile"
 
 // Server implements the profile service
 type Server struct {
-	Tracer       opentracing.Tracer
-	uuid         string
-	Port         int
-	IpAddr       string
-	MongoSession *mgo.Session
-	Registry     *registry.Client
-	MemcClient   *memcache.Client
+	Tracer      opentracing.Tracer
+	uuid        string
+	Port        int
+	IpAddr      string
+	MongoClient *mongo.Client
+	Registry    *registry.Client
+	MemcClient  *memcache.Client
 }
 
 // Run starts the server
 func (s *Server) Run() error {
+	opentracing.SetGlobalTracer(s.Tracer)
+
 	if s.Port == 0 {
 		return fmt.Errorf("server port must be set")
 	}
@@ -76,19 +72,6 @@ func (s *Server) Run() error {
 		log.Fatal().Msgf("failed to configure listener: %v", err)
 	}
 
-	// register the service
-	// jsonFile, err := os.Open("config.json")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// defer jsonFile.Close()
-
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	// var result map[string]string
-	// json.Unmarshal([]byte(byteValue), &result)
-
 	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
@@ -105,62 +88,73 @@ func (s *Server) Shutdown() {
 
 // GetProfiles returns hotel profiles for requested IDs
 func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, error) {
-	// session, err := mgo.Dial("mongodb-profile")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer session.Close()
-
 	log.Trace().Msgf("In GetProfiles")
+
+	var wg sync.WaitGroup
+	var mutex sync.Mutex
+
+	// one hotel should only have one profile
+	hotelIds := make([]string, 0)
+	profileMap := make(map[string]struct{})
+	for _, hotelId := range req.HotelIds {
+		hotelIds = append(hotelIds, hotelId)
+		profileMap[hotelId] = struct{}{}
+	}
+
+	memSpan, _ := opentracing.StartSpanFromContext(ctx, "memcached_get_profile")
+	memSpan.SetTag("span.kind", "client")
+	resMap, err := s.MemcClient.GetMulti(hotelIds)
+	memSpan.Finish()
 
 	res := new(pb.Result)
 	hotels := make([]*pb.Hotel, 0)
 
-	// one hotel should only have one profile
+	if err != nil && err != memcache.ErrCacheMiss {
+		log.Panic().Msgf("Tried to get hotelIds [%v], but got memmcached error = %s", hotelIds, err)
+	} else {
+		for hotelId, item := range resMap {
+			profileStr := string(item.Value)
+			log.Trace().Msgf("memc hit with %v", profileStr)
 
-	for _, i := range req.HotelIds {
-		// first check memcached
-		item, err := s.MemcClient.Get(i)
-		if err == nil {
-			// memcached hit
-			profile_str := string(item.Value)
-			log.Trace().Msgf("memc hit with %v", profile_str)
+			hotelProf := new(pb.Hotel)
+			json.Unmarshal(item.Value, hotelProf)
+			hotels = append(hotels, hotelProf)
+			delete(profileMap, hotelId)
+		}
 
-			hotel_prof := new(pb.Hotel)
-			json.Unmarshal(item.Value, hotel_prof)
-			hotels = append(hotels, hotel_prof)
+		wg.Add(len(profileMap))
+		for hotelId := range profileMap {
+			go func(hotelId string) {
+				var hotelProf *pb.Hotel
 
-		} else if err == memcache.ErrCacheMiss {
-			// memcached miss, set up mongo connection
-			session := s.MongoSession.Copy()
-			defer session.Close()
-			c := session.DB("profile-db").C("hotels")
+				collection := s.MongoClient.Database("profile-db").Collection("hotels")
 
-			hotel_prof := new(pb.Hotel)
-			err := c.Find(bson.M{"id": i}).One(&hotel_prof)
+				mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_profile")
+				mongoSpan.SetTag("span.kind", "client")
+				err := collection.FindOne(context.TODO(), bson.D{{"id", hotelId}}).Decode(&hotelProf)
+				mongoSpan.Finish()
 
-			if err != nil {
-				log.Error().Msgf("Failed get hotels data: ", err)
-			}
+				if err != nil {
+					log.Error().Msgf("Failed get hotels data: ", err)
+				}
 
-			// for _, h := range hotels {
-			// 	res.Hotels = append(res.Hotels, h)
-			// }
-			hotels = append(hotels, hotel_prof)
+				mutex.Lock()
+				hotels = append(hotels, hotelProf)
+				mutex.Unlock()
 
-			prof_json, err := json.Marshal(hotel_prof)
-			if err != nil {
-				log.Error().Msgf("Failed to marshal hotel [id: %v] with err:", hotel_prof.Id, err)
-			}
-			memc_str := string(prof_json)
+				profJson, err := json.Marshal(hotelProf)
+				if err != nil {
+					log.Error().Msgf("Failed to marshal hotel [id: %v] with err:", hotelProf.Id, err)
+				}
+				memcStr := string(profJson)
 
-			// write to memcached
-			s.MemcClient.Set(&memcache.Item{Key: i, Value: []byte(memc_str)})
-
-		} else {
-			log.Panic().Msgf("Tried to get hotelId [%v], but got memmcached error = %s", i, err)
+				// write to memcached
+				go s.MemcClient.Set(&memcache.Item{Key: hotelId, Value: []byte(memcStr)})
+				defer wg.Done()
+			}(hotelId)
 		}
 	}
+	wg.Wait()
 
 	res.Hotels = hotels
 	log.Trace().Msgf("In GetProfiles after getting resp")

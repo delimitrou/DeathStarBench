@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	// "io/ioutil"
 	"net"
@@ -18,9 +18,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/harlow/go-micro-services/registry"
-	pb "github.com/harlow/go-micro-services/services/review/proto"
-	"github.com/harlow/go-micro-services/tls"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
+	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/review/proto"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -38,7 +38,7 @@ type Server struct {
 	Tracer       opentracing.Tracer
 	Port         int
 	IpAddr       string
-	MongoSession *mgo.Session
+	MongoClient *mongo.Client
 	Registry     *registry.Client
 	MemcClient   *memcache.Client
 	uuid         string
@@ -125,12 +125,19 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, e
 			mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_review")
 			mongoSpan.SetTag("span.kind", "client")
 
-	        session := s.MongoSession.Copy()
-		    defer session.Close()
-			c := session.DB("review-db").C("reviews")
+	        //session := s.MongoSession.Copy()
+		    //defer session.Close()
+			//c := session.DB("review-db").C("reviews")
+			c := s.MongoClient.Database("review-db").Collection("reviews")
+
+			curr, err := c.Find(context.TODO(), bson.M{"hotelId": hotelId})
+			if err != nil {
+				log.Error().Msgf("Failed get reviews: ", err)
+			}
 
 			var reviewHelpers []ReviewHelper
-			err = c.Find(bson.M{"hotelId": hotelId}).All(&reviewHelpers)
+			//err = c.Find(bson.M{"hotelId": hotelId}).All(&reviewHelpers)
+			curr.All(context.TODO(), &reviewHelpers)
 			if err != nil {
 				log.Error().Msgf("Failed get hotels data: ", err)
 			}

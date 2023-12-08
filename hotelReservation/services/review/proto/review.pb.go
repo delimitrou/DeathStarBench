@@ -7,9 +7,7 @@
 package review
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
+	proto "github.com/golang/protobuf/proto"
 	sync "sync"
 	context "context"
 	grpc "google.golang.org/grpc"
@@ -111,51 +109,23 @@ func RegisterReviewServer(s *grpc.Server, srv ReviewServer) {
 	s.RegisterService(&Review_ServiceDesc, srv)
 }
 
-const (
-	// Verify that this generated code is sufficiently up-to-date.
-	_ = protoimpl.EnforceVersion(20 - protoimpl.MinVersion)
-	// Verify that runtime/protoimpl is sufficiently up-to-date.
-	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
-)
-
 type Request struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
 	HotelId string `protobuf:"bytes,1,opt,name=hotelId,proto3" json:"hotelId,omitempty"`
 }
 
 func (x *Request) Reset() {
 	*x = Request{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_review_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
 }
 
 func (x *Request) String() string {
-	return protoimpl.X.MessageStringOf(x)
+	return proto.CompactTextString(x)
 }
 
 func (*Request) ProtoMessage() {}
 
-func (x *Request) ProtoReflect() protoreflect.Message {
-	mi := &file_review_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
 // Deprecated: Use Request.ProtoReflect.Descriptor instead.
 func (*Request) Descriptor() ([]byte, []int) {
-	return file_review_proto_rawDescGZIP(), []int{0}
+	return file_review_proto_rawDesc, []int{0}
 }
 
 func (x *Request) GetHotelId() string {
@@ -166,43 +136,22 @@ func (x *Request) GetHotelId() string {
 }
 
 type Result struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
 	Reviews []*ReviewComm `protobuf:"bytes,1,rep,name=reviews,proto3" json:"reviews,omitempty"`
 }
 
 func (x *Result) Reset() {
 	*x = Result{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_review_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
 }
 
 func (x *Result) String() string {
-	return protoimpl.X.MessageStringOf(x)
+	return proto.CompactTextString(x)
 }
 
 func (*Result) ProtoMessage() {}
 
-func (x *Result) ProtoReflect() protoreflect.Message {
-	mi := &file_review_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
 // Deprecated: Use Result.ProtoReflect.Descriptor instead.
 func (*Result) Descriptor() ([]byte, []int) {
-	return file_review_proto_rawDescGZIP(), []int{1}
+	return file_review_proto_rawDesc, []int{1}
 }
 
 func (x *Result) GetReviews() []*ReviewComm {
@@ -213,10 +162,6 @@ func (x *Result) GetReviews() []*ReviewComm {
 }
 
 type ReviewComm struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
 	ReviewId    string  `protobuf:"bytes,1,opt,name=reviewId,proto3" json:"reviewId,omitempty"`
 	HotelId     string  `protobuf:"bytes,2,opt,name=hotelId,proto3" json:"hotelId,omitempty"`
 	Name        string  `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
@@ -227,34 +172,17 @@ type ReviewComm struct {
 
 func (x *ReviewComm) Reset() {
 	*x = ReviewComm{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_review_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
 }
 
 func (x *ReviewComm) String() string {
-	return protoimpl.X.MessageStringOf(x)
+	return proto.CompactTextString(x)
 }
 
 func (*ReviewComm) ProtoMessage() {}
 
-func (x *ReviewComm) ProtoReflect() protoreflect.Message {
-	mi := &file_review_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
 // Deprecated: Use ReviewComm.ProtoReflect.Descriptor instead.
 func (*ReviewComm) Descriptor() ([]byte, []int) {
-	return file_review_proto_rawDescGZIP(), []int{2}
+	return file_review_proto_rawDesc, []int{2}
 }
 
 func (x *ReviewComm) GetReviewId() string {
@@ -300,44 +228,23 @@ func (x *ReviewComm) GetImages() *Image {
 }
 
 type Image struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
 	Url     string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	Default bool   `protobuf:"varint,2,opt,name=default,proto3" json:"default,omitempty"`
 }
 
 func (x *Image) Reset() {
 	*x = Image{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_review_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
 }
 
 func (x *Image) String() string {
-	return protoimpl.X.MessageStringOf(x)
+	return proto.CompactTextString(x)
 }
 
 func (*Image) ProtoMessage() {}
 
-func (x *Image) ProtoReflect() protoreflect.Message {
-	mi := &file_review_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
 // Deprecated: Use Image.ProtoReflect.Descriptor instead.
 func (*Image) Descriptor() ([]byte, []int) {
-	return file_review_proto_rawDescGZIP(), []int{3}
+	return file_review_proto_rawDesc, []int{3}
 }
 
 func (x *Image) GetUrl() string {
@@ -354,7 +261,7 @@ func (x *Image) GetDefault() bool {
 	return false
 }
 
-var File_review_proto protoreflect.FileDescriptor
+// var File_review_proto protoreflect.FileDescriptor
 
 var file_review_proto_rawDesc = []byte{
 	0x0a, 0x0c, 0x72, 0x65, 0x76, 0x69, 0x65, 0x77, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x06,
@@ -392,14 +299,6 @@ var (
 	file_review_proto_rawDescData = file_review_proto_rawDesc
 )
 
-func file_review_proto_rawDescGZIP() []byte {
-	file_review_proto_rawDescOnce.Do(func() {
-		file_review_proto_rawDescData = protoimpl.X.CompressGZIP(file_review_proto_rawDescData)
-	})
-	return file_review_proto_rawDescData
-}
-
-var file_review_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_review_proto_goTypes = []interface{}{
 	(*Request)(nil),    // 0: review.Request
 	(*Result)(nil),     // 1: review.Result
@@ -418,77 +317,3 @@ var file_review_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_review_proto_init() }
-func file_review_proto_init() {
-	if File_review_proto != nil {
-		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_review_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Request); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_review_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Result); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_review_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReviewComm); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_review_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Image); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-	}
-	type x struct{}
-	out := protoimpl.TypeBuilder{
-		File: protoimpl.DescBuilder{
-			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_review_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   4,
-			NumExtensions: 0,
-			NumServices:   1,
-		},
-		GoTypes:           file_review_proto_goTypes,
-		DependencyIndexes: file_review_proto_depIdxs,
-		MessageInfos:      file_review_proto_msgTypes,
-	}.Build()
-	File_review_proto = out.File
-	file_review_proto_rawDesc = nil
-	file_review_proto_goTypes = nil
-	file_review_proto_depIdxs = nil
-}

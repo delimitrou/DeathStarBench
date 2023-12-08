@@ -7,10 +7,11 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/harlow/go-micro-services/registry"
-	"github.com/harlow/go-micro-services/services/review"
-	"github.com/harlow/go-micro-services/tracing"
-	"github.com/harlow/go-micro-services/tune"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/services/review"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
+	"github.com/delimitrou/DeathStarBench/hotelreservation/tune"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -38,8 +39,8 @@ func main() {
 
 	log.Info().Msgf("Read database URL: %v", result["ReviewMongoAddress"])
 	log.Info().Msg("Initializing DB connection...")
-	mongo_session := initializeDatabase(result["ReviewMongoAddress"])
-	defer mongo_session.Close()
+	mongo_session, mongoClose := initializeDatabase(result["ReviewMongoAddress"])
+	defer mongoClose()
 	log.Info().Msg("Successfull")
 
 	log.Info().Msgf("Read review memcashed address: %v", result["ReviewMemcAddress"])
@@ -82,7 +83,7 @@ func main() {
 		Registry:     registry,
 		Port:         serv_port,
 		IpAddr:       serv_ip,
-		MongoSession: mongo_session,
+		MongoClient: mongo_session,
 		MemcClient:   memc_client,
 	}
 
