@@ -14,17 +14,7 @@ COPY tls/ tls/
 COPY tracing/ tracing/
 COPY tune/ tune/
 
+COPY config.json config.json
+
 RUN CGO_ENABLED=0 GOOS=linux GO111MODULE=on go install -ldflags="-s -w" -mod=vendor ./cmd/...
 
-FROM gcr.io/distroless/static:nonroot
-
-WORKDIR /
-
-COPY --from=builder /go/bin/frontend .
-COPY --from=builder /go/bin/geo .
-COPY --from=builder /go/bin/profile .
-COPY --from=builder /go/bin/rate .
-COPY --from=builder /go/bin/recommendation .
-COPY --from=builder /go/bin/reservation .
-COPY --from=builder /go/bin/search .
-COPY --from=builder /go/bin/user .

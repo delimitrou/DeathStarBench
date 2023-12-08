@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package review;
+option go_package="github.com";
+service Review {
+  rpc GetReviews(Request) returns (Result);
+}
+
+message Request {
+  string hotelId = 1;
+}
+
+message Result {
+  repeated ReviewComm reviews = 1;
+}
+
+message ReviewComm {
+  string reviewId = 1;
+  string hotelId = 2;
+  string name = 3;
+  float rating = 4;
+  string description = 5;
+  Image images = 6;
+}
+message Image {
+  string url = 1;
+  bool default = 2;
+}
+
