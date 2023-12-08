@@ -30,7 +30,6 @@ spec:
           value: "2"
         image: memcached
         name: hotel-reserv-reservation-mmc
-        command: ["memcached", "-c", "65536"]
         ports:
         - containerPort: 11211
         resources: {}

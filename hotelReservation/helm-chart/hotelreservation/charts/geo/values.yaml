@@ -1,0 +1,17 @@
+name: geo
+
+ports:
+  - port: 8083
+    targetPort: 8083
+ 
+container:
+  command: ./geo
+  image: deathstarbench/hotel-reservation
+  name: hotel-reserv-geo
+  ports:
+  - containerPort: 8083
+
+configMaps:
+  - name: service-config.json
+    mountPath: config.json
+    value: service-config

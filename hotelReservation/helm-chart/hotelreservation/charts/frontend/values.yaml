@@ -1,0 +1,17 @@
+name: frontend
+
+ports:
+  - port: 5000
+    targetPort: 5000
+
+container:
+  command: ./frontend
+  image: deathstarbench/hotel-reservation
+  name: hotel-reserv-frontend
+  ports:
+  - containerPort: 5000
+
+configMaps:
+  - name: service-config.json
+    mountPath: config.json
+    value: service-config

@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type RoomType struct {
@@ -24,22 +26,11 @@ type RatePlan struct {
 	RoomType *RoomType `bson:"roomType"`
 }
 
-func initializeDatabase(url string) *mgo.Session {
-	session, err := mgo.Dial(url)
-	if err != nil {
-		log.Panic().Msg(err.Error())
-	}
-	// defer session.Close()
-	log.Info().Msg("New session successfull...")
-
+func initializeDatabase(url string) (*mongo.Client, func()) {
 	log.Info().Msg("Generating test data...")
-	c := session.DB("rate-db").C("inventory")
-	count, err := c.Find(&bson.M{"hotelId": "1"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&RatePlan{
+
+	newRatePlans := []interface{}{
+		RatePlan{
 			"1",
 			"RACK",
 			"2015-04-09",
@@ -49,18 +40,10 @@ func initializeDatabase(url string) *mgo.Session {
 				"KNG",
 				"King sized bed",
 				109.00,
-				123.17}})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-	}
-
-	count, err = c.Find(&bson.M{"hotelId": "2"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&RatePlan{
+				123.17,
+			},
+		},
+		RatePlan{
 			"2",
 			"RACK",
 			"2015-04-09",
@@ -70,18 +53,10 @@ func initializeDatabase(url string) *mgo.Session {
 				"QN",
 				"Queen sized bed",
 				139.00,
-				153.09}})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
-	}
-
-	count, err = c.Find(&bson.M{"hotelId": "3"}).Count()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	if count == 0 {
-		err = c.Insert(&RatePlan{
+				153.09,
+			},
+		},
+		RatePlan{
 			"3",
 			"RACK",
 			"2015-04-09",
@@ -91,66 +66,79 @@ func initializeDatabase(url string) *mgo.Session {
 				"KNG",
 				"King sized bed",
 				109.00,
-				123.17}})
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
+				123.17,
+			},
+		},
 	}
 
-	// add up to 80 hotels
 	for i := 7; i <= 80; i++ {
-		if i%3 == 0 {
-			hotel_id := strconv.Itoa(i)
-			count, err = c.Find(&bson.M{"hotelId": hotel_id}).Count()
-			if err != nil {
-				log.Fatal().Msg(err.Error())
-			}
-			end_date := "2015-04-"
-			rate := 109.00
-			rate_inc := 123.17
-			if i%2 == 0 {
-				end_date = end_date + "17"
-			} else {
-				end_date = end_date + "24"
-			}
-
-			if i%5 == 1 {
-				rate = 120.00
-				rate_inc = 140.00
-			} else if i%5 == 2 {
-				rate = 124.00
-				rate_inc = 144.00
-			} else if i%5 == 3 {
-				rate = 132.00
-				rate_inc = 158.00
-			} else if i%5 == 4 {
-				rate = 232.00
-				rate_inc = 258.00
-			}
-
-			if count == 0 {
-				err = c.Insert(&RatePlan{
-					hotel_id,
-					"RACK",
-					"2015-04-09",
-					end_date,
-					&RoomType{
-						rate,
-						"KNG",
-						"King sized bed",
-						rate,
-						rate_inc}})
-				if err != nil {
-					log.Fatal().Msg(err.Error())
-				}
-			}
+		if i%3 != 0 {
+			continue
 		}
+
+		hotelID := strconv.Itoa(i)
+
+		endDate := "2015-04-"
+		if i%2 == 0 {
+			endDate = fmt.Sprintf("%s17", endDate)
+		} else {
+			endDate = fmt.Sprintf("%s24", endDate)
+		}
+
+		rate := 109.00
+		rateInc := 123.17
+		if i%5 == 1 {
+			rate = 120.00
+			rateInc = 140.00
+		} else if i%5 == 2 {
+			rate = 124.00
+			rateInc = 144.00
+		} else if i%5 == 3 {
+			rate = 132.00
+			rateInc = 158.00
+		} else if i%5 == 4 {
+			rate = 232.00
+			rateInc = 258.00
+		}
+
+		newRatePlans = append(
+			newRatePlans,
+			RatePlan{
+				hotelID,
+				"RACK",
+				"2015-04-09",
+				endDate,
+				&RoomType{
+					rate,
+					"KNG",
+					"King sized bed",
+					rate,
+					rateInc,
+				},
+			},
+		)
 	}
 
-	err = c.EnsureIndexKey("hotelId")
+	uri := fmt.Sprintf("mongodb://%s", url)
+	log.Info().Msgf("Attempting connection to %v", uri)
+
+	opts := options.Client().ApplyURI(uri)
+	client, err := mongo.Connect(context.TODO(), opts)
+	if err != nil {
+		log.Panic().Msg(err.Error())
+	}
+	log.Info().Msg("Successfully connected to MongoDB")
+
+	collection := client.Database("rate-db").Collection("inventory")
+	_, err = collection.InsertMany(context.TODO(), newRatePlans)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
+	log.Info().Msg("Successfully inserted test data into rate DB")
 
-	return session
+	return client, func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	}
 }

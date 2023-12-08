@@ -1,0 +1,17 @@
+name: search
+
+ports:
+  - port: 8082
+    targetPort: 8082
+ 
+container:
+  command: ./search
+  image: deathstarbench/hotel-reservation
+  name: hotel-reserv-search
+  ports:
+  - containerPort: 8082
+
+configMaps:
+  - name: service-config.json
+    mountPath: config.json
+    value: service-config
