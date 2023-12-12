@@ -12,6 +12,7 @@ import (
 	reservation "github.com/delimitrou/DeathStarBench/hotelreservation/services/reservation/proto"
 	user "github.com/delimitrou/DeathStarBench/hotelreservation/services/user/proto"
 	review "github.com/delimitrou/DeathStarBench/hotelreservation/services/review/proto"
+	attractions "github.com/delimitrou/DeathStarBench/hotelreservation/services/attractions/proto"
 	"github.com/rs/zerolog/log"
 
 	"github.com/delimitrou/DeathStarBench/hotelreservation/dialer"
@@ -30,6 +31,7 @@ type Server struct {
 	recommendationClient recommendation.RecommendationClient
 	userClient           user.UserClient
 	reviewClient         review.ReviewClient
+	attractionsClient    attractions.AttractionsClient
 	reservationClient    reservation.ReservationClient
 	KnativeDns           string
 	IpAddr               string
@@ -69,6 +71,10 @@ func (s *Server) Run() error {
 		return err
 	}
 
+	if err := s.initAttractionsClient("srv-attractions"); err != nil {
+		return err
+	}
+
 	log.Info().Msg("Successfull")
 
 	log.Trace().Msg("frontend before mux")
@@ -78,6 +84,8 @@ func (s *Server) Run() error {
 	mux.Handle("/recommendations", http.HandlerFunc(s.recommendHandler))
 	mux.Handle("/user", http.HandlerFunc(s.userHandler))
 	mux.Handle("/review", http.HandlerFunc(s.reviewHandler))
+	mux.Handle("/restaurants", http.HandlerFunc(s.restaurantHandler))
+	mux.Handle("/museums", http.HandlerFunc(s.museumHandler))
 	mux.Handle("/reservation", http.HandlerFunc(s.reservationHandler))
 
 	log.Trace().Msg("frontend starts serving")
@@ -116,6 +124,19 @@ func (s *Server) initReviewClient(name string) error {
 		return fmt.Errorf("dialer error: %v", err)
 	}
 	s.reviewClient = review.NewReviewClient(conn)
+	return nil
+}
+
+func (s *Server) initAttractionsClient(name string) error {
+	conn, err := dialer.Dial(
+		name,
+		dialer.WithTracer(s.Tracer),
+		dialer.WithBalancer(s.Registry.Client),
+	)
+	if err != nil {
+		return fmt.Errorf("dialer error: %v", err)
+	}
+	s.attractionsClient = attractions.NewAttractionsClient(conn)
 	return nil
 }
 
@@ -359,6 +380,112 @@ func (s *Server) reviewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func (s *Server) restaurantHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	ctx := r.Context()
+
+	username, password := r.URL.Query().Get("username"), r.URL.Query().Get("password")
+	if username == "" || password == "" {
+		http.Error(w, "Please specify username and password", http.StatusBadRequest)
+		return
+	}
+
+	// Check username and password
+	recResp, err := s.userClient.CheckUser(ctx, &user.Request{
+		Username: username,
+		Password: password,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	str := "Logged-in successfully!"
+	if recResp.Correct == false {
+		str = "Failed. Please check your username and password. "
+	}
+
+	hotelId := r.URL.Query().Get("hotelId")
+	if hotelId == "" {
+		http.Error(w, "Please specify hotelId params", http.StatusBadRequest)
+		return
+	}
+
+	revInput := attractions.Request{HotelId:hotelId}
+
+	revResp, err := s.attractionsClient.NearbyRest(ctx, &revInput)
+
+	str = "Have restaurants = " + strconv.Itoa(len(revResp.AttractionIds)) 
+    if len(revResp.AttractionIds) == 0 {
+        str = "Failed. No Restaurants. "
+	}
+
+	if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+	res := map[string]interface{}{
+		"message": str,
+	}
+
+	json.NewEncoder(w).Encode(res)
+}
+
+
+func (s *Server) museumHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	ctx := r.Context()
+
+	username, password := r.URL.Query().Get("username"), r.URL.Query().Get("password")
+	if username == "" || password == "" {
+		http.Error(w, "Please specify username and password", http.StatusBadRequest)
+		return
+	}
+
+	// Check username and password
+	recResp, err := s.userClient.CheckUser(ctx, &user.Request{
+		Username: username,
+		Password: password,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	str := "Logged-in successfully!"
+	if recResp.Correct == false {
+		str = "Failed. Please check your username and password. "
+	}
+
+	hotelId := r.URL.Query().Get("hotelId")
+	if hotelId == "" {
+		http.Error(w, "Please specify hotelId params", http.StatusBadRequest)
+		return
+	}
+
+	revInput := attractions.Request{HotelId:hotelId}
+
+	revResp, err := s.attractionsClient.NearbyMus(ctx, &revInput)
+
+	str = "Have museums = " + strconv.Itoa(len(revResp.AttractionIds)) 
+    if len(revResp.AttractionIds) == 0 {
+        str = "Failed. No Museums. "
+	}
+
+	if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+	res := map[string]interface{}{
+		"message": str,
+	}
+
+	json.NewEncoder(w).Encode(res)
+}
+
+
 func (s *Server) userHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
@@ -514,3 +641,4 @@ func checkDataFormat(date string) bool {
 	}
 	return true
 }
+
