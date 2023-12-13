@@ -16,7 +16,7 @@ services:
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_rate_single_node
+    image: hotel_reserv_frontend_single_node
     entrypoint: frontend
     container_name: 'hotel_reserv_frontend'
     ports:
@@ -98,7 +98,7 @@ services:
       - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_rate_single_node
+    image: hotel_reserv_review_single_node
     entrypoint: review
     container_name: 'hotel_reserv_review'
     depends_on:
@@ -115,7 +115,7 @@ services:
       - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_rate_single_node
+    image: hotel_reserv_attractions_single_node
     entrypoint: attractions
     container_name: 'hotel_reserv_attractions'
     depends_on:
