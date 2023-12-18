@@ -3,7 +3,6 @@ package geoindex
 import (
 	"fmt"
 	"math"
-	"sync"
 )
 
 var (
@@ -112,42 +111,22 @@ func distance(p1, p2 Point) Meters {
 
 type lonDegreeDistance map[int]Meters
 
-// func (lonDist lonDegreeDistance) get(lat float64) Meters {
-// 	latIndex := int(lat * 10)
-// 	latRounded := float64(latIndex) / 10
-
-// 	if value, ok := lonDist[latIndex]; ok {
-// 		return value
-// 	} else {
-// 		dist := distance(&GeoPoint{"", latRounded, 0.0}, &GeoPoint{"", latRounded, 1.0})
-// 		lonDist[latIndex] = dist
-// 		return dist
-// 	}
-// }
-
-var (
-	lonLength = lonDegreeDistance{}
-	lonLengthMutex = sync.RWMutex{}
-)
-
-func (lonDist lonDegreeDistance) get(lat float64, ) Meters {
+func (lonDist lonDegreeDistance) get(lat float64) Meters {
 	latIndex := int(lat * 10)
 	latRounded := float64(latIndex) / 10
 
-	lonLengthMutex.RLock()
-	value, ok := lonDist[latIndex]
-	lonLengthMutex.RUnlock()
-
-	if ok {
+	if value, ok := lonDist[latIndex]; ok {
 		return value
+	} else {
+		dist := distance(&GeoPoint{"", latRounded, 0.0}, &GeoPoint{"", latRounded, 1.0})
+		lonDist[latIndex] = dist
+		return dist
 	}
-
-	lonLengthMutex.Lock()
-    dist := distance(&GeoPoint{"", latRounded, 0.0}, &GeoPoint{"", latRounded, 1.0})
-	lonDist[latIndex] = dist
-    lonLengthMutex.Unlock()
-    return dist
 }
+
+var (
+	lonLength = lonDegreeDistance{}
+)
 
 // Calculates approximate distance between two points using euclidian distance. The assumption here
 // is that the points are relatively close to each other.
