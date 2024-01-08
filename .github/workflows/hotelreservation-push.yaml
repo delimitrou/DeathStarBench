@@ -16,12 +16,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         ref: master
         fetch-depth: 0
     - name: Login to ACR
-      uses: docker/login-action@v1
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
@@ -35,7 +35,7 @@ jobs:
         log-paths: "${{ env.REPO_PATH }}/"
       if: github.ref == 'refs/heads/master'
     - name: Create tag
-      uses: actions/github-script@v5
+      uses: actions/github-script@v7
       with:
         script: |
           github.rest.git.createRef({
