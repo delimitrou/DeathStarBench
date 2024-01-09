@@ -23,11 +23,11 @@ target_link_libraries(
     Boost::log
     Boost::log_setup
     Boost::program_options
+    hiredis::hiredis
+    hiredis::hiredis_ssl
     jaegertracing
-    /usr/local/lib/libhiredis.a
-    /usr/local/lib/libhiredis_ssl.a
-    /usr/local/lib/libredis++.a
     OpenSSL::SSL
+    /usr/local/lib/libredis++.a
 )
 
 install(TARGETS HomeTimelineService DESTINATION ./)

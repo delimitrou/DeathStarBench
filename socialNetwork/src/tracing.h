@@ -61,6 +61,7 @@ void SetUpTracer(
   //     configYAML["reporter"]["localAgentHostPort"].as<std::string>();
 
   auto config = jaegertracing::Config::parse(configYAML);
+  config.fromEnv();
 
   bool r = false;
   while (!r) {
