@@ -5,8 +5,8 @@ ports:
     targetPort: 8080
 
 container:
-  image: yg397/openresty-thrift
-  imageVersion: xenial
+  image: deathstarbench/social-network-openresty-thrift
+  imageVersion: latest
   name: nginx-thrift
   ports: 
   - containerPort: 8080
