@@ -25,7 +25,7 @@ ports:
 
 container:
   image: jaegertracing/all-in-one
-  imageVersion: 1.21.0
+  imageVersion: latest
   name: hotel-reserv-jaeger
   ports:
   - containerPort: 14269
