@@ -15,22 +15,14 @@ env:
   TAG_PREFIX: 'socialNetwork'
 
 jobs:
-  build:
+  create-github-tag:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
       with:
         ref: master
-        fetch-depth: 0 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Log into Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+        fetch-depth: 0
+
     - name: Calculate new version
       id: new-version
       uses: codacy/git-version@2.4.0
@@ -38,6 +30,7 @@ jobs:
         prefix: "${{ env.TAG_PREFIX }}-"
         log-paths: "${{ env.REPO_PATH }}/"
       if: github.ref == 'refs/heads/master'
+
     - name: Create tag
       uses: actions/github-script@v5
       with:
@@ -48,27 +41,87 @@ jobs:
             ref: 'refs/tags/${{ steps.new-version.outputs.VERSION }}',
             sha: context.sha
           })
-    - name: Build and push microservices image
+
+    - name: Write version number to environment
+      run: echo VERSION=${{ steps.new-version.outputs.VERSION }} >> $GITHUB_ENV
+
+  publish-microservices:
+    needs: create-github-tag
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log into Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+
+    - name: Build and push image
       uses: docker/build-push-action@v5
       with:
         context: ${{ env.REPO_PATH }}
         push: true
         tags:
           - ${{ env.MICROSERVICES_IMAGE_NAME }}:latest
-          - ${{ env.MICROSERVICES_IMAGE_NAME }}:${{ steps.new-version.outputs.VERSION }}
-    - name: Build and push media-frontend image
+          - ${{ env.MICROSERVICES_IMAGE_NAME }}:${{ env.VERSION }}
+
+  publish-media-frontend:
+    needs: create-github-tag
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log into Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+
+    - name: Build and push image
       uses: docker/build-push-action@v5
       with:
         context: ${{ env.REPO_PATH }}/docker/media-frontend/xenial
         push: true
         tags:
           - ${{ env.MEDIA_FRONTEND_IMAGE_NAME }}:latest
-          - ${{ env.MEDIA_FRONTEND_IMAGE_NAME }}:${{ steps.new-version.outputs.VERSION }}
-    - name: Build and push openresty-thrift image
+          - ${{ env.MEDIA_FRONTEND_IMAGE_NAME }}:${{ env.VERSION }}
+
+  publish-openresty-thrift:
+    needs: create-github-tag
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log into Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+
+    - name: Build and push image
       uses: docker/build-push-action@v5
       with:
         context: ${{ env.REPO_PATH }}/docker/openresty-thrift/xenial
         push: true
         tags:
           - ${{ env.OPENRESTY_THRIFT_IMAGE_NAME }}:latest
-          - ${{ env.OPENRESTY_THRIFT_IMAGE_NAME }}:${{ steps.new-version.outputs.VERSION }}
+          - ${{ env.OPENRESTY_THRIFT_IMAGE_NAME }}:${{ env.VERSION }}

@@ -74,7 +74,7 @@ services:
       restart_policy:
         condition: any
     hostname: media-frontend
-    image: yg397/media-frontend:xenial
+    image: deathstarbench/social-network-media-frontend:latest
     ports:
       - 8081:8080
     volumes:
@@ -130,7 +130,7 @@ services:
       restart_policy:
         condition: any
     hostname: nginx-web-server
-    image: yg397/openresty-thrift:xenial
+    image: deathstarbench/social-network-openresty-thrift:latest
     ports:
       - 8080:8080
     volumes:
