@@ -1,0 +1,3 @@
+[submodule "wrk2/deps/luajit"]
+	path = wrk2/deps/luajit
+	url = https://github.com/LuaJIT/LuaJIT.git
