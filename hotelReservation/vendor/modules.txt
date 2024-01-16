@@ -76,7 +76,7 @@ github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.19
 ## explicit; go 1.15
 github.com/mattn/go-isatty
-# github.com/mbobakov/grpc-consul-resolver v1.5.3-0.20230721081357-da3cfb2510d0
+# github.com/mbobakov/grpc-consul-resolver v1.5.3
 ## explicit; go 1.20
 github.com/mbobakov/grpc-consul-resolver
 # github.com/miekg/dns v1.1.50

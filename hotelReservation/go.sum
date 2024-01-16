@@ -140,6 +140,8 @@ github.com/mattn/go-isatty v0.0.19/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/mbobakov/grpc-consul-resolver v1.5.3-0.20230721081357-da3cfb2510d0 h1:Xe3WIUHkB9gkyjV/wqN8esxKg+YaCRH5Ub2R1qwN9LM=
 github.com/mbobakov/grpc-consul-resolver v1.5.3-0.20230721081357-da3cfb2510d0/go.mod h1:PfuFASnyPLTlJvyMAKr5SRJUs5Wlxi0/nmF+KH6kPhA=
+github.com/mbobakov/grpc-consul-resolver v1.5.3 h1:xL7nJm8qCvxgHMqlnF4naXruBUoHqfUWORl3UmwKByU=
+github.com/mbobakov/grpc-consul-resolver v1.5.3/go.mod h1:0wN8+McBocuk5mO9xlAfrmBSothm7sps43bFGubg0m4=
 github.com/miekg/dns v1.1.26/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=
 github.com/miekg/dns v1.1.41/go.mod h1:p6aan82bvRIyn+zDIv9xYNUpwa73JcSh9BKwknJysuI=
 github.com/miekg/dns v1.1.50 h1:DQUfb9uc6smULcREF09Uc+/Gd46YWqJd5DbpPE9xkcA=
