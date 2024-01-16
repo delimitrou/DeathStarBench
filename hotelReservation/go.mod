@@ -8,7 +8,7 @@ require (
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
 	github.com/hailocab/go-geoindex v0.0.0-20160127134810-64631bfe9711
 	github.com/hashicorp/consul/api v1.26.1
-	github.com/mbobakov/grpc-consul-resolver v1.5.3-0.20230721081357-da3cfb2510d0
+	github.com/mbobakov/grpc-consul-resolver v1.5.3
 	github.com/opentracing-contrib/go-stdlib v1.0.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rs/zerolog v1.31.0
