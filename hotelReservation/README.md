@@ -29,14 +29,14 @@ Supported actions:
 
 ### Running the containers
 ##### Docker-compose
-Start docker containers by running `docker-compose up -d`. All images will be pulled from Docker Hub.
+Start docker containers by running `docker compose up -d`. All images will be pulled from Docker Hub. In order to run `docker compose` with images built from the `Dockerfile`, run `docker compose up -d --build`.
 
-The workload itself can be configured using optional enviroment variables. The avaialbe configuration items are:
+The workload itself can be configured using optional enviroment variables. The available configuration items are:
 
 - TLS: Environment variable TLS controls the TLS enablement of gRPC and HTTP communications of the microservices in hotelReservation.
     - TLS=0 or not set(default): No TLS enabled for gRPC and HTTP communication.
-    - TLS=1: All the gRPC and HTTP communications will be protected by TLS, e.g. `TLS=1 docker-compose up -d`.
-    - TLS=<ciphersuite>: Use specified ciphersuite for TLS, e.g. `TLS=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 docker-compose up -d`. The avaialbe cipher suite can be found at the file [options.go](tls/options.go#L21).
+    - TLS=1: All the gRPC and HTTP communications will be protected by TLS, e.g. `TLS=1 docker compose up -d`.
+    - TLS=<ciphersuite>: Use specified ciphersuite for TLS, e.g. `TLS=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 docker- ompose up -d`. The avaialbe cipher suite can be found at the file [options.go](tls/options.go#L21).
 
 - GC: Environment variable GC controls the garbage collection target percentage of Golang runtime. The default value is 100. See [golang doc](https://pkg.go.dev/runtime/debug#SetGCPercent) for details.
 
@@ -46,7 +46,7 @@ The workload itself can be configured using optional enviroment variables. The a
 
 - LOG_LEVEL: Environment variable LOG_LEVEL controls the log verbosity. Valid values are: ERROR, WARNING, INFO, TRACE, DEBUG. Default value is INFO.
 
-Users may run `docker-compose logs <service>` to check the corresponding configurations.
+Users may run `docker compose logs <service>` to check the corresponding configurations.
 
 ##### Openshift
 Read the Readme file in Openshift directory.
