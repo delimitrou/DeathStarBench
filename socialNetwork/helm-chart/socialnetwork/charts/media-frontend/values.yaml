@@ -5,8 +5,8 @@ ports:
     targetPort: 8080
 
 container:
-  image: yg397/media-frontend
-  imageVersion: xenial
+  image: deathstarbench/social-network-media-frontend
+  imageVersion: latest
   name: media-frontend
   ports: 
   - containerPort: 8081

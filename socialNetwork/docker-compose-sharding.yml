@@ -295,7 +295,7 @@ services:
       - ./config:/social-network-microservices/config
 
   nginx-thrift:
-    image: yg397/openresty-thrift:xenial
+    image: deathstarbench/social-network-openresty-thrift:latest
     hostname: nginx-thrift
     ports:
       - 8080:8080
@@ -312,7 +312,7 @@ services:
       - ./docker/openresty-thrift/lua-thrift:/usr/local/openresty/lualib/thrift
 
   media-frontend:
-    image: yg397/media-frontend:xenial
+    image: deathstarbench/social-network-media-frontend:latest
     hostname: media-frontend
     ports:
       - 8081:8080
