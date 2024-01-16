@@ -6,20 +6,19 @@ import (
 	"net/http"
 	"strconv"
 
-	"google.golang.org/grpc"
-
-	recommendation "github.com/delimitrou/DeathStarBench/hotelreservation/services/recommendation/proto"
-	reservation "github.com/delimitrou/DeathStarBench/hotelreservation/services/reservation/proto"
-	user "github.com/delimitrou/DeathStarBench/hotelreservation/services/user/proto"
-	"github.com/rs/zerolog/log"
-
 	"github.com/delimitrou/DeathStarBench/hotelreservation/dialer"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
 	profile "github.com/delimitrou/DeathStarBench/hotelreservation/services/profile/proto"
+	recommendation "github.com/delimitrou/DeathStarBench/hotelreservation/services/recommendation/proto"
+	reservation "github.com/delimitrou/DeathStarBench/hotelreservation/services/reservation/proto"
 	search "github.com/delimitrou/DeathStarBench/hotelreservation/services/search/proto"
+	user "github.com/delimitrou/DeathStarBench/hotelreservation/services/user/proto"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
+	_ "github.com/mbobakov/grpc-consul-resolver"
 	"github.com/opentracing/opentracing-go"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
 )
 
 // Server implements frontend service
@@ -29,11 +28,13 @@ type Server struct {
 	recommendationClient recommendation.RecommendationClient
 	userClient           user.UserClient
 	reservationClient    reservation.ReservationClient
-	KnativeDns           string
-	IpAddr               string
-	Port                 int
-	Tracer               opentracing.Tracer
-	Registry             *registry.Client
+
+	KnativeDns string
+	IpAddr     string
+	ConsulAddr string
+	Port       int
+	Tracer     opentracing.Tracer
+	Registry   *registry.Client
 }
 
 // Run the server
@@ -62,7 +63,7 @@ func (s *Server) Run() error {
 	if err := s.initReservation("srv-reservation"); err != nil {
 		return err
 	}
-	log.Info().Msg("Successfull")
+	log.Info().Msg("Successful")
 
 	log.Trace().Msg("frontend before mux")
 	mux := tracing.NewServeMux(s.Tracer)
@@ -138,13 +139,14 @@ func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 	log.Info().Msg("get Grpc conn is :")
 	log.Info().Msg(s.KnativeDns)
 	log.Info().Msg(fmt.Sprintf("%s.%s", name, s.KnativeDns))
+
 	if s.KnativeDns != "" {
 		return dialer.Dial(
-			fmt.Sprintf("%s.%s", name, s.KnativeDns),
+			fmt.Sprintf("consul://%s/%s.%s", s.ConsulAddr, name, s.KnativeDns),
 			dialer.WithTracer(s.Tracer))
 	} else {
 		return dialer.Dial(
-			name,
+			fmt.Sprintf("consul://%s/%s", s.ConsulAddr, name),
 			dialer.WithTracer(s.Tracer),
 			dialer.WithBalancer(s.Registry.Client),
 		)

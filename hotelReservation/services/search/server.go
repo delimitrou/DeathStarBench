@@ -1,14 +1,8 @@
 package search
 
 import (
-	// "encoding/json"
 	"fmt"
-	// F"io/ioutil"
 	"net"
-
-	"github.com/rs/zerolog/log"
-
-	// "os"
 	"time"
 
 	"github.com/delimitrou/DeathStarBench/hotelreservation/dialer"
@@ -19,7 +13,9 @@ import (
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	_ "github.com/mbobakov/grpc-consul-resolver"
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/rs/zerolog/log"
 	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -29,15 +25,18 @@ const name = "srv-search"
 
 // Server implments the search service
 type Server struct {
+	pb.UnimplementedSearchServer
+
 	geoClient  geo.GeoClient
 	rateClient rate.RateClient
+	uuid       string
 
 	Tracer     opentracing.Tracer
 	Port       int
 	IpAddr     string
+	ConsulAddr string
 	KnativeDns string
 	Registry   *registry.Client
-	uuid       string
 }
 
 // Run starts the server
@@ -80,19 +79,6 @@ func (s *Server) Run() error {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
 
-	// register with consul
-	// jsonFile, err := os.Open("config.json")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// defer jsonFile.Close()
-
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	// var result map[string]string
-	// json.Unmarshal([]byte(byteValue), &result)
-
 	err = s.Registry.Register(name, s.uuid, s.IpAddr, s.Port)
 	if err != nil {
 		return fmt.Errorf("failed register: %v", err)
@@ -128,11 +114,11 @@ func (s *Server) initRateClient(name string) error {
 func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 	if s.KnativeDns != "" {
 		return dialer.Dial(
-			fmt.Sprintf("%s.%s", name, s.KnativeDns),
+			fmt.Sprintf("consul://%s/%s.%s", s.ConsulAddr, name, s.KnativeDns),
 			dialer.WithTracer(s.Tracer))
 	} else {
 		return dialer.Dial(
-			name,
+			fmt.Sprintf("consul://%s/%s", s.ConsulAddr, name),
 			dialer.WithTracer(s.Tracer),
 			dialer.WithBalancer(s.Registry.Client),
 		)

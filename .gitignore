@@ -1,6 +1,7 @@
 .vscode
 .vs
 .DS_Store
+bin
 build
 */wrk2/deps/
 */wrk2/obj/

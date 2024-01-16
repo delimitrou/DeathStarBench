@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package rate;
 
+option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/rate";
+
 service Rate {
   // GetRates returns rate codes for hotels for a given date range
   rpc GetRates(Request) returns (Result);

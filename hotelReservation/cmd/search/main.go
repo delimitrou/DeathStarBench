@@ -62,6 +62,7 @@ func main() {
 		Tracer:     tracer,
 		Port:       servPort,
 		IpAddr:     servIP,
+		ConsulAddr: *consulAddr,
 		KnativeDns: knativeDNS,
 		Registry:   registry,
 	}
