@@ -20,6 +20,7 @@ jobs:
       with:
         ref: master
         fetch-depth: 0 
+        submodules: true
     - name: Login to ACR
       uses: docker/login-action@v1
       with:
