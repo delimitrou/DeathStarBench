@@ -1,8 +1,10 @@
 package frontend
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"strconv"
 
@@ -20,6 +22,11 @@ import (
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
 	"github.com/opentracing/opentracing-go"
+)
+
+var (
+	//go:embed static/*
+	content embed.FS
 )
 
 // Server implements frontend service
@@ -40,6 +47,12 @@ type Server struct {
 func (s *Server) Run() error {
 	if s.Port == 0 {
 		return fmt.Errorf("Server port must be set")
+	}
+
+	log.Info().Msg("Loading static content...")
+	staticContent, err := fs.Sub(content, "static")
+	if err != nil {
+		return err
 	}
 
 	log.Info().Msg("Initializing gRPC clients...")
@@ -66,7 +79,7 @@ func (s *Server) Run() error {
 
 	log.Trace().Msg("frontend before mux")
 	mux := tracing.NewServeMux(s.Tracer)
-	mux.Handle("/", http.FileServer(http.Dir("services/frontend/static")))
+	mux.Handle("/", http.FileServer(http.FS(staticContent)))
 	mux.Handle("/hotels", http.HandlerFunc(s.searchHandler))
 	mux.Handle("/recommendations", http.HandlerFunc(s.recommendHandler))
 	mux.Handle("/user", http.HandlerFunc(s.userHandler))
