@@ -7,7 +7,7 @@ Helm charts are packages containing Kubernetes yaml files. Its main goal is to a
 The main goal of this project is to automate the process of deploying Social Network Microservices on a Kubernetes cluster natively using helm chart. 
 
 ## Structure of helm chart  ##
-Every microservice is packaged into its own isolated helm chart. All these packages are assembled under one main helm chart. Microservices share the same deployment, service and configmap files templates which are parameterized using values from `values.yaml` file in each microsevice package. Helm charts also share the same config files. The main helm chart contains global values which are shared among microservices but can be individually overridden.
+Every microservice is packaged into its own isolated helm chart. All these packages are assembled under one main helm chart. Microservices share the same deployment, service and configmap files templates which are parameterized using values from `values.yaml` file in each microservice package. Helm charts also share the same config files. The main helm chart contains global values which are shared among microservices but can be individually overridden.
 
 ## Shared config files ##
 Microservices with same purposes share config files which can be found under `templates/configs` in the main helm chart.
