@@ -31,6 +31,7 @@ type Server struct {
 	indexH *geoindex.ClusteringIndex
 	indexR *geoindex.ClusteringIndex
 	indexM *geoindex.ClusteringIndex
+	indexC *geoindex.ClusteringIndex
 	uuid  string
 
 	Registry    *registry.Client
@@ -56,6 +57,10 @@ func (s *Server) Run() error {
 
 	if s.indexM == nil {
 		s.indexM = newGeoIndexMus(s.MongoClient)
+	}
+
+	if s.indexC == nil {
+		s.indexC = newGeoIndexCinema(s.MongoClient)
 	}
 
 	s.uuid = uuid.New().String()
@@ -174,6 +179,44 @@ func (s *Server) NearbyMus(ctx context.Context, req *pb.Request) (*pb.Result, er
 	return res, nil
 }
 
+// NearbyCinema returns all cinemas close to the hotel.
+func (s *Server) NearbyCinema(ctx context.Context, req *pb.Request) (*pb.Result, error) {
+	log.Trace().Msgf("In Attractions NearbyCinema")
+
+	mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_cinema")
+	mongoSpan.SetTag("span.kind", "client")
+
+	c := s.MongoClient.Database("attractions-db").Collection("hotels")
+
+	curr, err := c.Find(context.TODO(), bson.M{"hotelId": req.HotelId})
+	if err != nil {
+		log.Error().Msgf("Failed get hotels: ", err)
+	}
+	var hotelReqs []point
+	curr.All(context.TODO(), &hotelReqs)
+
+	var hotelReq point
+
+	for _, hotelHelper := range hotelReqs {
+		hotelReq = hotelHelper
+	}
+
+	var (
+		points = s.getNearbyPointsCinema(ctx, float64(hotelReq.Plat), float64(hotelReq.Plon))
+		res    = &pb.Result{}
+	)
+
+	log.Trace().Msgf("cinemas after getNearbyPoints, len = %d", len(points))
+
+	for _, p := range points {
+		log.Trace().Msgf("In cinemas Nearby return cinemaId = %s", p.Id())
+		res.AttractionIds = append(res.AttractionIds, p.Id())
+	}
+
+	return res, nil
+}
+
+
 func (s *Server) getNearbyPointsHotel(ctx context.Context, lat, lon float64) []geoindex.Point {
 	log.Trace().Msgf("In geo getNearbyPoints, lat = %f, lon = %f", lat, lon)
 
@@ -220,6 +263,24 @@ func (s *Server) getNearbyPointsMus(ctx context.Context, lat, lon float64) []geo
 	}
 
 	return s.indexM.KNearest(
+		center,
+		maxSearchResults,
+		geoindex.Km(maxSearchRadius), func(p geoindex.Point) bool {
+			return true
+		},
+	)
+}
+
+func (s *Server) getNearbyPointsCinema(ctx context.Context, lat, lon float64) []geoindex.Point {
+	log.Trace().Msgf("In geo getNearbyPointsCinema, lat = %f, lon = %f", lat, lon)
+
+	center := &geoindex.GeoPoint{
+		Pid:  "",
+		Plat: lat,
+		Plon: lon,
+	}
+
+	return s.indexC.KNearest(
 		center,
 		maxSearchResults,
 		geoindex.Km(maxSearchRadius), func(p geoindex.Point) bool {
@@ -303,6 +364,30 @@ func newGeoIndexMus(client *mongo.Client) *geoindex.ClusteringIndex {
 	return index
 }
 
+// newGeoIndexCinema returns a geo index with points loaded
+func newGeoIndexCinema(client *mongo.Client) *geoindex.ClusteringIndex {
+	log.Trace().Msg("new geo newGeoIndexCinema")
+
+	collection := client.Database("attractions-db").Collection("cinemas")
+	curr, err := collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Error().Msgf("Failed get cinema data: ", err)
+	}
+
+	var points []*Cinema
+	curr.All(context.TODO(), &points)
+	if err != nil {
+		log.Error().Msgf("Failed get cinema data: ", err)
+	}
+
+	// add points to index
+	index := geoindex.NewClusteringIndex()
+	for _, point := range points {
+		index.Add(point)
+	}
+
+	return index
+}
 
 type point struct {
 	Pid  string  `bson:"hotelId"`
@@ -341,4 +426,17 @@ type Museum struct {
 func (m *Museum) Lat() float64 { return m.MLat }
 func (m *Museum) Lon() float64 { return m.MLon }
 func (m *Museum) Id() string   { return m.MuseumId }
+
+type Cinema struct {
+	CinemaId	    string  `bson:"cinemaId"`
+	CLat		 	float64  `bson:"lat"`
+	CLon       	    float64  `bson:"lon"`
+	CinemaName	    string  `bson:"cinemaName"`
+	Type  			string  `bson:"type"`
+}
+
+// Implement Cinema interface
+func (c *Cinema) Lat() float64 { return c.CLat }
+func (c *Cinema) Lon() float64 { return c.CLon }
+func (c *Cinema) Id() string   { return c.CinemaId }
 

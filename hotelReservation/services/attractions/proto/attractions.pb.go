@@ -26,6 +26,7 @@ const _ = grpc.SupportPackageIsVersion4
 const (
 	Attractions_NearbyRest_FullMethodName = "/attractions.Attractions/NearbyRest"
 	Attractions_NearbyMus_FullMethodName  = "/attractions.Attractions/NearbyMus"
+	Attractions_NearbyCinema_FullMethodName  = "/attractions.Attractions/NearbyCinema"
 )
 
 // AttractionsClient is the client API for Attractions service.
@@ -34,6 +35,7 @@ const (
 type AttractionsClient interface {
 	NearbyRest(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Result, error)
 	NearbyMus(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Result, error)
+	NearbyCinema(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Result, error)
 }
 
 type attractionsClient struct {
@@ -62,12 +64,22 @@ func (c *attractionsClient) NearbyMus(ctx context.Context, in *Request, opts ...
 	return out, nil
 }
 
+func (c *attractionsClient) NearbyCinema(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
+	err := c.cc.Invoke(ctx, Attractions_NearbyCinema_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AttractionsServer is the server API for Attractions service.
 // All implementations must embed UnimplementedAttractionsServer
 // for forward compatibility
 type AttractionsServer interface {
 	NearbyRest(context.Context, *Request) (*Result, error)
 	NearbyMus(context.Context, *Request) (*Result, error)
+	NearbyCinema(context.Context, *Request) (*Result, error)
 }
 
 // UnimplementedAttractionsServer must be embedded to have forward compatible implementations.
@@ -79,6 +91,9 @@ func (UnimplementedAttractionsServer) NearbyRest(context.Context, *Request) (*Re
 }
 func (UnimplementedAttractionsServer) NearbyMus(context.Context, *Request) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NearbyMus not implemented")
+}
+func (UnimplementedAttractionsServer) NearbyCinema(context.Context, *Request) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NearbyCinema not implemented")
 }
 func (UnimplementedAttractionsServer) mustEmbedUnimplementedAttractionsServer() {}
 
@@ -125,6 +140,24 @@ func _Attractions_NearbyMus_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Attractions_NearbyCinema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AttractionsServer).NearbyCinema(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Attractions_NearbyCinema_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AttractionsServer).NearbyCinema(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Attractions_ServiceDesc is the grpc.ServiceDesc for Attractions service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var Attractions_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NearbyMus",
 			Handler:    _Attractions_NearbyMus_Handler,
+		},
+		{
+			MethodName: "NearbyCinema",
+			Handler:    _Attractions_NearbyCinema_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -239,8 +276,10 @@ var file_attractions_proto_goTypes = []interface{}{
 var file_attractions_proto_depIdxs = []int32{
 	0, // 0: attractions.Attractions.NearbyRest:input_type -> attractions.Request
 	0, // 1: attractions.Attractions.NearbyMus:input_type -> attractions.Request
-	1, // 2: attractions.Attractions.NearbyRest:output_type -> attractions.Result
-	1, // 3: attractions.Attractions.NearbyMus:output_type -> attractions.Result
+	0, // 2: attractions.Attractions.NearbyCinema:input_type -> attractions.Request
+	1, // 3: attractions.Attractions.NearbyRest:output_type -> attractions.Result
+	1, // 4: attractions.Attractions.NearbyMus:output_type -> attractions.Result
+	1, // 5: attractions.Attractions.NearbyCinema:input_type -> attractions.Result
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

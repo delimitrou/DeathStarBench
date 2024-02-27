@@ -86,6 +86,7 @@ func (s *Server) Run() error {
 	mux.Handle("/review", http.HandlerFunc(s.reviewHandler))
 	mux.Handle("/restaurants", http.HandlerFunc(s.restaurantHandler))
 	mux.Handle("/museums", http.HandlerFunc(s.museumHandler))
+	mux.Handle("/cinema", http.HandlerFunc(s.cinemaHandler))
 	mux.Handle("/reservation", http.HandlerFunc(s.reservationHandler))
 
 	log.Trace().Msg("frontend starts serving")
@@ -485,6 +486,57 @@ func (s *Server) museumHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
+func (s *Server) cinemaHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	ctx := r.Context()
+
+	username, password := r.URL.Query().Get("username"), r.URL.Query().Get("password")
+	if username == "" || password == "" {
+		http.Error(w, "Please specify username and password", http.StatusBadRequest)
+		return
+	}
+
+	// Check username and password
+	recResp, err := s.userClient.CheckUser(ctx, &user.Request{
+		Username: username,
+		Password: password,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	str := "Logged-in successfully!"
+	if recResp.Correct == false {
+		str = "Failed. Please check your username and password. "
+	}
+
+	hotelId := r.URL.Query().Get("hotelId")
+	if hotelId == "" {
+		http.Error(w, "Please specify hotelId params", http.StatusBadRequest)
+		return
+	}
+
+	revInput := attractions.Request{HotelId:hotelId}
+
+	revResp, err := s.attractionsClient.NearbyCinema(ctx, &revInput)
+
+	str = "Have cinemas = " + strconv.Itoa(len(revResp.AttractionIds)) 
+    if len(revResp.AttractionIds) == 0 {
+        str = "Failed. No Cinemas. "
+	}
+
+	if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+	res := map[string]interface{}{
+		"message": str,
+	}
+
+	json.NewEncoder(w).Encode(res)
+}
 
 func (s *Server) userHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
