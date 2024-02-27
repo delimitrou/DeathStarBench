@@ -90,6 +90,39 @@ services:
       - consul
     restart: always
 
+  review:
+    environment:
+      - TLS
+      - GC
+      - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
+      - LOG_LEVEL
+    build: .
+    image: hotel_reserv_review_single_node
+    entrypoint: review
+    container_name: 'hotel_reserv_review'
+    depends_on:
+      - mongodb-review
+      - memcached-review
+      - consul
+    restart: always
+  
+  attractions:
+    environment:
+      - TLS
+      - GC
+      - JAEGER_SAMPLE_RATIO
+      - MEMC_TIMEOUT
+      - LOG_LEVEL
+    build: .
+    image: hotel_reserv_attractions_single_node
+    entrypoint: attractions
+    container_name: 'hotel_reserv_attractions'
+    depends_on:
+      - mongodb-attractions
+      - consul
+    restart: always
+
   recommendation:
     environment:
       - TLS
@@ -163,6 +196,18 @@ services:
       options:
         max-size: 50m
 
+  memcached-review:
+    image: memcached
+    # hostname: user-memcached
+    container_name: 'hotel_reserv_review_mmc'
+    restart: always
+    environment:
+      - MEMCACHED_CACHE_SIZE=128
+      - MEMCACHED_THREADS=2
+    logging:
+      options:
+        max-size: 50m
+
   memcached-profile:
     image: memcached
     # hostname: user-memcached
@@ -209,7 +254,23 @@ services:
     hostname: rate-db
     restart: always
     volumes:
-      - rate:/data/db   
+      - rate:/data/db
+
+  mongodb-review:
+    image: mongo:4.4.6
+    container_name: 'hotel_reserv_review_mongo'
+    hostname: review-db
+    restart: always
+    volumes:
+      - review:/data/db
+
+  mongodb-attractions:
+    image: mongo:4.4.6
+    container_name: 'hotel_reserv_attractions_mongo'
+    hostname: attractions-db
+    restart: always
+    volumes:
+      - attractions:/data/db  
 
   mongodb-recommendation:
     image: mongo:4.4.6
@@ -242,3 +303,6 @@ volumes:
   recommendation:
   reservation:
   user:
+  review:
+  attractions:
+
