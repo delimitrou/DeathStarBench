@@ -42,7 +42,9 @@ pulled from Docker Hub.
 
 #### Start docker containers on a machine cluster with `docker swarm`
 
-Before starting the containers, make sure you are on the master node of the docker swarm nodes.
+Before starting the containers, make sure:
+1. You are on the master node of the docker swarm nodes.
+2. You have cloned the DeathStarBench repository in the same location on all swarm nodes.
 
 ```bash
 docker stack deploy --compose-file=docker-compose-swarm.yml <service-name>
