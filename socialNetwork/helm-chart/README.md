@@ -58,7 +58,7 @@ helm install RELEASE_NAME HELM_CHART_REPO_PATH
 ### Setting namespace ###
 
 ```
-helm install RELEASE_NAME HELM_CHAHELM_CHART_REPO_PATHRT_PATH -n NAMESPACE
+helm install RELEASE_NAME HELM_CHART_REPO_PATH -n NAMESPACE
 ```
 
 ### Overriding default values ###
