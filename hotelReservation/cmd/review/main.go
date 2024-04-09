@@ -16,7 +16,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"time"
-
 	// "github.com/bradfitz/gomemcache/memcache"
 )
 
@@ -81,11 +80,11 @@ func main() {
 	srv := review.Server{
 		Tracer: tracer,
 		// Port:     *port,
-		Registry:     registry,
-		Port:         serv_port,
-		IpAddr:       serv_ip,
+		Registry:    registry,
+		Port:        serv_port,
+		IpAddr:      serv_ip,
 		MongoClient: mongo_session,
-		MemcClient:   memc_client,
+		MemcClient:  memc_client,
 	}
 
 	log.Info().Msg("Starting server...")

@@ -1,28 +1,28 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"fmt"
-	"context"
 )
 
 type Restaurant struct {
-	RestaurantId	string  `bson:"restaurantId"`
-	RLat		 	float64  `bson:"lat"`
-	RLon       	    float64  `bson:"lon"`
-	RestaurantName	string  `bson:"restaurantName"`
-	Rating      	float32 `bson:"rating"`
-	Type  			string  `bson:"type"`
+	RestaurantId   string  `bson:"restaurantId"`
+	RLat           float64 `bson:"lat"`
+	RLon           float64 `bson:"lon"`
+	RestaurantName string  `bson:"restaurantName"`
+	Rating         float32 `bson:"rating"`
+	Type           string  `bson:"type"`
 }
 
 type Museum struct {
-	MuseumId	    string  `bson:"museumId"`
-	MLat		 	float64  `bson:"lat"`
-	MLon       	    float64  `bson:"lon"`
-	MuseumName	    string  `bson:"museumName"`
-	Type  			string  `bson:"type"`
+	MuseumId   string  `bson:"museumId"`
+	MLat       float64 `bson:"lat"`
+	MLon       float64 `bson:"lon"`
+	MuseumName string  `bson:"museumName"`
+	Type       string  `bson:"type"`
 }
 
 type point struct {
@@ -49,8 +49,8 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 		&Restaurant{"4", 37.7862, -122.4212, "R4", 3.2, "sushi"},
 		&Restaurant{"5", 37.7839, -122.4052, "R5", 4.9, "fusion"},
 		&Restaurant{"6", 37.7831, -122.3812, "R6", 4.1, "american"},
-		}
-	
+	}
+
 	newMuseums := []interface{}{
 		&Museum{"1", 35.7867, -122.4112, "M1", "history"},
 		&Museum{"2", 36.7867, -122.5112, "M2", "history"},
@@ -58,8 +58,8 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 		&Museum{"4", 37.7867, -122.4912, "M4", "nature"},
 		&Museum{"5", 36.9867, -122.4212, "M5", "nature"},
 		&Museum{"6", 37.3867, -122.5012, "M6", "technology"},
-		}
-	
+	}
+
 	uri := fmt.Sprintf("mongodb://%s", url)
 	log.Info().Msgf("Attempting connection to %v", uri)
 
@@ -98,4 +98,3 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 	}
 
 }
-

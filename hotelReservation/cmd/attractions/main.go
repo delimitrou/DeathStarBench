@@ -16,7 +16,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"time"
-
 	// "github.com/bradfitz/gomemcache/memcache"
 )
 
@@ -81,13 +80,12 @@ func main() {
 	srv := attractions.Server{
 		Tracer: tracer,
 		// Port:     *port,
-		Registry:     registry,
-		Port:         serv_port,
-		IpAddr:       serv_ip,
+		Registry:    registry,
+		Port:        serv_port,
+		IpAddr:      serv_ip,
 		MongoClient: mongo_session,
 	}
 
 	log.Info().Msg("Starting server...")
 	log.Fatal().Msg(srv.Run().Error())
 }
-

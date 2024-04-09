@@ -10,13 +10,13 @@ import (
 
 	"github.com/delimitrou/DeathStarBench/hotelreservation/dialer"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
+	attractions "github.com/delimitrou/DeathStarBench/hotelreservation/services/attractions/proto"
 	profile "github.com/delimitrou/DeathStarBench/hotelreservation/services/profile/proto"
 	recommendation "github.com/delimitrou/DeathStarBench/hotelreservation/services/recommendation/proto"
 	reservation "github.com/delimitrou/DeathStarBench/hotelreservation/services/reservation/proto"
+	review "github.com/delimitrou/DeathStarBench/hotelreservation/services/review/proto"
 	search "github.com/delimitrou/DeathStarBench/hotelreservation/services/search/proto"
 	user "github.com/delimitrou/DeathStarBench/hotelreservation/services/user/proto"
-	review "github.com/delimitrou/DeathStarBench/hotelreservation/services/review/proto"
-	attractions "github.com/delimitrou/DeathStarBench/hotelreservation/services/attractions/proto"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
 	_ "github.com/mbobakov/grpc-consul-resolver"
@@ -342,7 +342,6 @@ func (s *Server) recommendHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(geoJSONResponse(profileResp.Hotels))
 }
 
-
 func (s *Server) reviewHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx := r.Context()
@@ -374,19 +373,19 @@ func (s *Server) reviewHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	revInput := review.Request{HotelId:hotelId}
+	revInput := review.Request{HotelId: hotelId}
 
 	revResp, err := s.reviewClient.GetReviews(ctx, &revInput)
 
-	str = "Have reviews = " + strconv.Itoa(len(revResp.Reviews)) 
-    if len(revResp.Reviews) == 0 {
-        str = "Failed. No Reviews. "
+	str = "Have reviews = " + strconv.Itoa(len(revResp.Reviews))
+	if len(revResp.Reviews) == 0 {
+		str = "Failed. No Reviews. "
 	}
 
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	res := map[string]interface{}{
 		"message": str,
@@ -394,7 +393,6 @@ func (s *Server) reviewHandler(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(res)
 }
-
 
 func (s *Server) restaurantHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -427,19 +425,19 @@ func (s *Server) restaurantHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	revInput := attractions.Request{HotelId:hotelId}
+	revInput := attractions.Request{HotelId: hotelId}
 
 	revResp, err := s.attractionsClient.NearbyRest(ctx, &revInput)
 
-	str = "Have restaurants = " + strconv.Itoa(len(revResp.AttractionIds)) 
-    if len(revResp.AttractionIds) == 0 {
-        str = "Failed. No Restaurants. "
+	str = "Have restaurants = " + strconv.Itoa(len(revResp.AttractionIds))
+	if len(revResp.AttractionIds) == 0 {
+		str = "Failed. No Restaurants. "
 	}
 
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	res := map[string]interface{}{
 		"message": str,
@@ -447,7 +445,6 @@ func (s *Server) restaurantHandler(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(res)
 }
-
 
 func (s *Server) museumHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -480,19 +477,19 @@ func (s *Server) museumHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	revInput := attractions.Request{HotelId:hotelId}
+	revInput := attractions.Request{HotelId: hotelId}
 
 	revResp, err := s.attractionsClient.NearbyMus(ctx, &revInput)
 
-	str = "Have museums = " + strconv.Itoa(len(revResp.AttractionIds)) 
-    if len(revResp.AttractionIds) == 0 {
-        str = "Failed. No Museums. "
+	str = "Have museums = " + strconv.Itoa(len(revResp.AttractionIds))
+	if len(revResp.AttractionIds) == 0 {
+		str = "Failed. No Museums. "
 	}
 
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	res := map[string]interface{}{
 		"message": str,
@@ -532,19 +529,19 @@ func (s *Server) cinemaHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	revInput := attractions.Request{HotelId:hotelId}
+	revInput := attractions.Request{HotelId: hotelId}
 
 	revResp, err := s.attractionsClient.NearbyCinema(ctx, &revInput)
 
-	str = "Have cinemas = " + strconv.Itoa(len(revResp.AttractionIds)) 
-    if len(revResp.AttractionIds) == 0 {
-        str = "Failed. No Cinemas. "
+	str = "Have cinemas = " + strconv.Itoa(len(revResp.AttractionIds))
+	if len(revResp.AttractionIds) == 0 {
+		str = "Failed. No Cinemas. "
 	}
 
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	res := map[string]interface{}{
 		"message": str,
@@ -708,4 +705,3 @@ func checkDataFormat(date string) bool {
 	}
 	return true
 }
-

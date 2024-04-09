@@ -1,25 +1,25 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"fmt"
-	"context"
 )
 
 type Review struct {
-	ReviewId	string  `bson:"reviewId"`
-	HotelId		 string  `bson:"hotelId"`
-	Name         string  `bson:"name"`
-	Rating       float32 `bson:"rating"`
-	Description  string  `bson:"description"`
-	Image        *Image  `bson:"images"`
+	ReviewId    string  `bson:"reviewId"`
+	HotelId     string  `bson:"hotelId"`
+	Name        string  `bson:"name"`
+	Rating      float32 `bson:"rating"`
+	Description string  `bson:"description"`
+	Image       *Image  `bson:"images"`
 }
 
 type Image struct {
-	Url		 string  `bson:"url"`
-	Default  bool    `bson:"default"`
+	Url     string `bson:"url"`
+	Default bool   `bson:"default"`
 }
 
 func initializeDatabase(url string) (*mongo.Client, func()) {
@@ -79,8 +79,8 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 			&Image{
 				"some url",
 				false}},
-		}
-	
+	}
+
 	uri := fmt.Sprintf("mongodb://%s", url)
 	log.Info().Msgf("Attempting connection to %v", uri)
 

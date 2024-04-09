@@ -16,11 +16,11 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/google/uuid"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
 	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/review/proto"
 	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
+	"github.com/google/uuid"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -35,13 +35,15 @@ const name = "srv-review"
 
 // Server implements the rate service
 type Server struct {
-	Tracer       opentracing.Tracer
-	Port         int
-	IpAddr       string
+	pb.UnimplementedRateServer
+
+	Tracer      opentracing.Tracer
+	Port        int
+	IpAddr      string
 	MongoClient *mongo.Client
-	Registry     *registry.Client
-	MemcClient   *memcache.Client
-	uuid         string
+	Registry    *registry.Client
+	MemcClient  *memcache.Client
+	uuid        string
 }
 
 // Run starts the server
@@ -94,17 +96,17 @@ func (s *Server) Shutdown() {
 }
 
 type ReviewHelper struct {
-	ReviewId	string  `bson:"reviewId"`
-	HotelId		 string  `bson:"hotelId"`
-	Name         string  `bson:"name"`
-	Rating       float32 `bson:"rating"`
-	Description  string  `bson:"description"`
-	Image        *pb.Image  `bson:"images"`
+	ReviewId    string    `bson:"reviewId"`
+	HotelId     string    `bson:"hotelId"`
+	Name        string    `bson:"name"`
+	Rating      float32   `bson:"rating"`
+	Description string    `bson:"description"`
+	Image       *pb.Image `bson:"images"`
 }
 
 type ImageHelper struct {
-	Url		 string  `bson:"url"`
-	Default  bool    `bson:"default"`
+	Url     string `bson:"url"`
+	Default bool   `bson:"default"`
 }
 
 func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, error) {
@@ -121,12 +123,12 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, e
 	if err != nil && err != memcache.ErrCacheMiss {
 		log.Panic().Msgf("Tried to get hotelId [%v], but got memmcached error = %s", hotelId, err)
 	} else {
-	    if err == memcache.ErrCacheMiss {
+		if err == memcache.ErrCacheMiss {
 			mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_review")
 			mongoSpan.SetTag("span.kind", "client")
 
-	        //session := s.MongoSession.Copy()
-		    //defer session.Close()
+			//session := s.MongoSession.Copy()
+			//defer session.Close()
 			//c := session.DB("review-db").C("reviews")
 			c := s.MongoClient.Database("review-db").Collection("reviews")
 
@@ -144,11 +146,11 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, e
 
 			for _, reviewHelper := range reviewHelpers {
 				revComm := pb.ReviewComm{
-					ReviewId: reviewHelper.ReviewId,
-					Name: reviewHelper.Name, 
-					Rating: reviewHelper.Rating,
+					ReviewId:    reviewHelper.ReviewId,
+					Name:        reviewHelper.Name,
+					Rating:      reviewHelper.Rating,
 					Description: reviewHelper.Description,
-					Images: reviewHelper.Image}
+					Images:      reviewHelper.Image}
 				reviews = append(reviews, &revComm)
 			}
 
@@ -159,13 +161,13 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, e
 			memcStr := string(reviewJson)
 
 			s.MemcClient.Set(&memcache.Item{Key: hotelId, Value: []byte(memcStr)})
-	    } else {
-		    reviewsStr := string(item.Value)
-		    log.Trace().Msgf("memc hit with %v", reviewsStr)
-		    if err := json.Unmarshal([]byte(reviewsStr), &reviews); err != nil {
-                log.Panic().Msgf("Failed to unmarshal reviews: %s", err)
-            }
-        }
+		} else {
+			reviewsStr := string(item.Value)
+			log.Trace().Msgf("memc hit with %v", reviewsStr)
+			if err := json.Unmarshal([]byte(reviewsStr), &reviews); err != nil {
+				log.Panic().Msgf("Failed to unmarshal reviews: %s", err)
+			}
+		}
 	}
 
 	//reviewsEmpty := make([]*pb.ReviewComm, 0)
@@ -173,4 +175,3 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, e
 	res.Reviews = reviews
 	return res, nil
 }
-

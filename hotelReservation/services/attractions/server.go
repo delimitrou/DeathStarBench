@@ -28,11 +28,13 @@ const (
 
 // Server implements the attractions service
 type Server struct {
+	pb.UnimplementedRateServer
+
 	indexH *geoindex.ClusteringIndex
 	indexR *geoindex.ClusteringIndex
 	indexM *geoindex.ClusteringIndex
 	indexC *geoindex.ClusteringIndex
-	uuid  string
+	uuid   string
 
 	Registry    *registry.Client
 	Tracer      opentracing.Tracer
@@ -215,7 +217,6 @@ func (s *Server) NearbyCinema(ctx context.Context, req *pb.Request) (*pb.Result,
 
 	return res, nil
 }
-
 
 func (s *Server) getNearbyPointsHotel(ctx context.Context, lat, lon float64) []geoindex.Point {
 	log.Trace().Msgf("In geo getNearbyPoints, lat = %f, lon = %f", lat, lon)
@@ -401,12 +402,12 @@ func (p *point) Lon() float64 { return p.Plon }
 func (p *point) Id() string   { return p.Pid }
 
 type Restaurant struct {
-	RestaurantId	string  `bson:"restaurantId"`
-	RLat		 	float64  `bson:"lat"`
-	RLon       	    float64  `bson:"lon"`
-	RestaurantName	string  `bson:"restaurantName"`
-	Rating      	float32 `bson:"rating"`
-	Type  			string  `bson:"type"`
+	RestaurantId   string  `bson:"restaurantId"`
+	RLat           float64 `bson:"lat"`
+	RLon           float64 `bson:"lon"`
+	RestaurantName string  `bson:"restaurantName"`
+	Rating         float32 `bson:"rating"`
+	Type           string  `bson:"type"`
 }
 
 // Implement Restaurant interface
@@ -415,11 +416,11 @@ func (r *Restaurant) Lon() float64 { return r.RLon }
 func (r *Restaurant) Id() string   { return r.RestaurantId }
 
 type Museum struct {
-	MuseumId	    string  `bson:"museumId"`
-	MLat		 	float64  `bson:"lat"`
-	MLon       	    float64  `bson:"lon"`
-	MuseumName	    string  `bson:"museumName"`
-	Type  			string  `bson:"type"`
+	MuseumId   string  `bson:"museumId"`
+	MLat       float64 `bson:"lat"`
+	MLon       float64 `bson:"lon"`
+	MuseumName string  `bson:"museumName"`
+	Type       string  `bson:"type"`
 }
 
 // Implement Museum interface
@@ -428,15 +429,14 @@ func (m *Museum) Lon() float64 { return m.MLon }
 func (m *Museum) Id() string   { return m.MuseumId }
 
 type Cinema struct {
-	CinemaId	    string  `bson:"cinemaId"`
-	CLat		 	float64  `bson:"lat"`
-	CLon       	    float64  `bson:"lon"`
-	CinemaName	    string  `bson:"cinemaName"`
-	Type  			string  `bson:"type"`
+	CinemaId   string  `bson:"cinemaId"`
+	CLat       float64 `bson:"lat"`
+	CLon       float64 `bson:"lon"`
+	CinemaName string  `bson:"cinemaName"`
+	Type       string  `bson:"type"`
 }
 
 // Implement Cinema interface
 func (c *Cinema) Lat() float64 { return c.CLat }
 func (c *Cinema) Lon() float64 { return c.CLon }
 func (c *Cinema) Id() string   { return c.CinemaId }
-
