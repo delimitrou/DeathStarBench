@@ -1,4 +1,5 @@
-version: "2"
+version: "3.8"
+
 services:
   consul:
     image: hashicorp/consul:latest
@@ -8,87 +9,117 @@ services:
       - "8500:8500"
       - "8600:53/udp"
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   frontend:
+    configs:
+      - source: server_config
+        target: /config.json
     environment:
       - TLS
       - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_frontend_single_node
-    entrypoint: frontend
-    container_name: 'hotel_reserv_frontend'
+    image: deathstarbench/hotel-reservation:latest
+    entrypoint: ./frontend
     ports:
       - "5000:5000"
     depends_on:
       - consul
     restart: always
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: any
 
   profile:
+    configs:
+      - source: server_config
+        target: /config.json
     environment:
       - TLS
       - GC
       - JAEGER_SAMPLE_RATIO
-      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_profile_single_node
-    entrypoint: profile
-    container_name: 'hotel_reserv_profile'
+    image: deathstarbench/hotel-reservation:latest
+    entrypoint: ./profile
     depends_on:
       - mongodb-profile
       - memcached-profile
       - consul
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   search:
+    configs:
+      - source: server_config
+        target: /config.json
+    environment:
+      - TLS
+      - GC
+      - JAEGER_SAMPLE_RATIO
+      - LOG_LEVEL
     build: .
-    image: hotel_reserv_search_single_node
-    entrypoint: search
-    container_name: 'hotel_reserv_search'
+    image: deathstarbench/hotel-reservation:latest
+    entrypoint: ./search
     depends_on:
       - consul
     restart: always
-    environment:
-      - TLS
-      - GC
-      - JAEGER_SAMPLE_RATIO
-      - LOG_LEVEL
-      # - GRPC_GO_LOG_VERBOSITY_LEVEL=2
-      # - GRPC_GO_LOG_SEVERITY_LEVEL=info
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   geo:
+    configs:
+      - source: server_config
+        target: /config.json
     environment:
       - TLS
       - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_geo_single_node
-    entrypoint: geo
-    container_name: 'hotel_reserv_geo'
+    image: deathstarbench/hotel-reservation:latest
+    entrypoint: ./geo
     depends_on:
       - mongodb-geo
       - consul
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   rate:
+    configs:
+      - source: server_config
+        target: /config.json
     environment:
       - TLS
       - GC
       - JAEGER_SAMPLE_RATIO
-      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_rate_single_node
-    entrypoint: rate
-    container_name: 'hotel_reserv_rate'
+    image: deathstarbench/hotel-reservation:latest
+    entrypoint: ./rate
     depends_on:
       - mongodb-rate
       - memcached-rate
       - consul
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   review:
     environment:
@@ -124,55 +155,71 @@ services:
     restart: always
 
   recommendation:
+    configs:
+      - source: server_config
+        target: /config.json
     environment:
       - TLS
       - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_recommend_single_node
-    entrypoint: recommendation
-    container_name: 'hotel_reserv_recommendation'
+    image: deathstarbench/hotel-reservation:latest
+    entrypoint: ./recommendation
     depends_on:
       - mongodb-recommendation
       - consul
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   user:
+    configs:
+      - source: server_config
+        target: /config.json
     environment:
       - TLS
       - GC
       - JAEGER_SAMPLE_RATIO
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_user_single_node
-    entrypoint: user
-    container_name: 'hotel_reserv_user'
+    image: deathstarbench/hotel-reservation:latest
+    entrypoint: ./user
     depends_on:
       - mongodb-user
       - consul
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   reservation:
+    configs:
+      - source: server_config
+        target: /config.json
     environment:
       - TLS
       - GC
       - JAEGER_SAMPLE_RATIO
-      - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_rsv_single_node
-    entrypoint: reservation
-    container_name: 'hotel_reserv_reservation'
+    image: deathstarbench/hotel-reservation:latest
+    entrypoint: ./reservation
     depends_on:
       - mongodb-reservation
       - memcached-reserve
       - consul
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   jaeger:
     image: jaegertracing/all-in-one:latest
-    container_name: 'hotel_reserv_jaeger'
     ports:
       - "14269"
       - "5778:5778"
@@ -183,18 +230,25 @@ services:
       - "6831:6831/udp"
       - "6832:6832/udp"
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   memcached-rate:
-    image: memcached
-    # hostname: user-memcached
-    container_name: 'hotel_reserv_rate_mmc'
-    restart: always
+    image: memcached:latest
+    hostname: user-memcached
     environment:
       - MEMCACHED_CACHE_SIZE=128
       - MEMCACHED_THREADS=2
     logging:
       options:
         max-size: 50m
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   memcached-review:
     image: memcached
@@ -209,93 +263,123 @@ services:
         max-size: 50m
 
   memcached-profile:
-    image: memcached
-    # hostname: user-memcached
-    container_name: 'hotel_reserv_profile_mmc'
-    restart: always
+    image: memcached:latest
+    hostname: user-memcached
     environment:
       - MEMCACHED_CACHE_SIZE=128
       - MEMCACHED_THREADS=2
     logging:
       options:
         max-size: 50m
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   memcached-reserve:
-    image: memcached
-    # hostname: user-memcached
-    container_name: 'hotel_reserv_reservation_mmc'
-    restart: always
+    image: memcached:latest
+    hostname: user-memcached
     environment:
       - MEMCACHED_CACHE_SIZE=128
       - MEMCACHED_THREADS=2
     logging:
       options:
         max-size: 50m
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   mongodb-geo:
-    image: mongo:4.4.6
-    container_name: 'hotel_reserv_geo_mongo'
-    # hostname: geo-db
-    restart: always
+    image: mongo:5.0
+    hostname: geo-db
     volumes:
-      - geo:/data/db  
+      - geo:/data/db
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   mongodb-profile:
-    image: mongo:4.4.6
-    container_name: 'hotel_reserv_profile_mongo'
+    image: mongo:5.0
     hostname: profile-db
-    restart: always
     volumes:
-      - profile:/data/db    
+      - profile:/data/db
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   mongodb-rate:
-    image: mongo:4.4.6
-    container_name: 'hotel_reserv_rate_mongo'
+    image: mongo:5.0
     hostname: rate-db
-    restart: always
     volumes:
       - rate:/data/db
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   mongodb-review:
-    image: mongo:4.4.6
-    container_name: 'hotel_reserv_review_mongo'
+    image: mongo:5.0
     hostname: review-db
-    restart: always
     volumes:
       - review:/data/db
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   mongodb-attractions:
-    image: mongo:4.4.6
-    container_name: 'hotel_reserv_attractions_mongo'
+    image: mongo:5.0
     hostname: attractions-db
-    restart: always
     volumes:
-      - attractions:/data/db  
+      - attractions:/data/db
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   mongodb-recommendation:
-    image: mongo:4.4.6
+    image: mongo:5.0
     hostname: recommendation-db
-    container_name: 'hotel_reserv_recommendation_mongo'
-    restart: always
     volumes:
       - recommendation:/data/db
-    
-  mongodb-reservation:
-    image: mongo:4.4.6
-    container_name: 'hotel_reserv_reservation_mongo'
-    hostname: reservation-db
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+
+  mongodb-reservation:
+    image: mongo:5.0
+    hostname: reservation-db
     volumes:
-      - reservation:/data/db 
+      - reservation:/data/db
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
   mongodb-user:
-    image: mongo:4.4.6
-    container_name: 'hotel_reserv_user_mongo'
+    image: mongo:5.0
     hostname: user-db
-    restart: always
     volumes:
       - user:/data/db
-    
+    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+
 volumes:
   geo:
   profile:
@@ -306,3 +390,6 @@ volumes:
   review:
   attractions:
 
+configs:
+  server_config:
+    file: ./config.json
