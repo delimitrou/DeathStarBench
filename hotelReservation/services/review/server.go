@@ -35,7 +35,7 @@ const name = "srv-review"
 
 // Server implements the rate service
 type Server struct {
-	pb.UnimplementedRateServer
+	pb.UnimplementedReviewServer
 
 	Tracer      opentracing.Tracer
 	Port        int
