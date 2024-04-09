@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package search;
 
+option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/proto";
+
 // Search service returns best hotel chocies for a user.
 service Search {
   rpc Nearby(NearbyRequest) returns (SearchResult);

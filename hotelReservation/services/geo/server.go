@@ -28,6 +28,8 @@ const (
 
 // Server implements the geo service
 type Server struct {
+	pb.UnimplementedGeoServer
+
 	index *geoindex.ClusteringIndex
 	uuid  string
 

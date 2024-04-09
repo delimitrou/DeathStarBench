@@ -60,6 +60,7 @@ func main() {
 		Registry:   registry,
 		Tracer:     tracer,
 		IpAddr:     servIP,
+		ConsulAddr: *consulAddr,
 		Port:       servPort,
 	}
 
