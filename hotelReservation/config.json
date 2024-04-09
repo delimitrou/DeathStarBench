@@ -7,6 +7,11 @@
   "ProfilePort": "8081",
   "ProfileMongoAddress": "mongodb-profile:27017",
   "ProfileMemcAddress": "memcached-profile:11211",
+  "ReviewPort": "8088",
+  "ReviewMongoAddress": "mongodb-review:27017",
+  "ReviewMemcAddress": "memcached-review:11211",
+  "AttractionsPort": "8089",
+  "AttractionsMongoAddress": "mongodb-attractions:27017",
   "RatePort": "8084",
   "RateMongoAddress": "mongodb-rate:27017",
   "RateMemcAddress": "memcached-rate:11211",
@@ -20,3 +25,4 @@
   "UserMongoAddress": "mongodb-user:27017",
   "KnativeDomainName": ""
 }
+

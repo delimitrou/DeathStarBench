@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package attractions;
+
+option go_package="github.com/delimitrou/DeathStarBench/hotelreservation/services/attractions";
+
+service Attractions {
+  rpc NearbyRest(Request) returns (Result);
+  rpc NearbyMus(Request) returns (Result);
+  rpc NearbyCinema(Request) returns (Result);
+}
+
+message Request {
+  string hotelId = 1;
+}
+
+message Result {
+  repeated string attractionIds = 1;
+}
+
