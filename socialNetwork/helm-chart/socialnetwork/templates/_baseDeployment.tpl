@@ -45,7 +45,7 @@ spec:
         - {{ $arg }}
         {{- end -}}
         {{- end }}
-        {{- if .resources }}  
+        {{- if hasKey . "resources" }}  
         resources:
           {{ toYaml .resources | nindent 10 | trim }}
         {{- else if hasKey $.Values.global "resources" }}           

@@ -17,7 +17,7 @@ spec:
   minReplicas: {{ default 1 .Values.global.hpa.minReplicas }}
   {{- end}}
   {{- if and .Values.hpa .Values.hpa.maxReplicas}}
-  minReplicas: {{ .Values.hpa.maxReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
   {{- else}}
   maxReplicas: {{ default 1 .Values.global.hpa.maxReplicas }}
   {{- end}}
