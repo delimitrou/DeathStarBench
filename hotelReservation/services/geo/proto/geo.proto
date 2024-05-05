@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package geo;
 
-option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/geo";
+option go_package = "github.com/dimoibiehg/DeathStarBench/tree/master/hotelReservation/services/geo";
 
 service Geo {
   // Finds the hotels contained nearby the current lat/lon.

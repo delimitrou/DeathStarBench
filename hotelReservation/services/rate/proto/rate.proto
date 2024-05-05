@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package rate;
 
-option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/rate";
+option go_package = "github.com/dimoibiehg/DeathStarBench/tree/master/hotelReservation/services/rate";
 
 service Rate {
   // GetRates returns rate codes for hotels for a given date range

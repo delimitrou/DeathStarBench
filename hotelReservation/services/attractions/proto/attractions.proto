@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package attractions;
 
-option go_package="github.com/delimitrou/DeathStarBench/hotelreservation/services/attractions";
+option go_package="github.com/dimoibiehg/DeathStarBench/tree/master/hotelReservation/services/attractions";
 
 service Attractions {
   rpc NearbyRest(Request) returns (Result);
