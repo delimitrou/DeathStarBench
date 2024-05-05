@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package profile;
 
-option go_package = "github.com/dimoibiehg/DeathStarBench/tree/master/hotelReservation/services/profile";
+option go_package = "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/profile";
 
 service Profile {
   rpc GetProfiles(Request) returns (Result);
