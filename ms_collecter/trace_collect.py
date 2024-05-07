@@ -1,3 +1,9 @@
+"""
+References:
+Source: https://github.com/Cloud-and-Distributed-Systems/Erms/blob/main/dataCollector/OfflineProfilingDataCollector.py
+Author: Chenyu Lin @Nick-LCY
+Paper:  Luo, S., Xu, H., Ye, K., Xu, G., Zhang, L., He, J., ... & Xu, C. (2022, December). Erms: Efficient resource management for shared microservices with SLA guarantees. In Proceedings of the 28th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 1 (pp. 62-77).
+"""
 import json
 import pandas as pd
 import re
