@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package reservation;
 
-option go_package = "github.com/delimitrou/DeathStarBench/hotelreservation/services/reservation";
+option go_package = "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/reservation";
 
 service Reservation {
   // MakeReservation makes a reservation based on given information

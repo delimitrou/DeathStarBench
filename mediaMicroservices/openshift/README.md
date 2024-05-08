@@ -4,7 +4,7 @@
 
 - A running OpenShift cluster is needed.
 - The user should be authenticated to this cluster e.g., `oc login`
-- Pre-requirements mentioned [here](https://github.com/delimitrou/DeathStarBench/blob/master/mediaMicroservices/README.md) should be met.
+- Pre-requirements mentioned [here](https://github.com/dimoibiehg/DeathStarBench/blob/master/mediaMicroservices/README.md) should be met.
 
 ## Running the media service application
 

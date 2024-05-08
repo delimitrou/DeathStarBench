@@ -9,10 +9,10 @@ import (
 
 	"strconv"
 
-	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/services/recommendation"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tracing"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tune"
+	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/registry"
+	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/recommendation"
+	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/tracing"
+	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/tune"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

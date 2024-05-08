@@ -25,7 +25,7 @@ initContainer:
   - name: lua-scripts
     mountPath: /lua-scripts
   command: "/bin/sh" 
-  args: ["-c", "git clone https://github.com/delimitrou/DeathStarBench.git /DeathStarBench &&
+  args: ["-c", "git clone https://github.com/dimoibiehg/DeathStarBench.git /DeathStarBench &&
             cp -r /DeathStarBench/socialNetwork/media-frontend/lua-scripts/* /lua-scripts/"]
 
 volumes:

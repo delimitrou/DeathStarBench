@@ -1,4 +1,4 @@
-module github.com/delimitrou/DeathStarBench/hotelreservation
+module github.com/delimitrou/DeathStarBench/tree/master/hotelReservation
 
 go 1.18
 

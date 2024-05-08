@@ -16,9 +16,9 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/delimitrou/DeathStarBench/hotelreservation/registry"
-	pb "github.com/delimitrou/DeathStarBench/hotelreservation/services/review/proto"
-	"github.com/delimitrou/DeathStarBench/hotelreservation/tls"
+	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/registry"
+	pb "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/review/proto"
+	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/tls"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
