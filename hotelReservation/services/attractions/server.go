@@ -28,7 +28,7 @@ const (
 
 // Server implements the attractions service
 type Server struct {
-	pb.UnimplementedRateServer
+	pb.UnimplementedAttractionsServer
 
 	indexH *geoindex.ClusteringIndex
 	indexR *geoindex.ClusteringIndex
