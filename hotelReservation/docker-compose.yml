@@ -32,7 +32,7 @@ services:
       - consul
     restart: always
     deploy:
-      replicas: 3
+      replicas: 1
       restart_policy:
         condition: any
 
