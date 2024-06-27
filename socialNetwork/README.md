@@ -53,25 +53,41 @@ docker stack deploy --compose-file=docker-compose-swarm.yml <service-name>
 ### Register users and construct social graphs
 
 Register users and construct social graph by running
-`python3 scripts/init_social_graph.py --graph=<socfb-Reed98, ego-twitter, or soc-twitter-follows-mun>`. It will initialize a social graph from a small social network [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php), a medium social network [Ego Twitter](https://snap.stanford.edu/data/ego-Twitter.html), or a large social network [TWITTER-FOLLOWS-MUN](https://networkrepository.com/soc-twitter-follows-mun.php).
+`python3 scripts/init_social_graph.py --graph=<socfb-Reed98, ego-twitter, or soc-twitter-follows-mun>`. It will initialize a social graph from a small social network [Reed98 Facebook Networks](http://networkrepository.com/socfb-Reed98.php), a medium social network [Ego Twitter](https://snap.stanford.edu/data/ego-Twitter.html), or a large social network [TWITTER-FOLLOWS-MUN](https://networkrepository.com/soc-twitter-follows-mun.php). If your setup is not local, you can specify the IP and port of the nginx through `--ip` and `--port` flags, respectively.
 
 ### Running HTTP workload generator
 
 #### Make
 
+It is necessary to build the workload generator tool. Thus, please assert that:
+1. Your repository was cloned using `--recurse-submodules` or you pulled the submodules after the clone using `git submodule update --init --recursive`
+2. You have the "luajit", "luasocket", "libssl-dev" and "make" packages installed.
+3. You are not running inside arm 
+
+With the dependencies fulfilled, you can run: 
+
 ```bash
+# There are two wrk2 folders: one in the root of the repository and one inside the socialNetwork folder. This is the first one.
 cd ../wrk2
+# Compile
 make
 ```
-back to socialNetwork
+
+And then go back to the socialNetwork folder to run the wrk2 properly for the system.
 ```bash
+# Back to socialNetwork, in the root folder.
 cd ../socialNetwork
 ```
 
 #### Compose posts
 
 ```bash
-../wrk2/wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./wrk2/scripts/social-network/compose-post.lua http://localhost:8080/wrk2-api/post/compose -R <reqs-per-sec>
+../wrk2/wrk -D exp -t <num-threads> -c <num-conns> -d <duration> -L -s ./wrk2/scripts/social-network/compose-post.lua http://<nginx-ip>:8080/wrk2-api/post/compose -R <reqs-per-sec>
+```
+
+Example:
+```bash
+../wrk2/wrk -D exp -t 12 -c 400 -d 300 -L -s ./wrk2/scripts/social-network/compose-post.lua http://10.109.126.103:8080/wrk2-api/post/compose -R 10
 ```
 
 #### Read home timelines

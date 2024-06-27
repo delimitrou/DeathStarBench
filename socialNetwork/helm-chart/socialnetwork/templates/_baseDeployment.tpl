@@ -45,12 +45,12 @@ spec:
         - {{ $arg }}
         {{- end -}}
         {{- end }}
-        {{- if .resources }}  
+        {{- if hasKey . "resources" }}  
         resources:
-          {{ tpl .resources $ | nindent 10 | trim }}
+          {{ toYaml .resources | nindent 10 | trim }}
         {{- else if hasKey $.Values.global "resources" }}           
         resources:
-          {{ tpl $.Values.global.resources $ | nindent 10 | trim }}
+          {{ toYaml $.Values.global.resources | nindent 10 | trim }}
         {{- end }}  
         {{- if $.Values.configMaps }}        
         volumeMounts: 
@@ -77,4 +77,5 @@ spec:
       hostname: {{ $.Values.name }}
       restartPolicy: {{ .Values.restartPolicy | default .Values.global.restartPolicy}}
 
-  {{- end}}
+{{ include "socialnetwork.templates.baseHPA" . }}
+{{- end}}
