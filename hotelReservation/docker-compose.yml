@@ -25,7 +25,7 @@ services:
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
-    entrypoint: ./frontend
+    entrypoint: frontend
     ports:
       - "5000:5000"
     depends_on:
@@ -47,7 +47,7 @@ services:
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
-    entrypoint: ./profile
+    entrypoint: profile
     depends_on:
       - mongodb-profile
       - memcached-profile
@@ -69,7 +69,7 @@ services:
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
-    entrypoint: ./search
+    entrypoint: search
     depends_on:
       - consul
     restart: always
@@ -89,7 +89,7 @@ services:
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
-    entrypoint: ./geo
+    entrypoint: geo
     depends_on:
       - mongodb-geo
       - consul
@@ -110,7 +110,7 @@ services:
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
-    entrypoint: ./rate
+    entrypoint: rate
     depends_on:
       - mongodb-rate
       - memcached-rate
@@ -165,7 +165,7 @@ services:
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
-    entrypoint: ./recommendation
+    entrypoint: recommendation
     depends_on:
       - mongodb-recommendation
       - consul
@@ -186,7 +186,7 @@ services:
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
-    entrypoint: ./user
+    entrypoint: user
     depends_on:
       - mongodb-user
       - consul
@@ -207,7 +207,7 @@ services:
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
-    entrypoint: ./reservation
+    entrypoint: reservation
     depends_on:
       - mongodb-reservation
       - memcached-reserve
