@@ -155,7 +155,7 @@ $ helm install RELEASE_NAME HELM_CHART_REPO_PATH \
 > **Attention**: indentations are important in string parameters.
 
 > **Alternatively**: using --set instead of --set-string to allow Helm to correctly parse the nested structure:\
-$ helm install RELEASE_NAME HELM_CHART_REPO_PAT \
+$ helm install RELEASE_NAME HELM_CHART_REPO_PATH \
 --namespace YOUR_NAMESPACE \
 --set global.resources.requests.memory=64Mi \
 --set global.resources.requests.cpu=250m \
