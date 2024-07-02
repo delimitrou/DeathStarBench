@@ -154,6 +154,21 @@ $ helm install RELEASE_NAME HELM_CHART_REPO_PATH \
 ```
 > **Attention**: indentations are important in string parameters.
 
+> **Alternatively**: using --set instead of --set-string to allow Helm to correctly parse the nested structure:\
+$ helm install RELEASE_NAME HELM_CHART_REPO_PAT \
+--namespace YOUR_NAMESPACE \
+--set global.resources.requests.memory=64Mi \
+--set global.resources.requests.cpu=250m \
+--set global.resources.limits.memory=128Mi \
+--set global.resources.limits.cpu=2 \
+--set compose-post-service.container.resources.requests.memory=64Mi \
+--set compose-post-service.container.resources.requests.cpu=500m \
+--set compose-post-service.container.resources.limits.memory=128Mi \
+--set compose-post-service.container.resources.limits.cpu=4
+
+
+
+
 If one resources key is not specified, the value is retrieved from global values (which can be overriden during deployment).
 
 > [Kubernetes container resources management documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
