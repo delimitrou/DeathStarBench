@@ -152,9 +152,10 @@ $ helm install RELEASE_NAME HELM_CHART_REPO_PATH \
       memory: "128Mi"
       cpu: "4""
 ```
+
 > **Attention**: indentations are important in string parameters.
 
-> **Alternatively**: using --set instead of --set-string to allow Helm to correctly parse the nested structure:\
+> **Alternatively install**: using --set instead of --set-string to allow Helm to correctly parse the nested structure:\
 $ helm install RELEASE_NAME HELM_CHART_REPO_PATH \
 --namespace YOUR_NAMESPACE \
 --set global.resources.requests.memory=64Mi \
@@ -166,6 +167,13 @@ $ helm install RELEASE_NAME HELM_CHART_REPO_PATH \
 --set compose-post-service.container.resources.limits.memory=128Mi \
 --set compose-post-service.container.resources.limits.cpu=4
 
+> **Alternatively upgrade**: Upgrade existing RELEASE via helm upgrade:\
+$ helm upgrade social-net3 ./socialnetwork \
+--namespace social-network3 \
+--set global.resources.requests.memory=64Mi \
+--set global.resources.requests.cpu=100m \
+--set global.resources.limits.memory=128Mi \
+--set global.resources.limits.cpu=200m \
 
 
 
