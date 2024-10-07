@@ -87,7 +87,7 @@ cd ../socialNetwork
 
 Example:
 ```bash
-../wrk2/wrk -D exp -t 12 -c 400 -d 300 -L -s ./wrk2/scripts/social-network/compose-post.lua http://10.109.126.103:8080/wrk2-api/post/compose -R 10
+../wrk2/wrk -D exp -t 5 -c 400 -d 300 -L -s ./wrk2/scripts/social-network/compose-post.lua http://10.109.126.103:8080/wrk2-api/post/compose -R 10
 ```
 
 #### Read home timelines

@@ -970,6 +970,11 @@ static int parse_args(struct config *cfg, char ***urls, struct http_parser_url *
         return -1;
     }
 
+    if (cfg->rate < cfg->threads){
+        fprintf(stderr, "Request per sec must be >= threads\n");
+        return -1;
+    }
+
     for(int i = optind; i<argc; i++)
     {   
         if (!script_parse_url(argv[i], *mul_part)) {
