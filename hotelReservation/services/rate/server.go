@@ -139,7 +139,7 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 
 				// memcached miss, set up mongo connection
 				collection := s.MongoClient.Database("rate-db").Collection("inventory")
-				curr, err := collection.Find(context.TODO(), bson.D{})
+				curr, err := collection.Find(context.TODO(), bson.M{"hotelId": id})
 				if err != nil {
 					log.Error().Msgf("Failed get rate data: ", err)
 				}
@@ -165,6 +165,7 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 							log.Error().Msgf("Failed to marshal plan [Code: %v] with error: %s", r.Code, err)
 						}
 						memcStr = memcStr + string(rateJson) + "\n"
+						break
 					}
 				}
 				go s.MemcClient.Set(&memcache.Item{Key: id, Value: []byte(memcStr)})

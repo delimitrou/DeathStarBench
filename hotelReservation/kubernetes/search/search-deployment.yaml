@@ -28,7 +28,7 @@ spec:
       containers:
         - command:
             - ./search
-          image: deathstarbench/hotel-reservation:latest
+          image: ptptk/hotel-reservation:latest
           name: hotel-reserv-search
           ports:
             - containerPort: 8082

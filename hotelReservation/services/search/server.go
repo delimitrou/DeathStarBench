@@ -4,6 +4,11 @@ import (
 	"fmt"
 	"net"
 	"time"
+	"strconv"
+	"net/http"
+	"io/ioutil"
+	"encoding/json"
+	"os"
 
 	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/dialer"
 	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/registry"
@@ -133,7 +138,7 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 	log.Trace().Msgf("nearby lat = %f", req.Lat)
 	log.Trace().Msgf("nearby lon = %f", req.Lon)
 
-	nearby, err := s.geoClient.Nearby(ctx, &geo.Request{
+	nearby, err := s.GeoHandler(ctx, &geo.Request{
 		Lat: req.Lat,
 		Lon: req.Lon,
 	})
@@ -146,7 +151,7 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 	}
 
 	// find rates for hotels
-	rates, err := s.rateClient.GetRates(ctx, &rate.Request{
+	rates, err := s.RateHandler(ctx, &rate.Request{
 		HotelIds: nearby.HotelIds,
 		InDate:   req.InDate,
 		OutDate:  req.OutDate,
@@ -167,4 +172,66 @@ func (s *Server) Nearby(ctx context.Context, req *pb.NearbyRequest) (*pb.SearchR
 		res.HotelIds = append(res.HotelIds, ratePlan.HotelId)
 	}
 	return res, nil
+}
+
+type HandlerType int
+const (
+	KUBERNETES = iota
+	LAMBDA
+)
+
+func (s *Server) decideHandlerType() HandlerType {
+	return LAMBDA
+}
+
+func (s *Server) GeoHandler(ctx context.Context, req *geo.Request) (*geo.Result, error) {
+	if s.decideHandlerType() == KUBERNETES {
+		return s.geoClient.Nearby(ctx, req)
+	}
+
+	baseURL := os.Getenv("GEO_AWS_URL")
+	url := baseURL + "?lat=" + strconv.FormatFloat(float64(req.Lat),'f',-1,32) + 
+		"&lon=" + strconv.FormatFloat(float64(req.Lon),'f',-1,32)
+	fmt.Println(url)
+
+	var out geo.Result
+	err := s.invokeLambda(url, &out)
+	return &out, err
+}
+
+func (s *Server) RateHandler(ctx context.Context, req *rate.Request) (*rate.Result, error) {
+	if s.decideHandlerType() == KUBERNETES {
+		return s.rateClient.GetRates(ctx, req)
+	}
+
+	baseURL := os.Getenv("RATE_AWS_URL")
+	url := baseURL + "?"
+	for _, h := range req.HotelIds {
+		url += ("hotelIds=" + h + "&")
+	}
+	url += ("inDate=" + req.InDate + "&outDate=" + req.OutDate)
+	fmt.Println(url)
+
+	var out rate.Result
+	err := s.invokeLambda(url, &out)
+	return &out, err
+}
+
+func (s *Server) invokeLambda(url string, out interface{}) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return err
+	}
+	defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
+
+	fmt.Println("resp body: ", string(body))
+	err = json.Unmarshal(body, out)
+	if err != nil {
+		fmt.Println("Error unmarshaling result, ", err)
+		return err
+	}
+
+	return nil
 }

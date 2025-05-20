@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"io/ioutil"
 	"net/http"
 	"strconv"
+	"context"
+	"os"
 
 	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/dialer"
 	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/registry"
@@ -238,7 +241,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Trace().Msgf("SEARCH [lat: %v, lon: %v, inDate: %v, outDate: %v", lat, lon, inDate, outDate)
 	// search for best hotels
-	searchResp, err := s.searchClient.Nearby(ctx, &search.NearbyRequest{
+	searchResp, err := s.nearby(ctx, &search.NearbyRequest{
 		Lat:     lat,
 		Lon:     lon,
 		InDate:  inDate,
@@ -250,9 +253,13 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Trace().Msg("SearchHandler gets searchResp")
-	//for _, hid := range searchResp.HotelIds {
-	//	log.Trace().Msgf("Search Handler hotelId = %s", hid)
-	//}
+	// for _, hid := range searchResp.HotelIds {
+	// 	log.Trace().Msgf("Search Handler hotelId = %s", hid)
+	// }
+	if len(searchResp.HotelIds) == 0 {
+		json.NewEncoder(w).Encode(geoJSONResponse([]*profile.Hotel{}))
+		return
+	}
 
 	// grab locale from query params or default to en
 	locale := r.URL.Query().Get("locale")
@@ -260,7 +267,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 		locale = "en"
 	}
 
-	reservationResp, err := s.reservationClient.CheckAvailability(ctx, &reservation.Request{
+	reservationResp, err := s.checkAvailability(ctx, &reservation.Request{
 		CustomerName: "",
 		HotelId:      searchResp.HotelIds,
 		InDate:       inDate,
@@ -277,7 +284,7 @@ func (s *Server) searchHandler(w http.ResponseWriter, r *http.Request) {
 	log.Trace().Msgf("searchHandler gets reserveResp.HotelId = %s", reservationResp.HotelId)
 
 	// hotel profiles
-	profileResp, err := s.profileClient.GetProfiles(ctx, &profile.Request{
+	profileResp, err := s.getProfiles(ctx, &profile.Request{
 		HotelIds: reservationResp.HotelId,
 		Locale:   locale,
 	})
@@ -313,7 +320,7 @@ func (s *Server) recommendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// recommend hotels
-	recResp, err := s.recommendationClient.GetRecommendations(ctx, &recommendation.Request{
+	recResp, err := s.getRecommendations(ctx, &recommendation.Request{
 		Require: require,
 		Lat:     float64(lat),
 		Lon:     float64(lon),
@@ -330,7 +337,7 @@ func (s *Server) recommendHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hotel profiles
-	profileResp, err := s.profileClient.GetProfiles(ctx, &profile.Request{
+	profileResp, err := s.getProfiles(ctx, &profile.Request{
 		HotelIds: recResp.HotelIds,
 		Locale:   locale,
 	})
@@ -561,7 +568,12 @@ func (s *Server) userHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check username and password
-	recResp, err := s.userClient.CheckUser(ctx, &user.Request{
+	// recResp, err := s.userClient.CheckUser(ctx, &user.Request{
+	// 	Username: username,
+	// 	Password: password,
+	// })
+
+	recResp, err := s.checkUser(ctx, &user.Request{
 		Username: username,
 		Password: password,
 	})
@@ -622,7 +634,7 @@ func (s *Server) reservationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check username and password
-	recResp, err := s.userClient.CheckUser(ctx, &user.Request{
+	recResp, err := s.checkUser(ctx, &user.Request{
 		Username: username,
 		Password: password,
 	})
@@ -637,7 +649,7 @@ func (s *Server) reservationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Make reservation
-	resResp, err := s.reservationClient.MakeReservation(ctx, &reservation.Request{
+	resResp, err := s.makeReservation(ctx, &reservation.Request{
 		CustomerName: customerName,
 		HotelId:      []string{hotelId},
 		InDate:       inDate,
@@ -704,4 +716,134 @@ func checkDataFormat(date string) bool {
 		}
 	}
 	return true
+}
+
+type HandlerType int
+const (
+	KUBERNETES = iota
+	LAMBDA
+)
+
+func (s *Server) decideHandlerType() HandlerType {
+	return LAMBDA
+}
+
+func (s *Server) nearby(ctx context.Context, req *search.NearbyRequest) (*search.SearchResult, error) {
+	if s.decideHandlerType() == KUBERNETES {
+		return s.searchClient.Nearby(ctx, req)
+	}
+
+	kubeOut,_ := s.searchClient.Nearby(ctx, req)
+	fmt.Println(kubeOut)
+
+	baseURL := os.Getenv("SEARCH_AWS_URL")
+	url := baseURL + "?inDate=" + req.InDate + "&outDate=" + req.OutDate + 
+		"&lat=" + strconv.FormatFloat(float64(req.Lat),'f',-1,32) + "&lon=" + strconv.FormatFloat(float64(req.Lon),'f',-1,32)
+	fmt.Println(url)
+
+	var out search.SearchResult
+	err := s.invokeLambda(url, &out)
+	return &out, err
+}
+
+func (s *Server) checkAvailability(ctx context.Context, req *reservation.Request) (*reservation.Result, error) {
+	if s.decideHandlerType() == KUBERNETES {
+		return s.reservationClient.CheckAvailability(ctx, req)
+	}
+
+	baseURL := os.Getenv("RESERVATION_AWS_URL") + "check"
+	url := baseURL + "?"
+	for _, h := range req.HotelId {
+		url += ("hotelId=" + h + "&")
+	}
+	url += ("inDate=" + req.InDate + "&outDate=" + req.OutDate + "&roomNumber=1")
+	fmt.Println(url)
+
+	var out reservation.Result
+	err := s.invokeLambda(url, &out)
+	return &out, err
+}
+
+func (s *Server) makeReservation(ctx context.Context, req *reservation.Request) (*reservation.Result, error) {
+	if s.decideHandlerType() == KUBERNETES {
+		return s.reservationClient.MakeReservation(ctx, req)
+	}
+
+	baseURL := os.Getenv("RESERVATION_AWS_URL") + "reserve"
+	url := baseURL + "?"
+	for _, h := range req.HotelId {
+		url += ("hotelId=" + h + "&")
+	}
+	url += ("inDate=" + req.InDate + "&outDate=" + req.OutDate + "&roomNumber=1")
+	fmt.Println(url)
+
+	var out reservation.Result
+	err := s.invokeLambda(url, &out)
+	return &out, err
+}
+
+func (s *Server) getRecommendations(ctx context.Context, req *recommendation.Request) (*recommendation.Result, error) {
+	if s.decideHandlerType() == KUBERNETES {
+		return s.recommendationClient.GetRecommendations(ctx, req)
+	}
+
+	baseURL := os.Getenv("RECOMMENDATION_AWS_URL")
+	url := baseURL + "?require=" + req.Require + "&lat=" + strconv.FormatFloat(req.Lat,'f',-1,64) + 
+		"&lon=" + strconv.FormatFloat(req.Lon,'f',-1,64)
+	fmt.Println(url)
+
+	var out recommendation.Result
+	err := s.invokeLambda(url, &out)
+	return &out, err
+}
+
+func (s *Server) getProfiles(ctx context.Context, req *profile.Request) (*profile.Result, error) {
+	if s.decideHandlerType() == KUBERNETES {
+		return s.profileClient.GetProfiles(ctx, req)
+	}
+
+	baseURL := os.Getenv("PROFILE_AWS_URL")
+	url := baseURL + "?"
+	for _, h := range req.HotelIds {
+		url += ("hotelIds=" + h + "&")
+	}
+	url += ("locale=" + req.Locale)
+	fmt.Println(url)
+
+	var out profile.Result
+	err := s.invokeLambda(url, &out)
+	return &out, err
+}
+
+func (s *Server) checkUser(ctx context.Context, req *user.Request) (*user.Result, error) {
+	if s.decideHandlerType() == KUBERNETES {
+		return s.userClient.CheckUser(ctx, req)
+	}
+
+	baseURL := os.Getenv("USER_AWS_URL")
+	url := baseURL + "?username=" + req.Username + "&password=" + req.Password
+	fmt.Println(url)
+
+	var out user.Result
+	err := s.invokeLambda(url, &out)
+	return &out, err
+}
+
+func (s *Server) invokeLambda(url string, out interface{}) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return err
+	}
+	defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
+
+	fmt.Println("resp body: ", string(body))
+	err = json.Unmarshal(body, out)
+	if err != nil {
+		fmt.Println("Error unmarshaling result, ", err)
+		return err
+	}
+
+	return nil
 }
