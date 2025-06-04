@@ -128,6 +128,11 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 		log.Panic().Msg(err.Error())
 	}
 	log.Info().Msg("Successfully connected to MongoDB")
+	db := client.Database("rate-db")
+	if err := db.Drop(context.TODO()); err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	log.Info().Msg("Successfully cleared rate-db")
 
 	collection := client.Database("rate-db").Collection("inventory")
 	_, err = collection.InsertMany(context.TODO(), newRatePlans)

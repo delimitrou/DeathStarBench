@@ -69,6 +69,11 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 		log.Panic().Msg(err.Error())
 	}
 	log.Info().Msg("Successfully connected to MongoDB")
+	db := client.Database("attractions-db")
+	if err := db.Drop(context.TODO()); err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	log.Info().Msg("Successfully cleared attractions-db")
 
 	collectionH := client.Database("attractions-db").Collection("hotels")
 	_, err = collectionH.InsertMany(context.TODO(), newPoints)

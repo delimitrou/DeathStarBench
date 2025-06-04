@@ -45,6 +45,11 @@ func initializeDatabase(url string) (*mongo.Client, func()) {
 		log.Panic().Msg(err.Error())
 	}
 	log.Info().Msg("Successfully connected to MongoDB")
+	db := client.Database("geo-db")
+	if err := db.Drop(context.TODO()); err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	log.Info().Msg("Successfully cleared geo-db")
 
 	collection := client.Database("geo-db").Collection("geo")
 	_, err = collection.InsertMany(context.TODO(), newPoints)
