@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - command:
-            - ./profile
+            - profile
           image: deathstarbench/hotel-reservation:latest
           name: hotel-reserv-profile
           ports:

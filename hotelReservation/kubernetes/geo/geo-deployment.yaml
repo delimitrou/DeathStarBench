@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - command:
-            - ./geo
+            - geo
           image: deathstarbench/hotel-reservation:latest
           name: hotel-reserv-geo
           ports:

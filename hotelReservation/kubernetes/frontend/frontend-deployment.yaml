@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - command:
-            - ./frontend
+            - frontend
           image: deathstarbench/hotel-reservation:latest
           name: hotel-reserv-frontend
           ports:
