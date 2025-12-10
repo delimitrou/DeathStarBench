@@ -152,7 +152,43 @@ $ helm install RELEASE_NAME HELM_CHART_REPO_PATH \
       memory: "128Mi"
       cpu: "4""
 ```
+
 > **Attention**: indentations are important in string parameters.
+
+> **Alternatively install**: using --set instead of --set-string to allow Helm to correctly parse the nested structure:\
+$ helm install RELEASE_NAME HELM_CHART_REPO_PATH \
+--namespace YOUR_NAMESPACE \
+--set global.resources.requests.memory=64Mi \
+--set global.resources.requests.cpu=150m \
+--set global.resources.limits.memory=256Mi \
+--set global.resources.limits.cpu=300m \
+--set compose-post-service.container.resources.requests.memory=64Mi \
+--set compose-post-service.container.resources.requests.cpu=300m \
+--set compose-post-service.container.resources.limits.memory=256Mi \
+--set compose-post-service.container.resources.limits.cpu=500m
+
+> **Alternatively upgrade**: Upgrade existing RELEASE via helm upgrade:\
+```
+helm install social-net1 socialnetwork \
+--namespace social-network \
+--set global.resources.requests.memory=256Mi \
+--set global.resources.requests.cpu=400m \
+--set global.resources.limits.memory=512Mi \
+--set global.resources.limits.cpu=800m \
+--set jaeger.container.resources.requests.memory=1024Mi \
+--set jaeger.container.resources.requests.cpu=500m \
+--set jaeger.container.resources.limits.memory=2048Mi \
+--set jaeger.container.resources.limits.cpu=1000m
+```
+
+```
+$ helm upgrade social-net1 socialnetwork \
+--namespace social-network1 \
+--set global.resources.requests.memory=128Mi \
+--set global.resources.requests.cpu=200m \
+--set global.resources.limits.memory=256Mi \
+--set global.resources.limits.cpu=400m 
+```
 
 If one resources key is not specified, the value is retrieved from global values (which can be overriden during deployment).
 
