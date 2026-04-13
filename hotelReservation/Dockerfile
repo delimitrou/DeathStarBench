@@ -18,3 +18,13 @@ COPY config.json config.json
 
 RUN CGO_ENABLED=0 GOOS=linux GO111MODULE=on go install -ldflags="-s -w" -mod=vendor ./cmd/...
 
+FROM alpine:3.18
+
+RUN apk add --no-cache ca-certificates
+
+WORKDIR /app
+
+COPY --from=builder /go/bin/ .
+COPY --from=builder /workspace/config.json .
+COPY --from=builder /workspace/tls/ tls/
+
