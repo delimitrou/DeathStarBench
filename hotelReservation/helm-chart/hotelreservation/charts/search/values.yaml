@@ -13,5 +13,5 @@ container:
 
 configMaps:
   - name: service-config.json
-    mountPath: config.json
+    mountPath: /app/config.json
     value: service-config
