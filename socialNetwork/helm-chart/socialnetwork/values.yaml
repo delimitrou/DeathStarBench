@@ -55,6 +55,11 @@ global:
     logSpans: false
 
 mongodb-sharded:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/mongodb-sharded
+    tag: 6.0.0-debian-11-r0
+    digest: ""
   fullnameOverride: mongodb-sharded
   auth:
     rootPassword: *mongodb-sharded-password
@@ -70,6 +75,11 @@ mcrouter:
   mcrouterCommandParams.port: *memcached-cluster-port
 
 redis-cluster:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/redis-cluster
+    tag: 7.0.4-debian-11-r4
+    digest: ""
   usePassword: false
   redis:
     # default readiness / liveness probes are causing issues, rising timeouts/delays might help
