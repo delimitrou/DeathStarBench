@@ -133,11 +133,11 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 			var reserve []reservation
 
 			filter := bson.D{{"hotelId", hotelId}, {"inDate", indate}, {"outDate", outdate}}
-			curr, err := resCollection.Find(context.TODO(), filter)
+			curr, err := resCollection.Find(ctx, filter)
 			if err != nil {
 				log.Error().Msgf("Failed get reservation data: ", err)
 			}
-			curr.All(context.TODO(), &reserve)
+			curr.All(ctx, &reserve)
 			if err != nil {
 				log.Panic().Msgf("Tried to find hotelId [%v] from date [%v] to date [%v], but got error", hotelId, indate, outdate, err.Error())
 			}
@@ -164,7 +164,7 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 		} else if err == memcache.ErrCacheMiss {
 			// memcached miss
 			var num number
-			err = numCollection.FindOne(context.TODO(), &bson.D{{"hotelId", hotelId}}).Decode(&num)
+			err = numCollection.FindOne(ctx, &bson.D{{"hotelId", hotelId}}).Decode(&num)
 			if err != nil {
 				log.Panic().Msgf("Tried to find hotelId [%v], but got error", hotelId, err.Error())
 			}
@@ -197,7 +197,7 @@ func (s *Server) MakeReservation(ctx context.Context, req *pb.Request) (*pb.Resu
 		inDate = inDate.AddDate(0, 0, 1)
 		outdate := inDate.String()[0:10]
 		_, err := resCollection.InsertOne(
-			context.TODO(),
+			ctx,
 			reservation{
 				HotelId:      hotelId,
 				CustomerName: req.CustomerName,
@@ -264,11 +264,11 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 		var nums []number
 		capMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number")
 		capMongoSpan.SetTag("span.kind", "client")
-		curr, err := numCollection.Find(context.TODO(), bson.D{{"$in", queryMissKeys}})
+		curr, err := numCollection.Find(ctx, bson.D{{"$in", queryMissKeys}})
 		if err != nil {
 			log.Error().Msgf("Failed get reservation number data: ", err)
 		}
-		curr.All(context.TODO(), &nums)
+		curr.All(ctx, &nums)
 		if err != nil {
 			log.Error().Msgf("Failed get reservation number data: ", err)
 		}
@@ -362,11 +362,11 @@ func (s *Server) CheckAvailability(ctx context.Context, req *pb.Request) (*pb.Re
 
 					reserveMongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongodb_capacity_get_multi_number"+comm)
 					reserveMongoSpan.SetTag("span.kind", "client")
-					curr, err := resCollection.Find(context.TODO(), filter)
+					curr, err := resCollection.Find(ctx, filter)
 					if err != nil {
 						log.Error().Msgf("Failed get reservation data: ", err)
 					}
-					curr.All(context.TODO(), &reserve)
+					curr.All(ctx, &reserve)
 					if err != nil {
 						log.Error().Msgf("Failed get reservation data: ", err)
 					}

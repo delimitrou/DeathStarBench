@@ -139,13 +139,13 @@ func (s *Server) GetRates(ctx context.Context, req *pb.Request) (*pb.Result, err
 
 				// memcached miss, set up mongo connection
 				collection := s.MongoClient.Database("rate-db").Collection("inventory")
-				curr, err := collection.Find(context.TODO(), bson.D{})
+				curr, err := collection.Find(ctx, bson.D{})
 				if err != nil {
 					log.Error().Msgf("Failed get rate data: ", err)
 				}
 
 				tmpRatePlans := make(RatePlans, 0)
-				curr.All(context.TODO(), &tmpRatePlans)
+				curr.All(ctx, &tmpRatePlans)
 				if err != nil {
 					log.Error().Msgf("Failed get rate data: ", err)
 				}

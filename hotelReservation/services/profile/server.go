@@ -134,7 +134,7 @@ func (s *Server) GetProfiles(ctx context.Context, req *pb.Request) (*pb.Result, 
 
 				mongoSpan, _ := opentracing.StartSpanFromContext(ctx, "mongo_profile")
 				mongoSpan.SetTag("span.kind", "client")
-				err := collection.FindOne(context.TODO(), bson.D{{"id", hotelId}}).Decode(&hotelProf)
+				err := collection.FindOne(ctx, bson.D{{"id", hotelId}}).Decode(&hotelProf)
 				mongoSpan.Finish()
 
 				if err != nil {

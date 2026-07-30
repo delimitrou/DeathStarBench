@@ -116,12 +116,13 @@ func (s *Server) NearbyRest(ctx context.Context, req *pb.Request) (*pb.Result, e
 
 	c := s.MongoClient.Database("attractions-db").Collection("hotels")
 
-	curr, err := c.Find(context.TODO(), bson.M{"hotelId": req.HotelId})
+	curr, err := c.Find(ctx, bson.M{"hotelId": req.HotelId})
 	if err != nil {
 		log.Error().Msgf("Failed get hotels: ", err)
 	}
 	var hotelReqs []point
-	curr.All(context.TODO(), &hotelReqs)
+	curr.All(ctx, &hotelReqs)
+	mongoSpan.Finish()
 
 	var hotelReq point
 
@@ -153,12 +154,13 @@ func (s *Server) NearbyMus(ctx context.Context, req *pb.Request) (*pb.Result, er
 
 	c := s.MongoClient.Database("attractions-db").Collection("hotels")
 
-	curr, err := c.Find(context.TODO(), bson.M{"hotelId": req.HotelId})
+	curr, err := c.Find(ctx, bson.M{"hotelId": req.HotelId})
 	if err != nil {
 		log.Error().Msgf("Failed get hotels: ", err)
 	}
 	var hotelReqs []point
-	curr.All(context.TODO(), &hotelReqs)
+	curr.All(ctx, &hotelReqs)
+	mongoSpan.Finish()
 
 	var hotelReq point
 
@@ -190,12 +192,13 @@ func (s *Server) NearbyCinema(ctx context.Context, req *pb.Request) (*pb.Result,
 
 	c := s.MongoClient.Database("attractions-db").Collection("hotels")
 
-	curr, err := c.Find(context.TODO(), bson.M{"hotelId": req.HotelId})
+	curr, err := c.Find(ctx, bson.M{"hotelId": req.HotelId})
 	if err != nil {
 		log.Error().Msgf("Failed get hotels: ", err)
 	}
 	var hotelReqs []point
-	curr.All(context.TODO(), &hotelReqs)
+	curr.All(ctx, &hotelReqs)
+	mongoSpan.Finish()
 
 	var hotelReq point
 

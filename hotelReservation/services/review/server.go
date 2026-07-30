@@ -132,14 +132,14 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.Request) (*pb.Result, e
 			//c := session.DB("review-db").C("reviews")
 			c := s.MongoClient.Database("review-db").Collection("reviews")
 
-			curr, err := c.Find(context.TODO(), bson.M{"hotelId": hotelId})
+			curr, err := c.Find(ctx, bson.M{"hotelId": hotelId})
 			if err != nil {
 				log.Error().Msgf("Failed get reviews: ", err)
 			}
 
 			var reviewHelpers []ReviewHelper
 			//err = c.Find(bson.M{"hotelId": hotelId}).All(&reviewHelpers)
-			curr.All(context.TODO(), &reviewHelpers)
+			curr.All(ctx, &reviewHelpers)
 			if err != nil {
 				log.Error().Msgf("Failed get hotels data: ", err)
 			}
